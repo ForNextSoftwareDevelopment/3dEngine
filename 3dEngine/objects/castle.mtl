@@ -1,0 +1,65 @@
+# MTL File: 'Castle.obj'
+# Material Count: 9
+
+newmtl InnerWall
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.100000 0.100000 0.100000
+map_Kd -s 0.2 0.8 0.8 textures\castle\innerwall.bmp
+
+newmtl Kantelen
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.100000 0.100000 0.100000
+map_Kd -s 0.5 0.5 0.5  textures\castle\kantelen.bmp
+
+newmtl OuterWall
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.100000 0.100000 0.100000
+map_Kd -s 0.2 1.0 1.0  textures\castle\outerwall.bmp
+
+newmtl Roof
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.100000 0.100000 0.100000
+map_Kd -s 0.1 0.1 0.1  textures\castle\roof.bmp
+
+newmtl RoofWood
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.100000 0.100000 0.100000
+map_Kd -s 0.1 0.1 0.1  textures\castle\roof.bmp
+
+newmtl Tower
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.100000 0.100000 0.100000
+map_Kd -s 0.2 1.0 1.0  textures\castle\outerwall.bmp
+
+newmtl Tower.001
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.273907 0.273907 0.273907
+Ks 0.100000 0.100000 0.100000
+map_Kd -s 0.2 1.0 1.0  textures\castle\outerwall.bmp
+
+newmtl TowerRoof
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.273907 0.273907 0.273907
+Ks 0.100000 0.100000 0.100000
+map_Kd -s 0.1 0.1 0.1  textures\castle\roof.bmp
+
+newmtl WallStoneMaterial
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.280444 0.280444 0.280444
+Ks 0.500000 0.500000 0.500000
+map_Kd -s 0.2 1.0 1.0  textures\castle\outerwall.bmp
