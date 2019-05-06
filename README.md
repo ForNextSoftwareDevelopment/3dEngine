@@ -15,7 +15,7 @@ For now only directional data since positional data seems much more problematic 
 You could just look at the HID class in my code to build your own 3d application.
 This engine is far from perfect, I made it several years ago (to give a try with OpenGL) and it can read (simple) object (.obj) and material files (.mtl), but for large objects it's not really usable.
 
-Also I'm still busy with the HDK2 device, now there is a glitch when going through the '180 degrees barier' in the view angle. 
+Also I'm still busy with the HDK2 device, now there is a glitch when going through the '180 degrees barrier' in the view angle. 
 For some reason the 'roll' gets out of control.
 If I have time I will look into it, but as I said, it's just a hobby project for me.
 
