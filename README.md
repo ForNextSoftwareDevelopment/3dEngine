@@ -1,5 +1,5 @@
 # 3dEngine
-Simple 3d engine with support for the HDK2 VR device
+Basic 3d engine with support for the HDK2 VR device
 
 This engine is build with Visual Studio 2017 with the use of the smallest number of libraries as possible.
 Needed are (see also the project properties in visual studio):
