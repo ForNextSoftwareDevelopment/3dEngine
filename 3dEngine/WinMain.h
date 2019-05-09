@@ -25,12 +25,12 @@
 #define MAX_MONITOR 2
 typedef struct 
 {
-	unsigned char num;
-	RECT          rect;
+    unsigned char num;
+    RECT          rect;
 } MONITOR;
 
 // Forward declarations of functions included in this code module:
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-bool	CALLBACK	MonitorEnumProc(HMONITOR hMonitor, HDC hDC, LPRECT lpRect, LPARAM lParam);
+bool    CALLBACK    MonitorEnumProc(HMONITOR hMonitor, HDC hDC, LPRECT lpRect, LPARAM lParam);
 

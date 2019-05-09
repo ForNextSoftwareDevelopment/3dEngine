@@ -53,19 +53,19 @@ class Objects
         // Create a sky as a first object
         void CreateSky (void);
 
-		// Create axis 
-		void CreateAxis(void);
-			
-		// Create terrain
+        // Create axis 
+        void CreateAxis(void);
+            
+        // Create terrain
         void CreateTerrain (void);
 
-		// Decode a line from the object file
-		bool DecodeObjectLine(std::string strObjectLine);
+        // Decode a line from the object file
+        bool DecodeObjectLine(std::string strObjectLine);
 
-		// Decode a line from the material file
-		bool DecodeMaterialLine(std::string strMaterialLine);
-			
-		// Create a new (current) mesh
+        // Decode a line from the material file
+        bool DecodeMaterialLine(std::string strMaterialLine);
+            
+        // Create a new (current) mesh
         bool CreateCurrentMesh (std::string name);
 
         // Close current mesh

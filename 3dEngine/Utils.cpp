@@ -2,117 +2,117 @@
 
 namespace Utils
 {
-	/*********************************************************************
-	* Convert short to a string
-	*********************************************************************/
-	std::string ShortToStr(short num, unsigned int base)
-	{
-		std::string str = "";
+    /*********************************************************************
+    * Convert short to a string
+    *********************************************************************/
+    std::string ShortToStr(short num, unsigned int base)
+    {
+        std::string str = "";
 
-		short i = 0;
-		bool isNegative = false;
+        short i = 0;
+        bool isNegative = false;
 
-		// A zero is same "0" string in all base
-		if (num == 0)
-		{
-			str += "0";
-			return str;
-		}
+        // A zero is same "0" string in all base
+        if (num == 0)
+        {
+            str += "0";
+            return str;
+        }
 
-		// negative numbers are only handled if base is 10, otherwise considered unsigned number
-		if (num < 0 && base == 10)
-		{
-			isNegative = true;
-			num = -num;
-		}
+        // negative numbers are only handled if base is 10, otherwise considered unsigned number
+        if (num < 0 && base == 10)
+        {
+            isNegative = true;
+            num = -num;
+        }
 
-		unsigned short number = (unsigned short)num;
+        unsigned short number = (unsigned short)num;
 
-		while (number != 0)
-		{
-			unsigned short rem = number % base;
-			char ch = ((rem > 9) ? (rem - 10) + 'A' : rem + '0');
-			str += ch;
-			number = number / base;
-		}
+        while (number != 0)
+        {
+            unsigned short rem = number % base;
+            char ch = ((rem > 9) ? (rem - 10) + 'A' : rem + '0');
+            str += ch;
+            number = number / base;
+        }
 
-		/* Append negative sign for negative numbers */
-		if (isNegative)
-		{
-			str += '-';
-		}
+        /* Append negative sign for negative numbers */
+        if (isNegative)
+        {
+            str += '-';
+        }
 
-		unsigned int strStart = 0;
-		unsigned int strEnd;
-		unsigned int strLen = (unsigned int)str.size();
+        unsigned int strStart = 0;
+        unsigned int strEnd;
+        unsigned int strLen = (unsigned int)str.size();
 
-		char temp;
-		for (strStart = 0, strEnd = strLen - 1; strStart < strEnd; strStart++, strEnd--)
-		{
-			temp = str[strStart];
-			str[strStart] = str[strEnd];
-			str[strEnd] = temp;
-		}
+        char temp;
+        for (strStart = 0, strEnd = strLen - 1; strStart < strEnd; strStart++, strEnd--)
+        {
+            temp = str[strStart];
+            str[strStart] = str[strEnd];
+            str[strEnd] = temp;
+        }
 
-		return str;
-	}
+        return str;
+    }
 
-	/*********************************************************************
-	* Convert int to a string
-	*********************************************************************/
-	std::string IntToStr(int num, unsigned int base)
-	{
-		std::string str = "";
+    /*********************************************************************
+    * Convert int to a string
+    *********************************************************************/
+    std::string IntToStr(int num, unsigned int base)
+    {
+        std::string str = "";
 
-		int i = 0;
-		bool isNegative = false;
+        int i = 0;
+        bool isNegative = false;
 
-		// A zero is same "0" string in all base
-		if (num == 0)
-		{
-			str += "0";
-			return str;
-		}
+        // A zero is same "0" string in all base
+        if (num == 0)
+        {
+            str += "0";
+            return str;
+        }
 
-		// negative numbers are only handled if base is 10, otherwise considered unsigned number
-		if (num < 0 && base == 10)
-		{
-			isNegative = true;
-			num = -num;
-		}
+        // negative numbers are only handled if base is 10, otherwise considered unsigned number
+        if (num < 0 && base == 10)
+        {
+            isNegative = true;
+            num = -num;
+        }
 
-		unsigned int number = (unsigned int)num;
+        unsigned int number = (unsigned int)num;
 
-		while (number != 0)
-		{
-			unsigned int rem = number % base;
-			char ch = ((rem > 9) ? (rem - 10) + 'A' : rem + '0');
-			str += ch;
-			number = number / base;
-		}
+        while (number != 0)
+        {
+            unsigned int rem = number % base;
+            char ch = ((rem > 9) ? (rem - 10) + 'A' : rem + '0');
+            str += ch;
+            number = number / base;
+        }
 
-		/* Append negative sign for negative numbers */
-		if (isNegative)
-		{
-			str += '-';
-		}
+        /* Append negative sign for negative numbers */
+        if (isNegative)
+        {
+            str += '-';
+        }
 
-		unsigned int strStart = 0;
-		unsigned int strEnd;
-		unsigned int strLen = (unsigned int)str.size();
+        unsigned int strStart = 0;
+        unsigned int strEnd;
+        unsigned int strLen = (unsigned int)str.size();
 
-		char temp;
-		for (strStart = 0, strEnd = strLen - 1; strStart < strEnd; strStart++, strEnd--)
-		{
-			temp = str[strStart];
-			str[strStart] = str[strEnd];
-			str[strEnd] = temp;
-		}
+        char temp;
+        for (strStart = 0, strEnd = strLen - 1; strStart < strEnd; strStart++, strEnd--)
+        {
+            temp = str[strStart];
+            str[strStart] = str[strEnd];
+            str[strEnd] = temp;
+        }
 
-		return str;
-	}
-	
-	/*********************************************************************
+        return str;
+    }
+    
+    /*********************************************************************
     * Convert floating point to a string
     *********************************************************************/
     std::string FloatToStr (GLfloat f)
@@ -472,20 +472,20 @@ namespace Utils
         return (float)(res - 1.0);
     }
 
-	/*********************************************************************
-	* Convert WCST to std::string
-	*********************************************************************/
-	std::string ConvertWCSToMBS(const wchar_t* pstr, long wslen)
-	{
-		int len = ::WideCharToMultiByte(CP_ACP, 0, pstr, wslen, NULL, 0, NULL, NULL);
+    /*********************************************************************
+    * Convert WCST to std::string
+    *********************************************************************/
+    std::string ConvertWCSToMBS(const wchar_t* pstr, long wslen)
+    {
+        int len = ::WideCharToMultiByte(CP_ACP, 0, pstr, wslen, NULL, 0, NULL, NULL);
 
-		std::string dblstr(len, '\0');
-		len = ::WideCharToMultiByte(CP_ACP, 0 /* no flags */,
-			pstr, wslen /* not necessary NULL-terminated */,
-			&dblstr[0], len,
-			NULL, NULL /* no default char */);
+        std::string dblstr(len, '\0');
+        len = ::WideCharToMultiByte(CP_ACP, 0 /* no flags */,
+            pstr, wslen /* not necessary NULL-terminated */,
+            &dblstr[0], len,
+            NULL, NULL /* no default char */);
 
-		return dblstr;
-	}
+        return dblstr;
+    }
 }
 

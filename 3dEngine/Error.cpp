@@ -30,62 +30,62 @@ namespace Error
         logFilePath = path;
     }
 
-	/*********************************************************************
-	* Write in logfile (and in info window if available)
-	*********************************************************************/
-	void WriteLog(const char *type, const char *className, const char *message, bool showInfoWindow)
-	{
-		// Open debug log file
-		FILE *logFile = NULL;
-		time_t t;
-		std::string strTime;
-		std::string strMessage;
+    /*********************************************************************
+    * Write in logfile (and in info window if available)
+    *********************************************************************/
+    void WriteLog(const char *type, const char *className, const char *message, bool showInfoWindow)
+    {
+        // Open debug log file
+        FILE *logFile = NULL;
+        time_t t;
+        std::string strTime;
+        std::string strMessage;
 
-		char buf[26];
-		time(&t);
-		ctime_s(buf, 26, &t);
-		strTime.append(buf);
+        char buf[26];
+        time(&t);
+        ctime_s(buf, 26, &t);
+        strTime.append(buf);
 
-		// Remove last '\n' from the string (returned from ctime)
-		strTime[strTime.length() - 1] = ' ';
+        // Remove last '\n' from the string (returned from ctime)
+        strTime[strTime.length() - 1] = ' ';
 
-		strMessage.append("***");
-		strMessage.append(type);
-		strMessage.append("***\r\n");
-		strMessage.append("TIMESTAMP: ");
-		strMessage.append(strTime);
-		strMessage.append("\r\n");
-		strMessage.append("LOCATION : ");
-		strMessage.append(className);
-		strMessage.append("\r\n");
-		strMessage.append("INFO     : ");
-		strMessage.append(message);
-		strMessage.append("\r\n--------------------------------------------------------------------------\r\n");
+        strMessage.append("***");
+        strMessage.append(type);
+        strMessage.append("***\r\n");
+        strMessage.append("TIMESTAMP: ");
+        strMessage.append(strTime);
+        strMessage.append("\r\n");
+        strMessage.append("LOCATION : ");
+        strMessage.append(className);
+        strMessage.append("\r\n");
+        strMessage.append("INFO     : ");
+        strMessage.append(message);
+        strMessage.append("\r\n--------------------------------------------------------------------------\r\n");
 
-		// Show log file in info window
-		#ifdef DEBUG
-			if (showInfoWindow) Error::ShowInfoWindow(strMessage.c_str());
-		#endif // DEBUG
+        // Show log file in info window
+        #ifdef DEBUG
+            if (showInfoWindow) Error::ShowInfoWindow(strMessage.c_str());
+        #endif // DEBUG
 
-		// Write info message to log file
-		std::replace(strMessage.begin(), strMessage.end(), '\r', ' ');
-		bool result = fopen_s(&logFile, logFilePath.c_str(), "a");
-		if (!result)
-		{
-			fputs(strMessage.c_str(), logFile);
+        // Write info message to log file
+        std::replace(strMessage.begin(), strMessage.end(), '\r', ' ');
+        bool result = fopen_s(&logFile, logFilePath.c_str(), "a");
+        if (!result)
+        {
+            fputs(strMessage.c_str(), logFile);
 
-			// Close file
-			fclose(logFile);
-		}
-	}
+            // Close file
+            fclose(logFile);
+        }
+    }
 
-	/*********************************************************************
-	* Clear info window
-	*********************************************************************/
-	void ClearInfoWindow(void)
-	{
-		info.clear();
-	}
+    /*********************************************************************
+    * Clear info window
+    *********************************************************************/
+    void ClearInfoWindow(void)
+    {
+        info.clear();
+    }
 
     /*********************************************************************
     * Reset OpenGL errors (just retrieve them until there are none left)
@@ -186,7 +186,7 @@ namespace Error
             HINSTANCE hInstance = GetModuleHandle(0);
 
             // Create window class for this window
-			WNDCLASS wndClass =		{ 0 };
+            WNDCLASS wndClass =        { 0 };
 
             wndClass.style          = CS_HREDRAW | CS_VREDRAW;
             wndClass.lpfnWndProc    = (WNDPROC) WndProcInfo;

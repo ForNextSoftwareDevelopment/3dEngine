@@ -1,0 +1,113 @@
+***INFO*** 
+TIMESTAMP: Thu May  9 11:32:25 2019  
+LOCATION : OpenGL::OpenGL 
+INFO     : OpenGL / Graphics Card: 
+Version: 4.6.0 NVIDIA 388.13 
+Vendor: NVIDIA Corporation 
+Renderer: GeForce GT 710/PCIe/SSE2 
+Shading Language Version: 4.60 NVIDIA 
+-------------------------------------------------------------------------- 
+***INFO*** 
+TIMESTAMP: Thu May  9 11:32:25 2019  
+LOCATION : OpenGL::OpenGL 
+INFO     : OpenGL version OK 
+-------------------------------------------------------------------------- 
+***INFO*** 
+TIMESTAMP: Thu May  9 11:32:25 2019  
+LOCATION : Objects::Objects 
+INFO     : Meshes read:  
+           Sky 
+           AxisPosX 
+           AxisPosX 
+           AxisPosX 
+           Terrain 
+           Bulb 
+           Stone 
+           Metal 
+           Wood 
+ 
+-------------------------------------------------------------------------- 
+***INFO*** 
+TIMESTAMP: Thu May  9 11:32:25 2019  
+LOCATION : WinMain 
+INFO     : Device Nr. 0 
+    Path: \\?\hid#vid_04f2&pid_1125&mi_01&col01#8&40f1baa&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030} 
+    Driver Name: {745a17a0-74d3-11d0-b6fe-00a0c90f57da}\0002 
+*Could not get serial number from device  
+    Type: 0x4F2 
+    Serial Number - 
+    Manufacturer: CHICONY 
+    Product: Asus Keyboard 
+    Version Number: 112 
+    Interface: 1 
+ 
+------------------------------------------------------------------------------------------------------------ 
+Device Nr. 1 
+    Path: \\?\hid#vid_04f2&pid_1125&mi_01&col02#8&40f1baa&0&0001#{4d1e55b2-f16f-11cf-88cb-001111000030} 
+    Driver Name: {745a17a0-74d3-11d0-b6fe-00a0c90f57da}\0003 
+*Could not get serial number from device  
+    Type: 0x4F2 
+    Serial Number - 
+    Manufacturer: CHICONY 
+    Product: Asus Keyboard 
+    Version Number: 112 
+    Interface: 1 
+ 
+------------------------------------------------------------------------------------------------------------ 
+Device Nr. 2 
+    Path: \\?\hid#vid_04f2&pid_1125&mi_01&col03#8&40f1baa&0&0002#{4d1e55b2-f16f-11cf-88cb-001111000030} 
+    Driver Name: {745a17a0-74d3-11d0-b6fe-00a0c90f57da}\0004 
+*Could not get serial number from device  
+    Type: 0x4F2 
+    Serial Number - 
+    Manufacturer: CHICONY 
+    Product: Asus Keyboard 
+    Version Number: 112 
+    Interface: 1 
+ 
+------------------------------------------------------------------------------------------------------------ 
+Device Nr. 3 
+    Path: \\?\hid#vid_046d&pid_c03e#7&2c9c27a8&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030} 
+    Driver Name: Mouse 
+*Could not open the device 
+ 
+------------------------------------------------------------------------------------------------------------ 
+Device Nr. 4 
+    Path: \\?\hid#vid_04f2&pid_1125&mi_00#8&27e6596c&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030} 
+    Driver Name: Keyboard 
+*Could not open the device 
+ 
+------------------------------------------------------------------------------------------------------------ 
+*End of enumeration, no more devices 
+ 
+*HDK2 Not Found 
+ 
+-------------------------------------------------------------------------- 
+***INFO*** 
+TIMESTAMP: Thu May  9 11:32:27 2019  
+LOCATION : OpenGL::OpenGL 
+INFO     : OpenGL / Graphics Card: 
+Version: 4.6.0 NVIDIA 388.13 
+Vendor: NVIDIA Corporation 
+Renderer: GeForce GT 710/PCIe/SSE2 
+Shading Language Version: 4.60 NVIDIA 
+-------------------------------------------------------------------------- 
+***INFO*** 
+TIMESTAMP: Thu May  9 11:32:27 2019  
+LOCATION : OpenGL::OpenGL 
+INFO     : OpenGL version OK 
+-------------------------------------------------------------------------- 
+***INFO*** 
+TIMESTAMP: Thu May  9 11:32:27 2019  
+LOCATION : OpenGL::OpenGL 
+INFO     : OpenGL / Graphics Card: 
+Version: 4.6.0 NVIDIA 388.13 
+Vendor: NVIDIA Corporation 
+Renderer: GeForce GT 710/PCIe/SSE2 
+Shading Language Version: 4.60 NVIDIA 
+-------------------------------------------------------------------------- 
+***INFO*** 
+TIMESTAMP: Thu May  9 11:32:27 2019  
+LOCATION : OpenGL::OpenGL 
+INFO     : OpenGL version OK 
+-------------------------------------------------------------------------- 

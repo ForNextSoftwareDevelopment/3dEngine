@@ -5,46 +5,46 @@
 *********************************************************************/
 const char *Shader::vs_source[] =
 {
-	"#version 330 core                                                                          \n"
-	"                                                                                           \n"
-	"layout (location = 0) in vec3 vertex_position;                                             \n"
-	"layout (location = 1) in vec3 normal_position;                                             \n"
-	"layout (location = 2) in vec3 texture_position;                                            \n"
-	"layout (location = 3) in vec3 tangent_position;                                            \n"
-	"layout (location = 4) in vec3 bitangent_position;                                          \n"
-	"                                                                                           \n"
-	"out VS_OUT                                                                                 \n"
-	"{                                                                                          \n"
-	"   vec3 N;                                                                                 \n"
-	"   vec3 L;                                                                                 \n"
-	"   vec3 V;                                                                                 \n"
-	"   vec3 texture_position;                                                                  \n"
-	"   vec3 normal_position;                                                                   \n"
-	"   vec3 tangent_position;                                                                  \n"
-	"   vec3 bitangent_position;                                                                \n"
-	"} vs_out;                                                                                  \n"
-	"                                                                                           \n"
-	"uniform mat4 path_matrix;                                                                  \n"
-	"uniform mat4 proj_matrix;                                                                  \n"
-	"uniform vec2 screen_scale = vec2(1.0, 1.0);                                                \n"
-	"uniform vec3 diffuse_position = vec3(0.0, 0.0, 0.0);                                       \n"
-	"                                                                                           \n"
-	"void main(void)                                                                            \n"
-	"{                                                                                          \n"
-	"   mat3 normal_matrix = transpose(inverse(mat3(path_matrix)));                             \n"
-	"   vec4 P =  path_matrix * vec4(vertex_position,  1.0);                                    \n"
-	"   vec4 D =  path_matrix * vec4(diffuse_position, 1.0);                                    \n"
-	"                                                                                           \n"
-	"   vs_out.N = normal_matrix * normal_position;                                             \n"
-	"   vs_out.L = D.xyz - P.xyz;                                                               \n"
-	"   vs_out.V = -P.xyz;                                                                      \n"
-	"   vs_out.texture_position   = texture_position;                                           \n"
-	"   vs_out.normal_position    = (path_matrix * vec4(normal_position,    0.0)).xyz;          \n"
-	"   vs_out.tangent_position   = (path_matrix * vec4(tangent_position,   0.0)).xyz;          \n"
-	"   vs_out.bitangent_position = (path_matrix * vec4(bitangent_position, 0.0)).xyz;          \n"
-	"                                                                                           \n"
-	"   gl_Position = proj_matrix * P  * vec4(screen_scale, 1.0, 1.0);                          \n"
-	"}                                                                                          \n"
+    "#version 330 core                                                                          \n"
+    "                                                                                           \n"
+    "layout (location = 0) in vec3 vertex_position;                                             \n"
+    "layout (location = 1) in vec3 normal_position;                                             \n"
+    "layout (location = 2) in vec3 texture_position;                                            \n"
+    "layout (location = 3) in vec3 tangent_position;                                            \n"
+    "layout (location = 4) in vec3 bitangent_position;                                          \n"
+    "                                                                                           \n"
+    "out VS_OUT                                                                                 \n"
+    "{                                                                                          \n"
+    "   vec3 N;                                                                                 \n"
+    "   vec3 L;                                                                                 \n"
+    "   vec3 V;                                                                                 \n"
+    "   vec3 texture_position;                                                                  \n"
+    "   vec3 normal_position;                                                                   \n"
+    "   vec3 tangent_position;                                                                  \n"
+    "   vec3 bitangent_position;                                                                \n"
+    "} vs_out;                                                                                  \n"
+    "                                                                                           \n"
+    "uniform mat4 path_matrix;                                                                  \n"
+    "uniform mat4 proj_matrix;                                                                  \n"
+    "uniform vec2 screen_scale = vec2(1.0, 1.0);                                                \n"
+    "uniform vec3 diffuse_position = vec3(0.0, 0.0, 0.0);                                       \n"
+    "                                                                                           \n"
+    "void main(void)                                                                            \n"
+    "{                                                                                          \n"
+    "   mat3 normal_matrix = transpose(inverse(mat3(path_matrix)));                             \n"
+    "   vec4 P =  path_matrix * vec4(vertex_position,  1.0);                                    \n"
+    "   vec4 D =  path_matrix * vec4(diffuse_position, 1.0);                                    \n"
+    "                                                                                           \n"
+    "   vs_out.N = normal_matrix * normal_position;                                             \n"
+    "   vs_out.L = D.xyz - P.xyz;                                                               \n"
+    "   vs_out.V = -P.xyz;                                                                      \n"
+    "   vs_out.texture_position   = texture_position;                                           \n"
+    "   vs_out.normal_position    = (path_matrix * vec4(normal_position,    0.0)).xyz;          \n"
+    "   vs_out.tangent_position   = (path_matrix * vec4(tangent_position,   0.0)).xyz;          \n"
+    "   vs_out.bitangent_position = (path_matrix * vec4(bitangent_position, 0.0)).xyz;          \n"
+    "                                                                                           \n"
+    "   gl_Position = proj_matrix * P  * vec4(screen_scale, 1.0, 1.0);                          \n"
+    "}                                                                                          \n"
 };
 
 /*********************************************************************
@@ -181,10 +181,10 @@ Shader::Shader (Objects *pObjects)
     repeat_textures = false;
     filter_textures = false;
     show_outlining  = false;
-	show_axis		= true;
-	vertex_size     = 1;
-	ambient_light	= { 1.0f, 1.0f, 1.0f, 0.3f };
-	diffuse_light	= { 1.0f, 1.0f, 1.0f, 5.0f };
+    show_axis        = true;
+    vertex_size     = 1;
+    ambient_light    = { 1.0f, 1.0f, 1.0f, 0.3f };
+    diffuse_light    = { 1.0f, 1.0f, 1.0f, 5.0f };
 
     // Set objects to render
     this->pObjects = pObjects;
@@ -271,8 +271,8 @@ void Shader::CreateShaders(void)
         Error::CheckOpenGLError("Shader::CreateShaders - Create/Compile Shaders");
     } catch (std::exception& e)
     {
-		std::string message = "Exception: ";
-		message.append(e.what());
+        std::string message = "Exception: ";
+        message.append(e.what());
         Error::WriteLog("EXCEPTION", "Shader::CreateShaders", message.c_str());
     }
 }
@@ -352,8 +352,8 @@ void Shader::CreateProgram ()
         Error::CheckOpenGLError("Shader::CreateProgram - Create/Link Program");
     } catch (std::exception& e)
     {
-		std::string message = "Exception: ";
-		message.append(e.what());
+        std::string message = "Exception: ";
+        message.append(e.what());
         Error::WriteLog("EXCEPTION", "Shader::CreateProgram", message.c_str());
     }
 }
@@ -443,8 +443,8 @@ void Shader::CreateBuffers ()
         }
     } catch (std::exception& e)
     {
-		std::string message = "Exception: ";
-		message.append(e.what());
+        std::string message = "Exception: ";
+        message.append(e.what());
         Error::WriteLog("EXCEPTION", "Shader::CreateBuffers", message.c_str());
     }
 }
@@ -541,8 +541,8 @@ void Shader::CreateTextures ()
         Error::CheckOpenGLError("Shader::CreateTextures - Create/Bind Texture Buffers");
     } catch (std::exception& e)
     {
-		std::string message = "Exception: ";
-		message.append(e.what());
+        std::string message = "Exception: ";
+        message.append(e.what());
         Error::WriteLog("EXCEPTION", "Shader::CreateTextures", message.c_str());
     }
 }
@@ -559,7 +559,7 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
         else glUniform1i(test_location, GL_FALSE);
 
         // Set screen width and height
-		glUniform2fv(screen_scale_location, 1, VecMat::Vec2(1000.0f / (float)screen_width, 1000.0f / (float)screen_height));
+        glUniform2fv(screen_scale_location, 1, VecMat::Vec2(1000.0f / (float)screen_width, 1000.0f / (float)screen_height));
 
         // Set ambient light (color and power)
         glUniform4fv(ambient_light_location, 1, VecMat::Vec4 (ambient_light.r, ambient_light.g, ambient_light.b, ambient_light.a));
@@ -590,337 +590,337 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
             Error::CheckOpenGLError("Shader::Render - ProjMatrix");
         #endif
 
-		// Calculate all (x,y and z) position offsets for the hdk2 device (if needed)
-		GLfloat offsetPosX = 0.0f;
-		GLfloat offsetPosY = 0.0f;
-		GLfloat offsetPosZ = 0.0f;
-		if (offsetPos > 0)
-		{
-			offsetPosX = offsetPos * cos(VecMat::DtoR(angle_y));
-			offsetPosZ = offsetPos * sin(VecMat::DtoR(angle_y));
-		}
+        // Calculate all (x,y and z) position offsets for the hdk2 device (if needed)
+        GLfloat offsetPosX = 0.0f;
+        GLfloat offsetPosY = 0.0f;
+        GLfloat offsetPosZ = 0.0f;
+        if (offsetPos > 0)
+        {
+            offsetPosX = offsetPos * cos(VecMat::DtoR(angle_y));
+            offsetPosZ = offsetPos * sin(VecMat::DtoR(angle_y));
+        }
 
-		// Calculate all (x,y and z) angle offsets for the hdk2 device (if needed)
-		GLfloat offsetAngleX = 0.0f;
-		GLfloat offsetAngleY = 0.0f;
-		GLfloat offsetAngleZ = 0.0f;
-		if (offsetAngle > 0)
-		{
-			offsetAngleY = offsetAngle * cos(VecMat::DtoR(angle_x));
-			offsetAngleZ = offsetAngle * sin(VecMat::DtoR(angle_x));
-		}
+        // Calculate all (x,y and z) angle offsets for the hdk2 device (if needed)
+        GLfloat offsetAngleX = 0.0f;
+        GLfloat offsetAngleY = 0.0f;
+        GLfloat offsetAngleZ = 0.0f;
+        if (offsetAngle > 0)
+        {
+            offsetAngleY = offsetAngle * cos(VecMat::DtoR(angle_x));
+            offsetAngleZ = offsetAngle * sin(VecMat::DtoR(angle_x));
+        }
 
-		// Render all objects
-		for (unsigned int i = 0; i < pObjects->numMeshes; i++)
-		{
-			// If Axis check if show is needed
-			if ((pObjects->pMeshArray[i]->name.substr(0, 4) != "Axis") || (show_axis))
-			{
-				// Bind the vertex array object
-				glBindVertexArray(vao[i]);
+        // Render all objects
+        for (unsigned int i = 0; i < pObjects->numMeshes; i++)
+        {
+            // If Axis check if show is needed
+            if ((pObjects->pMeshArray[i]->name.substr(0, 4) != "Axis") || (show_axis))
+            {
+                // Bind the vertex array object
+                glBindVertexArray(vao[i]);
 
-				// Check for OpenGL errors and report in info file
-				#ifdef DEBUG
-				Error::CheckOpenGLError("Shader::Render - Bind Vertex Array");
-				#endif
+                // Check for OpenGL errors and report in info file
+                #ifdef DEBUG
+                Error::CheckOpenGLError("Shader::Render - Bind Vertex Array");
+                #endif
 
-				// Calculate the object-path matrix
-				VecMat::Mat4 path_matrix = VecMat::Rotate(angle_x + offsetAngleX, angle_y + offsetAngleY, angle_z + offsetAngleZ) * VecMat::Translate(pos_x + offsetPosX, pos_y + offsetPosY, pos_z + offsetPosZ);
-				glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
+                // Calculate the object-path matrix
+                VecMat::Mat4 path_matrix = VecMat::Rotate(angle_x + offsetAngleX, angle_y + offsetAngleY, angle_z + offsetAngleZ) * VecMat::Translate(pos_x + offsetPosX, pos_y + offsetPosY, pos_z + offsetPosZ);
+                glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
 
-				// Check for OpenGL errors and report in info file
-				#ifdef DEBUG
-				Error::CheckOpenGLError("Shader::Render - ObjPathMatrix");
-				#endif
+                // Check for OpenGL errors and report in info file
+                #ifdef DEBUG
+                Error::CheckOpenGLError("Shader::Render - ObjPathMatrix");
+                #endif
 
-				// If Bulb (Light) then adjust the object-path matrix
-				if (pObjects->pMeshArray[i]->name == "Bulb")
-				{
-					path_matrix = path_matrix * VecMat::Translate(this->diff_pos_x, this->diff_pos_y, this->diff_pos_z);
-					glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
-				}
+                // If Bulb (Light) then adjust the object-path matrix
+                if (pObjects->pMeshArray[i]->name == "Bulb")
+                {
+                    path_matrix = path_matrix * VecMat::Translate(this->diff_pos_x, this->diff_pos_y, this->diff_pos_z);
+                    glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
+                }
 
-				// If Sky then disable depth test and adjust the object-path matrix (only rotation)
-				if (pObjects->pMeshArray[i]->name == "Sky")
-				{
-					glDepthMask(false);
+                // If Sky then disable depth test and adjust the object-path matrix (only rotation)
+                if (pObjects->pMeshArray[i]->name == "Sky")
+                {
+                    glDepthMask(false);
 
-					path_matrix = VecMat::Rotate(angle_x, angle_y, angle_z);
-					glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
-				}
+                    path_matrix = VecMat::Rotate(angle_x, angle_y, angle_z);
+                    glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
+                }
 
-				// Check for OpenGL errors and report in info file
-				#ifdef DEBUG
-				Error::CheckOpenGLError("Shader::Render - Bulb ObjPathMatrix");
-				#endif
+                // Check for OpenGL errors and report in info file
+                #ifdef DEBUG
+                Error::CheckOpenGLError("Shader::Render - Bulb ObjPathMatrix");
+                #endif
 
-				// Draw faces
-				if (render_mode == RM_FACES)
-				{
-					// Set mode
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                // Draw faces
+                if (render_mode == RM_FACES)
+                {
+                    // Set mode
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-					// For all materials in this object, draw faces connected to it
-					for (unsigned int j = 0; j < pObjects->pMeshArray[i]->numMaterials; j++)
-					{
-						// Set default texture mode (enabled / disabled)
-						if (show_textures) glUniform1i(texture_enable_location, GL_TRUE);
-						else glUniform1i(texture_enable_location, GL_FALSE);
+                    // For all materials in this object, draw faces connected to it
+                    for (unsigned int j = 0; j < pObjects->pMeshArray[i]->numMaterials; j++)
+                    {
+                        // Set default texture mode (enabled / disabled)
+                        if (show_textures) glUniform1i(texture_enable_location, GL_TRUE);
+                        else glUniform1i(texture_enable_location, GL_FALSE);
 
-						// Set default texture normal map mode (enabled / disabled)
-						if (show_normalmap && pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pTextureNormalData != NULL) glUniform1i(texture_normal_enable_location, GL_TRUE);
-						else glUniform1i(texture_normal_enable_location, GL_FALSE);
+                        // Set default texture normal map mode (enabled / disabled)
+                        if (show_normalmap && pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pTextureNormalData != NULL) glUniform1i(texture_normal_enable_location, GL_TRUE);
+                        else glUniform1i(texture_normal_enable_location, GL_FALSE);
 
-						// Set the material properties (if available)
-						if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial != NULL)
-						{
-							// Set ambient material properties
-							if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa != NULL)
-							{
-								glUniform3fv(ambient_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa);
-							} else
-							{
-								VecMat::Vec3 ambient_albedo(1.0f, 1.0f, 1.0f);
-								glUniform3fv(ambient_albedo_location, 1, ambient_albedo);
-							}
+                        // Set the material properties (if available)
+                        if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial != NULL)
+                        {
+                            // Set ambient material properties
+                            if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa != NULL)
+                            {
+                                glUniform3fv(ambient_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa);
+                            } else
+                            {
+                                VecMat::Vec3 ambient_albedo(1.0f, 1.0f, 1.0f);
+                                glUniform3fv(ambient_albedo_location, 1, ambient_albedo);
+                            }
 
-							// Set diffuse material properties
-							if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKd != NULL)
-							{
-								glUniform3fv(diffuse_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKd);
-							} else
-							{
-								VecMat::Vec3 diffuse_albedo(0.64f, 0.64f, 0.64f);
-								glUniform3fv(diffuse_albedo_location, 1, diffuse_albedo);
-							}
+                            // Set diffuse material properties
+                            if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKd != NULL)
+                            {
+                                glUniform3fv(diffuse_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKd);
+                            } else
+                            {
+                                VecMat::Vec3 diffuse_albedo(0.64f, 0.64f, 0.64f);
+                                glUniform3fv(diffuse_albedo_location, 1, diffuse_albedo);
+                            }
 
-							// Set specular material properties
-							if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKs != NULL)
-							{
-								glUniform3fv(specular_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKs);
-							} else
-							{
-								VecMat::Vec3 specular_albedo(0.5f, 0.5f, 0.5f);
-								glUniform3fv(specular_albedo_location, 1, specular_albedo);
-							}
+                            // Set specular material properties
+                            if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKs != NULL)
+                            {
+                                glUniform3fv(specular_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKs);
+                            } else
+                            {
+                                VecMat::Vec3 specular_albedo(0.5f, 0.5f, 0.5f);
+                                glUniform3fv(specular_albedo_location, 1, specular_albedo);
+                            }
 
-							// Set reflective material properties
-							glUniform1i(reflectivity_location, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->iKn);
+                            // Set reflective material properties
+                            glUniform1i(reflectivity_location, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->iKn);
 
-							// Set illumination model
-							glUniform1i(illumination_location, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->iIllum);
+                            // Set illumination model
+                            glUniform1i(illumination_location, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->iIllum);
 
-							// Bind the texture to render (if available)
-							if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->texBuffer != 0)
-							{
-								// Activate texture selector 0
-								glActiveTexture(GL_TEXTURE0);
+                            // Bind the texture to render (if available)
+                            if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->texBuffer != 0)
+                            {
+                                // Activate texture selector 0
+                                glActiveTexture(GL_TEXTURE0);
 
-								// Set environment mode (replace object color with that of texture)
-								glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+                                // Set environment mode (replace object color with that of texture)
+                                glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-								// Set texture scale
-								VecMat::Vec3 scale_factor(pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->scaleX, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->scaleY, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->scaleZ);
-								glUniform3fv(texture_scale_location, 1, scale_factor);
+                                // Set texture scale
+                                VecMat::Vec3 scale_factor(pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->scaleX, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->scaleY, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->scaleZ);
+                                glUniform3fv(texture_scale_location, 1, scale_factor);
 
-								// Set texture offset
-								VecMat::Vec3 offset_factor(pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->offsetX, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->offsetY, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->offsetZ);
-								glUniform3fv(texture_offset_location, 1, offset_factor);
+                                // Set texture offset
+                                VecMat::Vec3 offset_factor(pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->offsetX, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->offsetY, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->offsetZ);
+                                glUniform3fv(texture_offset_location, 1, offset_factor);
 
-								// Set texture wrap mode
-								if (repeat_textures)
-								{
-									glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-									glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-									glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-								} else
-								{
-									glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-									glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-									glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
-								}
+                                // Set texture wrap mode
+                                if (repeat_textures)
+                                {
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+                                } else
+                                {
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
+                                }
 
-								// Set texture filtering
-								if (filter_textures && (pObjects->pMeshArray[i]->name != "Sky"))
-								{
-									glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-									glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-								} else
-								{
-									glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-									glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-								}
+                                // Set texture filtering
+                                if (filter_textures && (pObjects->pMeshArray[i]->name != "Sky"))
+                                {
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                                } else
+                                {
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                                }
 
-								// Check for OpenGL errors and report in info file
-								#ifdef DEBUG
-								Error::CheckOpenGLError("Shader::Render - Texture Environment");
-								#endif
+                                // Check for OpenGL errors and report in info file
+                                #ifdef DEBUG
+                                Error::CheckOpenGLError("Shader::Render - Texture Environment");
+                                #endif
 
-								// Bind texture
-								glBindTexture(GL_TEXTURE_2D, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->texBuffer);
+                                // Bind texture
+                                glBindTexture(GL_TEXTURE_2D, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->texBuffer);
 
-								// Check for OpenGL errors and report in info file
-								#ifdef DEBUG
-								Error::CheckOpenGLError("Shader::Render - Bind Color Texture");
-								#endif
+                                // Check for OpenGL errors and report in info file
+                                #ifdef DEBUG
+                                Error::CheckOpenGLError("Shader::Render - Bind Color Texture");
+                                #endif
 
-								// Bind the normal texture map to render (if available)
-								if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->texNormalBuffer != 0)
-								{
-									// Activate texture selector 1
-									glActiveTexture(GL_TEXTURE1);
+                                // Bind the normal texture map to render (if available)
+                                if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->texNormalBuffer != 0)
+                                {
+                                    // Activate texture selector 1
+                                    glActiveTexture(GL_TEXTURE1);
 
-									// Set texture wrap mode
-									if (repeat_textures)
-									{
-										glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-										glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-										glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-									} else
-									{
-										glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-										glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-										glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
-									}
+                                    // Set texture wrap mode
+                                    if (repeat_textures)
+                                    {
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+                                    } else
+                                    {
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
+                                    }
 
-									// Set texture filtering
-									if (filter_textures)
-									{
-										glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-										glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-									} else
-									{
-										glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-										glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-									}
+                                    // Set texture filtering
+                                    if (filter_textures)
+                                    {
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                                    } else
+                                    {
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                                    }
 
-									// Bind texture
-									glBindTexture(GL_TEXTURE_2D, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->texNormalBuffer);
+                                    // Bind texture
+                                    glBindTexture(GL_TEXTURE_2D, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->texNormalBuffer);
 
-									// Check for OpenGL errors and report in info file
-									#ifdef DEBUG
-									Error::CheckOpenGLError("Shader::Render - Bind Normal Texture");
-									#endif
-								}
-							} else
-							{
-								// Disable textures (not available for this material)
-								glUniform1i(texture_enable_location, GL_FALSE);
-							}
-						}
+                                    // Check for OpenGL errors and report in info file
+                                    #ifdef DEBUG
+                                    Error::CheckOpenGLError("Shader::Render - Bind Normal Texture");
+                                    #endif
+                                }
+                            } else
+                            {
+                                // Disable textures (not available for this material)
+                                glUniform1i(texture_enable_location, GL_FALSE);
+                            }
+                        }
 
-						// Calculate number of triangles to draw with this material
-						unsigned int num_triangles;
-						if (j < (pObjects->pMeshArray[i]->numMaterials - 1))
-						{
-							num_triangles = pObjects->pMeshArray[i]->pMaterialEntryList[j + 1]->start - pObjects->pMeshArray[i]->pMaterialEntryList[j]->start;
-						} else
-						{
-							num_triangles = pObjects->pMeshArray[i]->numFaces - pObjects->pMeshArray[i]->pMaterialEntryList[j]->start;
-						}
+                        // Calculate number of triangles to draw with this material
+                        unsigned int num_triangles;
+                        if (j < (pObjects->pMeshArray[i]->numMaterials - 1))
+                        {
+                            num_triangles = pObjects->pMeshArray[i]->pMaterialEntryList[j + 1]->start - pObjects->pMeshArray[i]->pMaterialEntryList[j]->start;
+                        } else
+                        {
+                            num_triangles = pObjects->pMeshArray[i]->numFaces - pObjects->pMeshArray[i]->pMaterialEntryList[j]->start;
+                        }
 
-						// Draw triangles
-						glDrawElements(GL_TRIANGLES, 3 * num_triangles, GL_UNSIGNED_INT, (void*)(3 * pObjects->pMeshArray[i]->pMaterialEntryList[j]->start * sizeof(GL_UNSIGNED_INT)));
-					}
+                        // Draw triangles
+                        glDrawElements(GL_TRIANGLES, 3 * num_triangles, GL_UNSIGNED_INT, (void*)(3 * pObjects->pMeshArray[i]->pMaterialEntryList[j]->start * sizeof(GL_UNSIGNED_INT)));
+                    }
 
-					if (show_outlining)
-					{
-						// Disable texture mode
-						glUniform1i(texture_enable_location, GL_FALSE);
+                    if (show_outlining)
+                    {
+                        // Disable texture mode
+                        glUniform1i(texture_enable_location, GL_FALSE);
 
-						// Set ambient to black for outlining the object
-						VecMat::Vec3 ambient_albedo(0.0f, 0.0f, 0.0f);
-						glUniform3fv(ambient_albedo_location, 1, ambient_albedo);
+                        // Set ambient to black for outlining the object
+                        VecMat::Vec3 ambient_albedo(0.0f, 0.0f, 0.0f);
+                        glUniform3fv(ambient_albedo_location, 1, ambient_albedo);
 
-						// Set mode
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                        // Set mode
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-						// Draw triangle lines (outlining the edges)
-						glDrawElements(GL_TRIANGLES, 3 * pObjects->pMeshArray[i]->numFaces, GL_UNSIGNED_INT, 0);
-					}
-				}
+                        // Draw triangle lines (outlining the edges)
+                        glDrawElements(GL_TRIANGLES, 3 * pObjects->pMeshArray[i]->numFaces, GL_UNSIGNED_INT, 0);
+                    }
+                }
 
-				// Draw edges
-				if (render_mode == RM_EDGES)
-				{
-					// Disable texture mode
-					glUniform1i(texture_enable_location, GL_FALSE);
+                // Draw edges
+                if (render_mode == RM_EDGES)
+                {
+                    // Disable texture mode
+                    glUniform1i(texture_enable_location, GL_FALSE);
 
-					// Set mode
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                    // Set mode
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-					// For all materials in this object, draw edges connected to it
-					for (unsigned int j = 0; j < pObjects->pMeshArray[i]->numMaterials; j++)
-					{
-						// Set ambient material properties
-						if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa != NULL)
-						{
-							glUniform3fv(ambient_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa);
-						} else
-						{
-							VecMat::Vec3 ambient_albedo(1.0f, 1.0f, 1.0f);
-							glUniform3fv(ambient_albedo_location, 1, ambient_albedo);
-						}
+                    // For all materials in this object, draw edges connected to it
+                    for (unsigned int j = 0; j < pObjects->pMeshArray[i]->numMaterials; j++)
+                    {
+                        // Set ambient material properties
+                        if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa != NULL)
+                        {
+                            glUniform3fv(ambient_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa);
+                        } else
+                        {
+                            VecMat::Vec3 ambient_albedo(1.0f, 1.0f, 1.0f);
+                            glUniform3fv(ambient_albedo_location, 1, ambient_albedo);
+                        }
 
-						// Calculate number of triangles to draw with this material
-						unsigned int num_triangles;
-						if (j < (pObjects->pMeshArray[i]->numMaterials - 1))
-						{
-							num_triangles = pObjects->pMeshArray[i]->pMaterialEntryList[j + 1]->start - pObjects->pMeshArray[i]->pMaterialEntryList[j]->start;
-						} else
-						{
-							num_triangles = pObjects->pMeshArray[i]->numFaces - pObjects->pMeshArray[i]->pMaterialEntryList[j]->start;
-						}
+                        // Calculate number of triangles to draw with this material
+                        unsigned int num_triangles;
+                        if (j < (pObjects->pMeshArray[i]->numMaterials - 1))
+                        {
+                            num_triangles = pObjects->pMeshArray[i]->pMaterialEntryList[j + 1]->start - pObjects->pMeshArray[i]->pMaterialEntryList[j]->start;
+                        } else
+                        {
+                            num_triangles = pObjects->pMeshArray[i]->numFaces - pObjects->pMeshArray[i]->pMaterialEntryList[j]->start;
+                        }
 
-						// Draw triangles
-						glDrawElements(GL_TRIANGLES, 3 * num_triangles, GL_UNSIGNED_INT, (void*)(3 * pObjects->pMeshArray[i]->pMaterialEntryList[j]->start * sizeof(GL_UNSIGNED_INT)));
-					}
-				}
+                        // Draw triangles
+                        glDrawElements(GL_TRIANGLES, 3 * num_triangles, GL_UNSIGNED_INT, (void*)(3 * pObjects->pMeshArray[i]->pMaterialEntryList[j]->start * sizeof(GL_UNSIGNED_INT)));
+                    }
+                }
 
-				// Draw vertices
-				if (render_mode == RM_VERTICES)
-				{
-					// Disable texture mode
-					glUniform1i(texture_enable_location, GL_FALSE);
+                // Draw vertices
+                if (render_mode == RM_VERTICES)
+                {
+                    // Disable texture mode
+                    glUniform1i(texture_enable_location, GL_FALSE);
 
-					// Set vertex size
-					glPointSize(vertex_size);
+                    // Set vertex size
+                    glPointSize(vertex_size);
 
-					// Set ambient material properties
-					VecMat::Vec3 ambient_albedo(1.0f, 1.0f, 1.0f);
-					glUniform3fv(ambient_albedo_location, 1, ambient_albedo);
+                    // Set ambient material properties
+                    VecMat::Vec3 ambient_albedo(1.0f, 1.0f, 1.0f);
+                    glUniform3fv(ambient_albedo_location, 1, ambient_albedo);
 
-					// Draw points
-					glDrawArrays(GL_POINTS, 0, pObjects->pMeshArray[i]->numVertices);
-				}
+                    // Draw points
+                    glDrawArrays(GL_POINTS, 0, pObjects->pMeshArray[i]->numVertices);
+                }
 
-				// If last object was Sky then set depth testing again
-				if (pObjects->pMeshArray[i]->name == "Sky")
-				{
-					//glEnable(GL_DEPTH_TEST);
-					glDepthMask(true);
-				}
+                // If last object was Sky then set depth testing again
+                if (pObjects->pMeshArray[i]->name == "Sky")
+                {
+                    //glEnable(GL_DEPTH_TEST);
+                    glDepthMask(true);
+                }
 
-				// Check for OpenGL errors and report in info file
-				#ifdef DEBUG
-				Error::CheckOpenGLError("Shader::Render - Draw Objects/Arrays");
-				#endif
-			}
+                // Check for OpenGL errors and report in info file
+                #ifdef DEBUG
+                Error::CheckOpenGLError("Shader::Render - Draw Objects/Arrays");
+                #endif
+            }
 
-			// Unbind the vertex array object
-			glBindVertexArray(0);
+            // Unbind the vertex array object
+            glBindVertexArray(0);
 
-			// Check for OpenGL errors and report in info file
-			#ifdef DEBUG
-			Error::CheckOpenGLError("Shader::Render - Draw");
-			#endif
-		}
-	} catch (std::exception& e)
-	{
-		std::string message = "Exception: ";
-		message.append(e.what());
-		Error::WriteLog("EXCEPTION", "Shader::Render", message.c_str());
-	}
+            // Check for OpenGL errors and report in info file
+            #ifdef DEBUG
+            Error::CheckOpenGLError("Shader::Render - Draw");
+            #endif
+        }
+    } catch (std::exception& e)
+    {
+        std::string message = "Exception: ";
+        message.append(e.what());
+        Error::WriteLog("EXCEPTION", "Shader::Render", message.c_str());
+    }
 }
 
 /*********************************************************************
@@ -1082,7 +1082,7 @@ void Shader::ShowOutlining (bool show)
 *********************************************************************/
 void Shader::ShowAxis(bool show)
 {
-	this->show_axis = show;
+    this->show_axis = show;
 }
 
 /*********************************************************************

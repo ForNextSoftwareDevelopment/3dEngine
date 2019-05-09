@@ -7,10 +7,10 @@ class OpenGL
 {
     private:
 
-		// Render context (only one for screen and HDK2, presuming using one graphics card)
-		static HGLRC hRC;
+        // Render context (only one for screen and HDK2, presuming using one graphics card)
+        static HGLRC hRC;
 
-		// Window handle
+        // Window handle
         HWND hWnd;
 
         // Device context
@@ -39,7 +39,7 @@ class OpenGL
         // Swap (screen-) buffers
         void SwapBuffers (void);
 
-		// Make this render context the current one
-		bool SetCurrentContext(void);
+        // Make this render context the current one
+        bool SetCurrentContext(void);
 };
 

@@ -69,17 +69,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     prefs.show_normalmap = true;
     prefs.repeat_textures = true;
     prefs.filter_textures = true;
-	prefs.show_outlining = false;
-	prefs.show_axis = true;
-	prefs.render_mode = RM_FACES;
+    prefs.show_outlining = false;
+    prefs.show_axis = true;
+    prefs.render_mode = RM_FACES;
     prefs.vertex_size = 1;
-	prefs.ambient_light = { 0xFF, 0xFF, 0xFF, 0x10 };
-	prefs.diffuse_light = { 0xFF, 0xFF, 0xFF, 0x18 };
+    prefs.ambient_light = { 0xFF, 0xFF, 0xFF, 0x10 };
+    prefs.diffuse_light = { 0xFF, 0xFF, 0xFF, 0x18 };
     prefs.diffuse_position = VecMat::Vec3(0.0f, 8.0f, 4.0f);
     prefs.pos_farplane = FARPLANEPOS;
     prefs.pos_nearplane = NEARPLANEPOS;
-	prefs.hdk_offset_pos = DEFAULTOFFSETPOS;
-	prefs.hdk_offset_angle = DEFAULTOFFSETANGLE;
+    prefs.hdk_offset_pos = DEFAULTOFFSETPOS;
+    prefs.hdk_offset_angle = DEFAULTOFFSETANGLE;
 
     // Set application folder
     GetCurrentDirectoryA(sizeof(appDir), appDir);
@@ -121,118 +121,117 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     // Create OpenGL context
     pOpenGL = new OpenGL(hWndMain);
 
-	// Check OpenGL version
-	if (!GLEW_VERSION_4_2)
-	{
-		// Exit
-		Error::WriteLog("ERROR", "WinMain::WinMain", "OpenGL version 4.2 or higher needed");
-		MessageBox(NULL, L"OpenGL version 4.2 or higher needed", L"ERROR", MB_OK | MB_ICONERROR);
-		exit(0);
-	}
+    // Check OpenGL version
+    if (!GLEW_VERSION_4_2)
+    {
+        // Exit
+        Error::WriteLog("ERROR", "WinMain::WinMain", "OpenGL version 4.2 or higher needed");
+        MessageBox(NULL, L"OpenGL version 4.2 or higher needed", L"ERROR", MB_OK | MB_ICONERROR);
+        exit(0);
+    }
 
-	// Set wait cursor, could be a while reading all objects
-	SetCursor(LoadCursor(hInstance, IDC_WAIT));
+    // Set wait cursor, could be a while reading all objects
+    SetCursor(LoadCursor(hInstance, IDC_WAIT));
 
-	// Setup elements to render / use as material etc.
-	pObjects = new Objects(appDir);
+    // Setup elements to render / use as material etc.
+    pObjects = new Objects(appDir);
 
-	// Set normal cursor
-	SetCursor(LoadCursor(hInstance, IDC_ARROW));
+    // Set normal cursor
+    SetCursor(LoadCursor(hInstance, IDC_ARROW));
 
-	// Create shader (renderer) for version 4.2 or later
-	pShader = new Shader(pObjects);
-	
-	// Set angle so that it looks like a persons view
-	pShader->SetViewAngle(0.0f, 0.0f, 0.0f);
+    // Create shader (renderer) for version 4.2 or later
+    pShader = new Shader(pObjects);
+    
+    // Set angle so that it looks like a persons view
+    pShader->SetViewAngle(0.0f, 0.0f, 0.0f);
 
     // Set initial view position
     pShader->SetViewPosition(0.0f, -3.0f, -20.0f);
 
-	// Create USB class to get hdk2 device
-	Hid *hid = new Hid();
-	std::string info = hid->DeviceInfo();
-	Error::WriteLog("INFO", "WinMain", info.c_str(), false);
+    // Create USB class to get hdk2 device
+    Hid *hid = new Hid();
+    std::string info = hid->DeviceInfo();
+    Error::WriteLog("INFO", "WinMain", info.c_str(), false);
 
-	#ifdef DEBUGHID
-		Error::ShowInfoWindow(info);
-	#endif
+    #ifdef DEBUGHID
+        Error::ShowInfoWindow(info);
+    #endif
 
-	// Give warning messagebox if HDK2 is not found
-	if (!hid->HDK2)
-	{
-		//MessageBox(NULL, L"HDK2 Device not found", L"WARNING", MB_OK | MB_ICONEXCLAMATION);
-	}
+    // Give warning messagebox if HDK2 is not found
+    if (!hid->HDK2)
+    {
+        MessageBox(NULL, L"HDK2 Device not found", L"WARNING", MB_OK | MB_ICONEXCLAMATION);
+    }
 
-	// Get display info (look for multiple displays, first two found will be marked as primary and secundary)
-	numMonitor = 0;
-	MONITOR monitor[MAX_MONITOR];
-	memset(monitor, 0x00, MAX_MONITOR * sizeof(MONITOR));
-	#ifdef DEBUGHDK
-		Error::ShowInfoWindow("Display (Monitor) Info:\r\n");
-	#endif
-	EnumDisplayMonitors(NULL, NULL, (MONITORENUMPROC)MonitorEnumProc, (LPARAM)&monitor);
-	#ifdef DEBUGHDK
-		Error::ShowInfoWindow("------------------------------------------------------------------------------------------------------------\r\n");
-	#endif
+    // Get display info (look for multiple displays, first two found will be marked as primary and secundary)
+    numMonitor = 0;
+    MONITOR monitor[MAX_MONITOR];
+    memset(monitor, 0x00, MAX_MONITOR * sizeof(MONITOR));
+    #ifdef DEBUGHDK
+        Error::ShowInfoWindow("Display (Monitor) Info:\r\n");
+    #endif
+    EnumDisplayMonitors(NULL, NULL, (MONITORENUMPROC)MonitorEnumProc, (LPARAM)&monitor);
+    #ifdef DEBUGHDK
+        Error::ShowInfoWindow("------------------------------------------------------------------------------------------------------------\r\n");
+    #endif
 
-	// Create extended display if multiple displays have been found
-	if (numMonitor > 1)
-	//if (false)
-	{
-		// Clear extended windows class data
-		ZeroMemory(&wndClassExtended, sizeof(wndClassExtended));
+    // Create extended display if multiple displays have been found
+    if (numMonitor > 1)
+    {
+        // Clear extended windows class data
+        ZeroMemory(&wndClassExtended, sizeof(wndClassExtended));
 
-		wndClassExtended.hInstance = hInstance;
-		wndClassExtended.lpfnWndProc = (WNDPROC)WndProc;
-		wndClassExtended.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-		wndClassExtended.lpszClassName = L"3dEngineHDK2_Extended";
-		wndClassExtended.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
-		wndClassExtended.hCursor = LoadCursor(hInstance, IDC_ARROW);
-		wndClassExtended.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
+        wndClassExtended.hInstance = hInstance;
+        wndClassExtended.lpfnWndProc = (WNDPROC)WndProc;
+        wndClassExtended.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+        wndClassExtended.lpszClassName = L"3dEngineHDK2_Extended";
+        wndClassExtended.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
+        wndClassExtended.hCursor = LoadCursor(hInstance, IDC_ARROW);
+        wndClassExtended.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
 
-		// Register window class
-		RegisterClass(&wndClassExtended);
+        // Register window class
+        RegisterClass(&wndClassExtended);
 
-		// Get width of the primary screen
-		int priMonitorWidth = GetSystemMetrics(SM_CXFULLSCREEN);
+        // Get width of the primary screen
+        int priMonitorWidth = GetSystemMetrics(SM_CXFULLSCREEN);
 
-		// Get width of extended screen
-		int secMonitorWidth = monitor[1].rect.right - monitor[1].rect.left;
+        // Get width of extended screen
+        int secMonitorWidth = monitor[1].rect.right - monitor[1].rect.left;
 
-		// Create borderless extended window and show (left)
-		hWndExtendedLeft = CreateWindowEx(WS_EX_APPWINDOW, L"3dEngineHDK2_Extended", NULL, WS_POPUP, priMonitorWidth, 0, secMonitorWidth / 2, monitor[1].rect.bottom - monitor[1].rect.top, NULL, NULL, hInstance, NULL);
-		if (hWndExtendedLeft != NULL)
-		{
-			ShowWindow(hWndExtendedLeft, SW_SHOWDEFAULT);
-			UpdateWindow(hWndExtendedLeft);
+        // Create borderless extended window and show (left)
+        hWndExtendedLeft = CreateWindowEx(WS_EX_APPWINDOW, L"3dEngineHDK2_Extended", NULL, WS_POPUP, priMonitorWidth, 0, secMonitorWidth / 2, monitor[1].rect.bottom - monitor[1].rect.top, NULL, NULL, hInstance, NULL);
+        if (hWndExtendedLeft != NULL)
+        {
+            ShowWindow(hWndExtendedLeft, SW_SHOWDEFAULT);
+            UpdateWindow(hWndExtendedLeft);
 
-			// Create OpenGL context with window connected to HDK2 device
-			pOpenGLExtendedLeft = new OpenGL(hWndExtendedLeft);
-		} else
-		{
-			Error::WriteLog("INFO", "WinMain::WinMain", "Could not create a (left-side) extended window");
-		}
+            // Create OpenGL context with window connected to HDK2 device
+            pOpenGLExtendedLeft = new OpenGL(hWndExtendedLeft);
+        } else
+        {
+            Error::WriteLog("INFO", "WinMain::WinMain", "Could not create a (left-side) extended window");
+        }
 
-		// Create borderless extended window and show (right)
-		hWndExtendedRight = CreateWindowEx(WS_EX_APPWINDOW, L"3dEngineHDK2_Extended", NULL, WS_POPUP, priMonitorWidth + secMonitorWidth / 2, 0, secMonitorWidth / 2, monitor[1].rect.bottom - monitor[1].rect.top, NULL, NULL, hInstance, NULL);
-		if (hWndExtendedRight != NULL)
-		{
-			ShowWindow(hWndExtendedRight, SW_SHOW);
-			UpdateWindow(hWndExtendedRight);
+        // Create borderless extended window and show (right)
+        hWndExtendedRight = CreateWindowEx(WS_EX_APPWINDOW, L"3dEngineHDK2_Extended", NULL, WS_POPUP, priMonitorWidth + secMonitorWidth / 2, 0, secMonitorWidth / 2, monitor[1].rect.bottom - monitor[1].rect.top, NULL, NULL, hInstance, NULL);
+        if (hWndExtendedRight != NULL)
+        {
+            ShowWindow(hWndExtendedRight, SW_SHOW);
+            UpdateWindow(hWndExtendedRight);
 
-			// Create OpenGL context with window connected to HDK2 device
-			pOpenGLExtendedRight = new OpenGL(hWndExtendedRight);
-		} else
-		{
-			Error::WriteLog("INFO", "WinMain::WinMain", "Could not create a (right-side) extended window");
-		}
-	}
+            // Create OpenGL context with window connected to HDK2 device
+            pOpenGLExtendedRight = new OpenGL(hWndExtendedRight);
+        } else
+        {
+            Error::WriteLog("INFO", "WinMain::WinMain", "Could not create a (right-side) extended window");
+        }
+    }
 
     // Set focus on main window
     SetFocus(hWndMain);
 
-	// Hide cursor (if in move/rotate mode)
-	if (move_rotate) while (ShowCursor(false) >= 0);
+    // Hide cursor (if in move/rotate mode)
+    if (move_rotate) while (ShowCursor(false) >= 0);
 
     // Program main loop
     while (!exit_program)
@@ -266,7 +265,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         }
         else
         {
-			// Make main screen current
+            // Make main screen current
             pOpenGL->SetCurrentContext();
 
             // Get window rect (screen coordinates)
@@ -284,9 +283,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
             {
                 // Set shader settings
                 pShader->SetTest(test);
-				pShader->ShowOutlining(prefs.show_outlining);
-				pShader->ShowAxis(prefs.show_axis);
-				pShader->ShowTextures(prefs.show_textures);
+                pShader->ShowOutlining(prefs.show_outlining);
+                pShader->ShowAxis(prefs.show_axis);
+                pShader->ShowTextures(prefs.show_textures);
                 pShader->ShowNormalMap(prefs.show_normalmap);
                 pShader->RepeatTextures(prefs.repeat_textures);
                 pShader->FilterTextures(prefs.filter_textures);
@@ -310,157 +309,157 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                     }
                 }
 
-				// Get (view)direction and accelleration data from HDK2 device
-				if (hid->HDK2)
-				{
-					Hid::PACKET packet;
-					result = hid->GetData(&packet);
-					if (result)
-					{
-						#ifdef DEBUGHDK
-						std::string strPacket;
-						strPacket.append("Command  = " + Utils::ShortToStr(packet.command, 16) + "\r\n");
-						strPacket.append("Sequence = " + Utils::ShortToStr(packet.sequence, 16) + "\r\n");
-						strPacket.append("Quat     = " + Utils::ShortToStr(packet.quat[0], 16) + " " + Utils::ShortToStr(packet.quat[1], 16) + " " + Utils::ShortToStr(packet.quat[2], 16) + " " + Utils::ShortToStr(packet.quat[3], 16) + "\r\n");
-						strPacket.append("Accel    = " + Utils::ShortToStr(packet.accel[0], 16) + " " + Utils::ShortToStr(packet.accel[1], 16) + " " + Utils::ShortToStr(packet.accel[2], 16) + "\r\n");
-						#endif
+                // Get (view)direction and accelleration data from HDK2 device
+                if (hid->HDK2)
+                {
+                    Hid::PACKET packet;
+                    result = hid->GetData(&packet);
+                    if (result)
+                    {
+                        #ifdef DEBUGHDK
+                        std::string strPacket;
+                        strPacket.append("Command  = " + Utils::ShortToStr(packet.command, 16) + "\r\n");
+                        strPacket.append("Sequence = " + Utils::ShortToStr(packet.sequence, 16) + "\r\n");
+                        strPacket.append("Quat     = " + Utils::ShortToStr(packet.quat[0], 16) + " " + Utils::ShortToStr(packet.quat[1], 16) + " " + Utils::ShortToStr(packet.quat[2], 16) + " " + Utils::ShortToStr(packet.quat[3], 16) + "\r\n");
+                        strPacket.append("Accel    = " + Utils::ShortToStr(packet.accel[0], 16) + " " + Utils::ShortToStr(packet.accel[1], 16) + " " + Utils::ShortToStr(packet.accel[2], 16) + "\r\n");
+                        #endif
 
-						// Convert quat info to degrees
-						float roll, pitch, yaw;
+                        // Convert quat info to degrees
+                        float roll, pitch, yaw;
 
-						double x =   ((double)packet.quat[0] / 16384.0);
-						double y =   ((double)packet.quat[1] / 16384.0);
-						double z = - ((double)packet.quat[2] / 16384.0);
-						double w =   ((double)packet.quat[3] / 16384.0);
+                        double x =   ((double)packet.quat[0] / 16384.0);
+                        double y =   ((double)packet.quat[1] / 16384.0);
+                        double z = - ((double)packet.quat[2] / 16384.0);
+                        double w =   ((double)packet.quat[3] / 16384.0);
 
-						#ifdef DEBUGHDK
-						strPacket.append("x     = " + Utils::FloatToStr((float)x) + "\r\n");
-						strPacket.append("y     = " + Utils::FloatToStr((float)y) + "\r\n");
-						strPacket.append("z     = " + Utils::FloatToStr((float)z) + "\r\n");
-						strPacket.append("w     = " + Utils::FloatToStr((float)w) + "\r\n");
-						#endif
+                        #ifdef DEBUGHDK
+                        strPacket.append("x     = " + Utils::FloatToStr((float)x) + "\r\n");
+                        strPacket.append("y     = " + Utils::FloatToStr((float)y) + "\r\n");
+                        strPacket.append("z     = " + Utils::FloatToStr((float)z) + "\r\n");
+                        strPacket.append("w     = " + Utils::FloatToStr((float)w) + "\r\n");
+                        #endif
 
-						// roll (x-axis rotation)
-						double sinr_cosp = 2.0 * (w * x + y * z);
-						double cosr_cosp = 1.0 - 2.0 * (x * x + y * y);
-						roll = (float)(atan2(sinr_cosp, cosr_cosp) / PI * 360.0) - 180.0f;
+                        // roll (x-axis rotation)
+                        double sinr_cosp = 2.0 * (w * x + y * z);
+                        double cosr_cosp = 1.0 - 2.0 * (x * x + y * y);
+                        roll = (float)(atan2(sinr_cosp, cosr_cosp) / PI * 360.0) - 180.0f;
 
-						// pitch (y-axis rotation)
-						double sinp = 2.0 * (w * y - z * x);
-						if (fabs(sinp) >= 1)
-							pitch = - (float) copysign(90.0, (float)sinp); // use 90 degrees if out of range
-						else
-							pitch = - (float) asin(sinp) / PI * 360.0f;
+                        // pitch (y-axis rotation)
+                        double sinp = 2.0 * (w * y - z * x);
+                        if (fabs(sinp) >= 1)
+                            pitch = - (float) copysign(90.0, (float)sinp); // use 90 degrees if out of range
+                        else
+                            pitch = - (float) asin(sinp) / PI * 360.0f;
 
-						// yaw (z-axis rotation)
-						double siny_cosp = 2.0 * (w * z + x * y);
-						double cosy_cosp = 1.0 - 2.0 * (y * y + z * z);
-						yaw = (float) atan2(siny_cosp, cosy_cosp) / PI * 360.0f;
+                        // yaw (z-axis rotation)
+                        double siny_cosp = 2.0 * (w * z + x * y);
+                        double cosy_cosp = 1.0 - 2.0 * (y * y + z * z);
+                        yaw = (float) atan2(siny_cosp, cosy_cosp) / PI * 360.0f;
 
-						// Accelleration
-						float accelX = packet.accel[0] / 512.0f;
-						float accelY = packet.accel[1] / 512.0f;
-						float accelZ = packet.accel[2] / 512.0f;
+                        // Accelleration
+                        float accelX = packet.accel[0] / 512.0f;
+                        float accelY = packet.accel[1] / 512.0f;
+                        float accelZ = packet.accel[2] / 512.0f;
 
-						if (pitch > 0)
-						{
-							if (!backwards && (pitch < (oldPitch - 0.05f)) && (accelY > 0.05))
-							{
-								backwards = true;
-							} else
-							if (backwards && (pitch < (oldPitch - 0.05f)) && (accelY < -0.05))
-							{
-								backwards = false;
-							}
-						}
-						if (pitch < 0)
-						{
-							if (!backwards && (pitch > (oldPitch + 0.05f)) && (accelY < -0.05))
-							{
-								backwards = true;
-							} else
-							if (backwards && (pitch > (oldPitch + 0.05f)) && (accelY > 0.05))
-							{
-								backwards = false;
-							}
-						}
-						oldPitch = pitch;
+                        if (pitch > 0)
+                        {
+                            if (!backwards && (pitch < (oldPitch - 0.05f)) && (accelY > 0.05))
+                            {
+                                backwards = true;
+                            } else
+                            if (backwards && (pitch < (oldPitch - 0.05f)) && (accelY < -0.05))
+                            {
+                                backwards = false;
+                            }
+                        }
+                        if (pitch < 0)
+                        {
+                            if (!backwards && (pitch > (oldPitch + 0.05f)) && (accelY < -0.05))
+                            {
+                                backwards = true;
+                            } else
+                            if (backwards && (pitch > (oldPitch + 0.05f)) && (accelY > 0.05))
+                            {
+                                backwards = false;
+                            }
+                        }
+                        oldPitch = pitch;
 
-						#ifdef DEBUGHDK
-						strPacket.append("roll  = " + Utils::FloatToStr(roll) + "\r\n");
-						strPacket.append("pitch = " + Utils::FloatToStr(pitch) + "\r\n");
-						strPacket.append("yaw   = " + Utils::FloatToStr(yaw) + "\r\n");
-						if (backwards) strPacket.append("Backward View\r\n"); else strPacket.append("Forward View\r\n");
-						Error::ShowInfoWindow(strPacket.c_str());
-						#endif
+                        #ifdef DEBUGHDK
+                        strPacket.append("roll  = " + Utils::FloatToStr(roll) + "\r\n");
+                        strPacket.append("pitch = " + Utils::FloatToStr(pitch) + "\r\n");
+                        strPacket.append("yaw   = " + Utils::FloatToStr(yaw) + "\r\n");
+                        if (backwards) strPacket.append("Backward View\r\n"); else strPacket.append("Forward View\r\n");
+                        Error::ShowInfoWindow(strPacket.c_str());
+                        #endif
 
-						if (!backwards)	pShader->SetViewAngle(roll, pitch, 0);
-						else pShader->SetViewAngle(-roll, 360.0f - pitch, 0);
-					}
-				} else
-				{
-					// Move/rotate screen according to mouse info
-					if (move_rotate)
-					{
-						// Change view angle left/right
-						if (mouseX - mouseOldX < 0)
-						{
-							pShader->ChangeViewAngle(0.0f, -1.0f, 0.0f);
-						}
+                        if (!backwards)    pShader->SetViewAngle(roll, pitch, 0);
+                        else pShader->SetViewAngle(-roll, 360.0f - pitch, 0);
+                    }
+                } else
+                {
+                    // Move/rotate screen according to mouse info
+                    if (move_rotate)
+                    {
+                        // Change view angle left/right
+                        if (mouseX - mouseOldX < 0)
+                        {
+                            pShader->ChangeViewAngle(0.0f, -1.0f, 0.0f);
+                        }
 
-						if (mouseX - mouseOldX > 0)
-						{
-							pShader->ChangeViewAngle(0.0f, 1.0f, 0.0f);
-						}
+                        if (mouseX - mouseOldX > 0)
+                        {
+                            pShader->ChangeViewAngle(0.0f, 1.0f, 0.0f);
+                        }
 
-						// Change view angle up/down
-						if (mouseY - mouseOldY < 0)
-						{
-							pShader->ChangeViewAngle(-1.0f, 0.0f, 0.0f);
-						}
+                        // Change view angle up/down
+                        if (mouseY - mouseOldY < 0)
+                        {
+                            pShader->ChangeViewAngle(-1.0f, 0.0f, 0.0f);
+                        }
 
-						if (mouseY - mouseOldY > 0)
-						{
-							pShader->ChangeViewAngle(1.0f, 0.0f, 0.0f);
-						}
+                        if (mouseY - mouseOldY > 0)
+                        {
+                            pShader->ChangeViewAngle(1.0f, 0.0f, 0.0f);
+                        }
 
-						// Set cursor
-						if ((mouseX < clientRect.left + 100) || (mouseX > clientRect.right - 100))
-						{
-							mouseX = clientRect.right / 2;
-							SetCursorPos(winRect.left + mouseX + 8, winRect.top + mouseY + 8);
-						}
+                        // Set cursor
+                        if ((mouseX < clientRect.left + 100) || (mouseX > clientRect.right - 100))
+                        {
+                            mouseX = clientRect.right / 2;
+                            SetCursorPos(winRect.left + mouseX + 8, winRect.top + mouseY + 8);
+                        }
 
-						if ((mouseY < clientRect.top + 100) || (mouseY > clientRect.bottom - 100))
-						{
-							mouseY = clientRect.bottom / 2;
-							SetCursorPos(winRect.left + mouseX + 8, winRect.top + mouseY + 8);
-						}
+                        if ((mouseY < clientRect.top + 100) || (mouseY > clientRect.bottom - 100))
+                        {
+                            mouseY = clientRect.bottom / 2;
+                            SetCursorPos(winRect.left + mouseX + 8, winRect.top + mouseY + 8);
+                        }
 
-						mouseOldX = mouseX;
-						mouseOldY = mouseY;
-					} 
+                        mouseOldX = mouseX;
+                        mouseOldY = mouseY;
+                    } 
                 }
 
-				// Increase or decrease moving speed according to the mousewheel
-				if (mouseUp) delta += 0.01f;
-				if (mouseDown) delta -= 0.01f;
-				if (delta <= 0) delta = 0.01f;
+                // Increase or decrease moving speed according to the mousewheel
+                if (mouseUp) delta += 0.01f;
+                if (mouseDown) delta -= 0.01f;
+                if (delta <= 0) delta = 0.01f;
 
-				mouseUp = mouseDown = false;
+                mouseUp = mouseDown = false;
 
-				// Change movement 
-				float xValue = 0.0f, yValue = 0.0f, zValue = 0.0f;
-				if (left)  xValue += delta;
-				if (right) xValue -= delta;
-				if (up)    zValue += delta;
-				if (down)  zValue -= delta;
-				if (low)   yValue += delta;
-				if (high)  yValue -= delta;
+                // Change movement 
+                float xValue = 0.0f, yValue = 0.0f, zValue = 0.0f;
+                if (left)  xValue += delta;
+                if (right) xValue -= delta;
+                if (up)    zValue += delta;
+                if (down)  zValue -= delta;
+                if (low)   yValue += delta;
+                if (high)  yValue -= delta;
 
-				pShader->ChangeViewPosition(xValue, yValue, zValue);
-				
-				// Check if saving is needed
+                pShader->ChangeViewPosition(xValue, yValue, zValue);
+                
+                // Check if saving is needed
                 if (save)
                 {
                     // Save the meshes
@@ -478,59 +477,59 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                 // Swap screens
                 pOpenGL->SwapBuffers();
 
-				// Make left extended screen current
-				if (pOpenGLExtendedLeft != NULL)
-				{
-					result = pOpenGLExtendedLeft->SetCurrentContext();
-					if (result)
-					{
-						// Get client window rect
-						RECT clientRect;
-						GetClientRect(hWndExtendedLeft, &clientRect);
+                // Make left extended screen current
+                if (pOpenGLExtendedLeft != NULL)
+                {
+                    result = pOpenGLExtendedLeft->SetCurrentContext();
+                    if (result)
+                    {
+                        // Get client window rect
+                        RECT clientRect;
+                        GetClientRect(hWndExtendedLeft, &clientRect);
 
-						// Set screen size in openGL so the full window will be used (no clipping)
-						pOpenGLExtendedLeft->ResizeScreen((GLint)clientRect.right, (GLint)clientRect.bottom);
+                        // Set screen size in openGL so the full window will be used (no clipping)
+                        pOpenGLExtendedLeft->ResizeScreen((GLint)clientRect.right, (GLint)clientRect.bottom);
 
-						// Clear extended screen
-						pOpenGLExtendedLeft->ClearScreen();
+                        // Clear extended screen
+                        pOpenGLExtendedLeft->ClearScreen();
 
-						// Render 
-						pShader->Render((GLint)clientRect.right, (GLint)clientRect.bottom, prefs.hdk_offset_pos /100.0f, -prefs.hdk_offset_angle / 10.0f);
+                        // Render 
+                        pShader->Render((GLint)clientRect.right, (GLint)clientRect.bottom, prefs.hdk_offset_pos /100.0f, -prefs.hdk_offset_angle / 10.0f);
 
-						// Swap screens
-						pOpenGLExtendedLeft->SwapBuffers();
-					} else
-					{
-						Error::WriteLog("ERROR", "WinMain::WinMain", "Can't switch to (left) extended window)");
-					}
-				}
+                        // Swap screens
+                        pOpenGLExtendedLeft->SwapBuffers();
+                    } else
+                    {
+                        Error::WriteLog("ERROR", "WinMain::WinMain", "Can't switch to (left) extended window)");
+                    }
+                }
 
-				// Make right extended screen current
-				if (pOpenGLExtendedRight != NULL)
-				{
-					result = pOpenGLExtendedRight->SetCurrentContext();
-					if (result)
-					{
-						// Get client window rect
-						RECT clientRect;
-						GetClientRect(hWndExtendedRight, &clientRect);
+                // Make right extended screen current
+                if (pOpenGLExtendedRight != NULL)
+                {
+                    result = pOpenGLExtendedRight->SetCurrentContext();
+                    if (result)
+                    {
+                        // Get client window rect
+                        RECT clientRect;
+                        GetClientRect(hWndExtendedRight, &clientRect);
 
-						// Set screen size in openGL so the full window will be used (no clipping)
-						pOpenGLExtendedRight->ResizeScreen((GLint)clientRect.right, (GLint)clientRect.bottom);
+                        // Set screen size in openGL so the full window will be used (no clipping)
+                        pOpenGLExtendedRight->ResizeScreen((GLint)clientRect.right, (GLint)clientRect.bottom);
 
-						// Clear extended screen
-						pOpenGLExtendedRight->ClearScreen();
+                        // Clear extended screen
+                        pOpenGLExtendedRight->ClearScreen();
 
-						// Render
-						pShader->Render((GLint)clientRect.right, (GLint)clientRect.bottom, -prefs.hdk_offset_pos / 100.0f, prefs.hdk_offset_angle / 10.0f);
+                        // Render
+                        pShader->Render((GLint)clientRect.right, (GLint)clientRect.bottom, -prefs.hdk_offset_pos / 100.0f, prefs.hdk_offset_angle / 10.0f);
 
-						// Swap screens
-						pOpenGLExtendedRight->SwapBuffers();
-					} else
-					{
-						Error::WriteLog("ERROR", "WinMain::WinMain", "Can't switch to (right) extended window)");
-					}
-				}
+                        // Swap screens
+                        pOpenGLExtendedRight->SwapBuffers();
+                    } else
+                    {
+                        Error::WriteLog("ERROR", "WinMain::WinMain", "Can't switch to (right) extended window)");
+                    }
+                }
             }
         }
     }
@@ -545,167 +544,167 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-		case WM_CLOSE:
-			DestroyWindow(hWnd);
-			break;
+        case WM_CLOSE:
+            DestroyWindow(hWnd);
+            break;
 
-		case WM_DESTROY:
-			exit_program = true;
-			PostQuitMessage(0);
-			break;
+        case WM_DESTROY:
+            exit_program = true;
+            PostQuitMessage(0);
+            break;
 
-		case WM_KEYUP:
-			up = down = left = right = low = high = false;
-			break;
+        case WM_KEYUP:
+            up = down = left = right = low = high = false;
+            break;
 
-		case WM_KEYDOWN:
-			switch (wParam)
-			{
-			case VK_ESCAPE:
-				exit_program = true;
-				PostQuitMessage(0);
-				break;
+        case WM_KEYDOWN:
+            switch (wParam)
+            {
+            case VK_ESCAPE:
+                exit_program = true;
+                PostQuitMessage(0);
+                break;
 
-			case 'P':
-				prefs.show_settings = true;
-				break;
+            case 'P':
+                prefs.show_settings = true;
+                break;
 
-			case 'O':
-				prefs.show_outlining = !prefs.show_outlining;
-				break;
+            case 'O':
+                prefs.show_outlining = !prefs.show_outlining;
+                break;
 
-			case 'T':
-				prefs.show_textures = !prefs.show_textures;
-				break;
+            case 'T':
+                prefs.show_textures = !prefs.show_textures;
+                break;
 
-			case 'Z':
-				test = !test;
-				break;
+            case 'Z':
+                test = !test;
+                break;
 
-			case 'N':
-				prefs.show_normalmap = !prefs.show_normalmap;
-				break;
+            case 'N':
+                prefs.show_normalmap = !prefs.show_normalmap;
+                break;
 
-			case 'R':
-				prefs.repeat_textures = !prefs.repeat_textures;
-				break;
+            case 'R':
+                prefs.repeat_textures = !prefs.repeat_textures;
+                break;
 
-			case 'L':
-				prefs.filter_textures = !prefs.filter_textures;
-				break;
+            case 'L':
+                prefs.filter_textures = !prefs.filter_textures;
+                break;
 
-			case 'I':
-				show_info = true;
-				break;
+            case 'I':
+                show_info = true;
+                break;
 
-			case 'X':
-				prefs.show_axis = !prefs.show_axis;
-				break;
-		
-			case 'V':
-				prefs.render_mode = RM_VERTICES;
-				break;
+            case 'X':
+                prefs.show_axis = !prefs.show_axis;
+                break;
+        
+            case 'V':
+                prefs.render_mode = RM_VERTICES;
+                break;
 
-			case 'E':
-				prefs.render_mode = RM_EDGES;
-				break;
+            case 'E':
+                prefs.render_mode = RM_EDGES;
+                break;
 
-			case 'F':
-				prefs.render_mode = RM_FACES;
-				break;
+            case 'F':
+                prefs.render_mode = RM_FACES;
+                break;
 
-			case 'W':
-				up = true;
-				break;
+            case 'W':
+                up = true;
+                break;
 
-			case 'A':
-				left = true;
-				break;
+            case 'A':
+                left = true;
+                break;
 
-			case 'D':
-				right = true;
-				break;
+            case 'D':
+                right = true;
+                break;
 
-			case 'S':
-				down = true;
-				break;
+            case 'S':
+                down = true;
+                break;
 
-			case 'C':
-				save = true;
-				break;
+            case 'C':
+                save = true;
+                break;
 
-			case '1':
-				prefs.vertex_size = 1;
-				break;
+            case '1':
+                prefs.vertex_size = 1;
+                break;
 
-			case '2':
-				prefs.vertex_size = 2;
-				break;
+            case '2':
+                prefs.vertex_size = 2;
+                break;
 
-			case '3':
-				prefs.vertex_size = 3;
-				break;
+            case '3':
+                prefs.vertex_size = 3;
+                break;
 
-			case '4':
-				prefs.vertex_size = 4;
-				break;
+            case '4':
+                prefs.vertex_size = 4;
+                break;
 
-			case 0x26:
-				high = true;
-				break;
+            case 0x26:
+                high = true;
+                break;
 
-			case 0x28:
-				low = true;
-				break;
-			}
-			break;
+            case 0x28:
+                low = true;
+                break;
+            }
+            break;
 
-		case WM_RBUTTONDOWN:
+        case WM_RBUTTONDOWN:
 
-			rightMouseButtonDown = true;
+            rightMouseButtonDown = true;
 
-			// Begin or end rotate/move scene
-			move_rotate = !move_rotate;
-			
-			if (move_rotate) while (ShowCursor(false) >= 0);
-			if (!move_rotate) while (ShowCursor(true) < 0);
+            // Begin or end rotate/move scene
+            move_rotate = !move_rotate;
+            
+            if (move_rotate) while (ShowCursor(false) >= 0);
+            if (!move_rotate) while (ShowCursor(true) < 0);
 
-			break;
+            break;
 
-		case WM_RBUTTONUP:
+        case WM_RBUTTONUP:
 
-			rightMouseButtonDown = false;
-			break;
+            rightMouseButtonDown = false;
+            break;
 
-		case WM_LBUTTONDOWN:
+        case WM_LBUTTONDOWN:
 
-			leftMouseButtonDown = true;
-			break;
+            leftMouseButtonDown = true;
+            break;
 
-		case WM_LBUTTONUP:
+        case WM_LBUTTONUP:
 
-			leftMouseButtonDown = false;
-			break;
+            leftMouseButtonDown = false;
+            break;
 
-			// Set translation according to mouse wheel
-		case WM_MOUSEWHEEL:
+            // Set translation according to mouse wheel
+        case WM_MOUSEWHEEL:
 
-			// Get translation
-			if ((short)HIWORD(wParam) > 0) mouseUp = true;
-			if ((short)HIWORD(wParam) < 0) mouseDown = true;
+            // Get translation
+            if ((short)HIWORD(wParam) > 0) mouseUp = true;
+            if ((short)HIWORD(wParam) < 0) mouseDown = true;
 
-			break;
+            break;
 
-		case WM_MOUSEMOVE:
+        case WM_MOUSEMOVE:
 
-			// Get mouse coordinates
-			mouseX = (int)(short)LOWORD(lParam);
-			mouseY = (int)(short)HIWORD(lParam);
+            // Get mouse coordinates
+            mouseX = (int)(short)LOWORD(lParam);
+            mouseY = (int)(short)HIWORD(lParam);
 
-			break;
+            break;
 
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
     }
 
     return 0;
@@ -716,7 +715,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 *********************************************************************/
 bool CALLBACK MonitorEnumProc (HMONITOR hMonitor, HDC hDC, LPRECT lpRect, LPARAM lParam)
 {
-	MONITORINFOEX monitorInfoEx;
+    MONITORINFOEX monitorInfoEx;
     monitorInfoEx.cbSize = sizeof(MONITORINFOEX);
     GetMonitorInfo(hMonitor, &monitorInfoEx);
 
@@ -726,34 +725,34 @@ bool CALLBACK MonitorEnumProc (HMONITOR hMonitor, HDC hDC, LPRECT lpRect, LPARAM
     }
     else
     {
-		if (numMonitor < MAX_MONITOR)
-		{
-			MONITOR *pMonitor = (MONITOR*)lParam;
+        if (numMonitor < MAX_MONITOR)
+        {
+            MONITOR *pMonitor = (MONITOR*)lParam;
 
-			// If allready monitor found, skip older entries
-			MONITOR *ptr = pMonitor;
-			for (unsigned int i = 0; i < numMonitor; i++) ptr++;
+            // If allready monitor found, skip older entries
+            MONITOR *ptr = pMonitor;
+            for (unsigned int i = 0; i < numMonitor; i++) ptr++;
 
-			// Set variables of this display
-			ptr->num = numMonitor;
-			ptr->rect = monitorInfoEx.rcWork;
-			
-			#ifdef DEBUGHDK
-				Error::ShowInfoWindow("Monitor #:" + Utils::IntToStr(numMonitor));
-				Error::ShowInfoWindow("Monitor Name:" + Utils::ConvertWCSToMBS(monitorInfoEx.szDevice, (long)wcslen(monitorInfoEx.szDevice)));
-				Error::ShowInfoWindow("Monitor Top:" + Utils::IntToStr(ptr->rect.top));
-				Error::ShowInfoWindow("Monitor Bottom:" + Utils::IntToStr(ptr->rect.bottom));
-				Error::ShowInfoWindow("Monitor Left:" + Utils::IntToStr(ptr->rect.left));
-				Error::ShowInfoWindow("Monitor Right:" + Utils::IntToStr(ptr->rect.right) + "\r\n");
-			#endif
-		}
+            // Set variables of this display
+            ptr->num = numMonitor;
+            ptr->rect = monitorInfoEx.rcWork;
+            
+            #ifdef DEBUGHDK
+                Error::ShowInfoWindow("Monitor #:" + Utils::IntToStr(numMonitor));
+                Error::ShowInfoWindow("Monitor Name:" + Utils::ConvertWCSToMBS(monitorInfoEx.szDevice, (long)wcslen(monitorInfoEx.szDevice)));
+                Error::ShowInfoWindow("Monitor Top:" + Utils::IntToStr(ptr->rect.top));
+                Error::ShowInfoWindow("Monitor Bottom:" + Utils::IntToStr(ptr->rect.bottom));
+                Error::ShowInfoWindow("Monitor Left:" + Utils::IntToStr(ptr->rect.left));
+                Error::ShowInfoWindow("Monitor Right:" + Utils::IntToStr(ptr->rect.right) + "\r\n");
+            #endif
+        }
 
-		numMonitor++;
-		if (numMonitor > MAX_MONITOR)
-		{
-			Error::WriteLog("WARNING", "WinMain::MonitorEnumProc", "More then 2 displays (monitors) attached => ignoring those");
-		}
+        numMonitor++;
+        if (numMonitor > MAX_MONITOR)
+        {
+            Error::WriteLog("WARNING", "WinMain::MonitorEnumProc", "More then 2 displays (monitors) attached => ignoring those");
+        }
     }
 
-	return (true);
+    return (true);
 }

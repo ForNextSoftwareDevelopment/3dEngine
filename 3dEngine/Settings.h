@@ -20,13 +20,13 @@ struct struct_prefs
     // Show settings flag
     bool show_settings;
 
-	bool         show_axis;
-	int	         hdk_offset_pos;
-	int	         hdk_offset_angle;
-	VecMat::Vec3 diffuse_position;
+    bool         show_axis;
+    int             hdk_offset_pos;
+    int             hdk_offset_angle;
+    VecMat::Vec3 diffuse_position;
 
     // Preferences for shader
-	bool         show_textures;
+    bool         show_textures;
     bool         show_normalmap;
     bool         repeat_textures;
     bool         filter_textures;
@@ -55,9 +55,9 @@ class Settings
         static CtrlCheckBox    *cbNormalMap;
         static CtrlCheckBox    *cbOutlines;
         static CtrlCheckBox    *cbRepeat;
-		static CtrlCheckBox    *cbFilter;
-		static CtrlCheckBox    *cbAxis;
-		static CtrlRadioButton *rbRenderModeVertex;
+        static CtrlCheckBox    *cbFilter;
+        static CtrlCheckBox    *cbAxis;
+        static CtrlRadioButton *rbRenderModeVertex;
         static CtrlRadioButton *rbRenderModeEdge;
         static CtrlRadioButton *rbRenderModeFace;
         static CtrlValue       *cvVertexSize;
@@ -66,8 +66,8 @@ class Settings
         static CtrlPosSet      *psPositionDiffuse;
         static CtrlValue       *cvNearPlanePos;
         static CtrlValue       *cvFarPlanePos;
-		static CtrlValue       *cvHdkOffsetPos;
-		static CtrlValue       *cvHdkOffsetAngle;
+        static CtrlValue       *cvHdkOffsetPos;
+        static CtrlValue       *cvHdkOffsetAngle;
 
         // Control window handles
         static HWND hWndBtnOK;
@@ -75,9 +75,9 @@ class Settings
         static HWND hWndCbNormalMap;
         static HWND hWndCbOutlines;
         static HWND hWndCbRepeat;
-		static HWND hWndCbFilter;
-		static HWND hWndCbAxis;
-		static HWND hWndRbRenderModeVertex;
+        static HWND hWndCbFilter;
+        static HWND hWndCbAxis;
+        static HWND hWndRbRenderModeVertex;
         static HWND hWndRbRenderModeEdge;
         static HWND hWndRbRenderModeFace;
         static HWND hWndCvVertexSize;
@@ -86,8 +86,8 @@ class Settings
         static HWND hWndPsPositionDiffuse;
         static HWND hWndCvNearPlanePos;
         static HWND hWndCvFarPlanePos;
-		static HWND hWndCvHdkOffsetPos;
-		static HWND hWndCvHdkOffsetAngle;
+        static HWND hWndCvHdkOffsetPos;
+        static HWND hWndCvHdkOffsetAngle;
 
         // Windows procedure (handle messages for the (controls in the) settings window)
         static LRESULT CALLBACK WndProcSettings (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);

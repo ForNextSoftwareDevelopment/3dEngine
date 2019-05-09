@@ -56,7 +56,7 @@ Settings::Settings(HINSTANCE hInstance, HWND hWndMain, struct_prefs &preferences
     SetCursorPos (820, 40);
 
     // Create window class for this window
-	WNDCLASS wndClass = { 0 };
+    WNDCLASS wndClass = { 0 };
 
     wndClass.style          = CS_HREDRAW | CS_VREDRAW;
     wndClass.lpfnWndProc    = (WNDPROC) WndProcSettings;
@@ -86,9 +86,9 @@ Settings::~Settings(void)
     delete (cbTextures);
     delete (cbFilter);
     delete (cbRepeat);
-	delete (cbOutlines);
-	delete (cbAxis);
-	delete (rbRenderModeEdge);
+    delete (cbOutlines);
+    delete (cbAxis);
+    delete (rbRenderModeEdge);
     delete (rbRenderModeFace);
     delete (rbRenderModeVertex);
     delete (cvVertexSize);
@@ -96,8 +96,8 @@ Settings::~Settings(void)
     delete (csColorDiffuse);
     delete (cvNearPlanePos);
     delete (cvFarPlanePos);
-	delete (cvHdkOffsetPos);
-	delete (cvHdkOffsetAngle);
+    delete (cvHdkOffsetPos);
+    delete (cvHdkOffsetAngle);
 
     DestroyWindow(hWndSettings);
 
@@ -127,11 +127,11 @@ LRESULT CALLBACK Settings::WndProcSettings (HWND hWnd, UINT message, WPARAM wPar
             rbRenderModeFace = new CtrlRadioButton("Render Mode", "Face", (Settings::prefs->render_mode == RM_FACES), hWnd);
             hWndRbRenderModeFace = rbRenderModeFace->Create(190, 10, 40, 40);
 
-			// Create a new checkbox
-			cbAxis = new CtrlCheckBox("Show Axis (Key = X)", Settings::prefs->show_axis, hWnd);
-			hWndCbAxis = cbAxis->Create(10, 60, 80, 40);
-			
-			// Create a new checkbox
+            // Create a new checkbox
+            cbAxis = new CtrlCheckBox("Show Axis (Key = X)", Settings::prefs->show_axis, hWnd);
+            hWndCbAxis = cbAxis->Create(10, 60, 80, 40);
+            
+            // Create a new checkbox
             cbTextures = new CtrlCheckBox("Show Textures (Key = T)", Settings::prefs->show_textures, hWnd);
             hWndCbTextures = cbTextures->Create(10, 90, 80, 40);
 
@@ -151,7 +151,7 @@ LRESULT CALLBACK Settings::WndProcSettings (HWND hWnd, UINT message, WPARAM wPar
             cbOutlines = new CtrlCheckBox("Show Outlining (Key = O)", Settings::prefs->show_outlining, hWnd);
             hWndCbOutlines = cbOutlines->Create(10, 210, 80, 40);
 
-			// Create a new colorbox for ambient light
+            // Create a new colorbox for ambient light
             csColorAmbient = new CtrlColorSet("Ambient Light Color", Settings::prefs->ambient_light, hWnd);
             hWndCsColorAmbient = csColorAmbient->Create(10, 260, 382, 40);
 
@@ -163,15 +163,15 @@ LRESULT CALLBACK Settings::WndProcSettings (HWND hWnd, UINT message, WPARAM wPar
             psPositionDiffuse = new CtrlPosSet("Diffuse Light (Offset) Position", Settings::prefs->diffuse_position, hWnd);
             hWndPsPositionDiffuse = psPositionDiffuse->Create(10, 360, 382, 40);
 
-			// Create a new valuebox for HDK2 position offset between windows (eyes) 
-			cvHdkOffsetPos = new CtrlValue("HDK2 eye position offset", Settings::prefs->hdk_offset_pos, hWnd);
-			hWndCvHdkOffsetPos = cvHdkOffsetPos->Create(300, 10, 80, 40);
+            // Create a new valuebox for HDK2 position offset between windows (eyes) 
+            cvHdkOffsetPos = new CtrlValue("HDK2 eye position offset", Settings::prefs->hdk_offset_pos, hWnd);
+            hWndCvHdkOffsetPos = cvHdkOffsetPos->Create(300, 10, 80, 40);
 
-			// Create a new valuebox for HDK2 angle offset between windows (eyes) 
-			cvHdkOffsetAngle = new CtrlValue("HDK2 eye angle offset", Settings::prefs->hdk_offset_angle, hWnd);
-			hWndCvHdkOffsetAngle = cvHdkOffsetAngle->Create(300, 60, 80, 40);
+            // Create a new valuebox for HDK2 angle offset between windows (eyes) 
+            cvHdkOffsetAngle = new CtrlValue("HDK2 eye angle offset", Settings::prefs->hdk_offset_angle, hWnd);
+            hWndCvHdkOffsetAngle = cvHdkOffsetAngle->Create(300, 60, 80, 40);
 
-			// Create a new valuebox for nearplane position
+            // Create a new valuebox for nearplane position
             cvNearPlanePos = new CtrlValue("NearPlane Position (x 10)", (int)Settings::prefs->pos_nearplane *  10, hWnd);
             hWndCvNearPlanePos = cvNearPlanePos->Create(300, 110, 80, 40);
 
@@ -233,13 +233,13 @@ LRESULT CALLBACK Settings::WndProcSettings (HWND hWnd, UINT message, WPARAM wPar
                         Settings::prefs->filter_textures = !Settings::prefs->filter_textures;
                     }
 
-					if (lParam == (LPARAM)hWndCbAxis)
-					{
-						// Toggle 'show axis'
-						Settings::prefs->show_axis = !Settings::prefs->show_axis;
-					}
-					
-					if (lParam == (LPARAM) hWndCbRepeat)
+                    if (lParam == (LPARAM)hWndCbAxis)
+                    {
+                        // Toggle 'show axis'
+                        Settings::prefs->show_axis = !Settings::prefs->show_axis;
+                    }
+                    
+                    if (lParam == (LPARAM) hWndCbRepeat)
                     {
                         // Toggle 'show texture'
                         Settings::prefs->repeat_textures = !Settings::prefs->repeat_textures;
@@ -305,18 +305,18 @@ LRESULT CALLBACK Settings::WndProcSettings (HWND hWnd, UINT message, WPARAM wPar
                         if (cvFarPlanePos->GetStatus() > 0) Settings::prefs->pos_farplane = (float)cvFarPlanePos->GetStatus();
                     }
 
-					if (lParam == (LPARAM) hWndCvHdkOffsetPos)
+                    if (lParam == (LPARAM) hWndCvHdkOffsetPos)
                     {
                         // Set new near plane position
                         if (cvHdkOffsetPos->GetStatus() > 0) Settings::prefs->hdk_offset_pos = cvHdkOffsetPos->GetStatus();
                     }
 
-					if (lParam == (LPARAM)hWndCvHdkOffsetAngle)
-					{
-						// Set new near plane position
-						if (cvHdkOffsetAngle->GetStatus() > 0) Settings::prefs->hdk_offset_angle = cvHdkOffsetAngle->GetStatus();
-					}
-					break;
+                    if (lParam == (LPARAM)hWndCvHdkOffsetAngle)
+                    {
+                        // Set new near plane position
+                        if (cvHdkOffsetAngle->GetStatus() > 0) Settings::prefs->hdk_offset_angle = cvHdkOffsetAngle->GetStatus();
+                    }
+                    break;
             }
             break;
 

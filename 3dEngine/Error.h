@@ -37,7 +37,7 @@ namespace Error
     void SetLogFilePath(std::string path);
 
     // Write in logfile
-	void WriteLog(const char *type, const char *className, const char *message, bool showInfoWindow = true);
+    void WriteLog(const char *type, const char *className, const char *message, bool showInfoWindow = true);
 
     // Reset OpenGL errors (just retrieve them until there are none left)
     void ResetOpenGLError(void);

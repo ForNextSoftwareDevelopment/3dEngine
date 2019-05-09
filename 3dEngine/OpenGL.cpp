@@ -36,11 +36,11 @@ OpenGL::OpenGL (HWND hWnd)
     int iPixelFormat = ChoosePixelFormat(hDC, &pfd);
     SetPixelFormat(hDC, iPixelFormat, &pfd);
 
-	// Create and enable the render context (RC)
-	if (hRC == NULL) hRC = wglCreateContext(hDC);
-	wglMakeCurrent(hDC, hRC);
-	
-	// Init glew (GL Extensions wrangler) so we know what openGL version to use
+    // Create and enable the render context (RC)
+    if (hRC == NULL) hRC = wglCreateContext(hDC);
+    wglMakeCurrent(hDC, hRC);
+    
+    // Init glew (GL Extensions wrangler) so we know what openGL version to use
     GLenum retCode = glewInit();
     if (retCode != GLEW_OK)
     {
@@ -158,5 +158,5 @@ void OpenGL::SetBackgroundColor(int red, int green, int blue)
 *********************************************************************/
 bool OpenGL::SetCurrentContext()
 {
-	return (wglMakeCurrent(hDC, hRC));
+    return (wglMakeCurrent(hDC, hRC));
 }

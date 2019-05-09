@@ -3,7 +3,7 @@
 
 namespace VecMat
 {
-	#define PI 3.14159265358979f
+    #define PI 3.14159265358979f
 
     /*********************************************************************
     * The structure for our vertex type
@@ -155,7 +155,7 @@ namespace VecMat
             inline operator const float*() const { return &row[0]; }
             inline float& operator[](int n) { return row[n]; }
             inline const float& operator[](int n) const { return row[n]; }
-	};
+    };
 
     /*********************************************************************
     * Vector with 3 coordinates
@@ -225,7 +225,7 @@ namespace VecMat
             inline operator const float*() const { return &row[0]; }
             inline float& operator[](int n) { return row[n]; }
             inline const float& operator[](int n) const { return row[n]; }
-	};
+    };
 
     /*********************************************************************
     * Normalize a Vec3 vector
@@ -290,7 +290,7 @@ namespace VecMat
             inline operator const float*() const { return &row[0]; }
             inline float& operator[](int n) { return row[n]; }
             inline const float& operator[](int n) const { return row[n]; }
-	};
+    };
 
     /*********************************************************************
     * 3 by 3 matrix
@@ -348,7 +348,7 @@ namespace VecMat
             inline const Vec3& operator[](int n) const { return column[n]; }
             inline operator float*() { return &column[0].row[0]; }
             inline operator const float*() const { return &column[0].row[0]; }
-	};
+    };
 
     /*********************************************************************
     * 4 by 4 matrix
@@ -409,7 +409,7 @@ namespace VecMat
             inline const Vec4& operator[](int n) const { return column[n]; }
             inline operator float*() { return &column[0].row[0]; }
             inline operator const float*() const { return &column[0].row[0]; }
-	};
+    };
 
     /*********************************************************************
     * 4 by 4 orthogonal matrix
@@ -435,7 +435,7 @@ namespace VecMat
                 column[3].row[2] = -(f + n) / (f - n);
                 column[3].row[3] =  1.0f;
             }
-	};
+    };
 
     /*********************************************************************
     * 4 by 4 frustum matrix
@@ -460,7 +460,7 @@ namespace VecMat
 
                 column[3].row[2] = -(2.0f * f * n) / (f - n);
             }
-	};
+    };
 
     /*********************************************************************
     * 4 by 4 perspective matrix
@@ -484,7 +484,7 @@ namespace VecMat
                 column[2].row[3] = -1.0f;
                 column[3].row[2] = C;
             }
-	};
+    };
 
     /*********************************************************************
     * Calculate a 'Look At' matrix (camera)
@@ -523,7 +523,7 @@ namespace VecMat
             column[2].row[3] = 0.0f;
             column[3].row[3] = 1.0f;
         }
-	};
+    };
 
     /*********************************************************************
     * 4 by 4 translation matrix
@@ -544,14 +544,14 @@ namespace VecMat
                 column[3].row[2] = z;
                 column[3].row[3] = 1.0f;
             }
-	};
+    };
 
     /*********************************************************************
     * 4 by 4 rotation matrix
     *********************************************************************/
     class Rotate : public Mat4
     {
-		private:
+        private:
 
             float rads_x, rads_y, rads_z;
             float A, B, C, D, E, F;
@@ -559,23 +559,23 @@ namespace VecMat
         public:
             inline Rotate (float angle_x, float angle_y, float angle_z)
             {
-				rads_x = float(angle_x) * 0.0174532925f;
-				rads_y = float(angle_y) * 0.0174532925f;
-				rads_z = float(angle_z) * 0.0174532925f;
+                rads_x = float(angle_x) * 0.0174532925f;
+                rads_y = float(angle_y) * 0.0174532925f;
+                rads_z = float(angle_z) * 0.0174532925f;
 
-				A = cos(rads_x);
-				B = sin(rads_x);
-				C = cos(rads_y);
-				D = sin(rads_y);
-				E = cos(rads_z);
-				F = sin(rads_z);
+                A = cos(rads_x);
+                B = sin(rads_x);
+                C = cos(rads_y);
+                D = sin(rads_y);
+                E = cos(rads_z);
+                F = sin(rads_z);
 
-				column[0].row[0] =  C * E;
+                column[0].row[0] =  C * E;
                 column[0].row[1] =  B * D * E + A * F;
                 column[0].row[2] = -A * D * E + B * F;
 
                 column[1].row[0] = -C * F;
-				column[1].row[1] = -B * D * F + A * E;
+                column[1].row[1] = -B * D * F + A * E;
                 column[1].row[2] =  A * D * F + B * E;
 
                 column[2].row[0] =  D;
@@ -584,7 +584,7 @@ namespace VecMat
 
                 column[3].row[3] = 1.0f;
             }
-	};
+    };
 };
 
 

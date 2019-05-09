@@ -61,10 +61,10 @@ class Shader
         // Show outlining
         bool show_outlining;
 
-		// Show axis
-		bool show_axis;
-		
-		// Screen (window) scale factor
+        // Show axis
+        bool show_axis;
+        
+        // Screen (window) scale factor
         GLint screen_width;
         GLint screen_height;
 
@@ -252,10 +252,10 @@ class Shader
         // Set show oulining
         void ShowOutlining (bool show);
 
-		// Set show axis
-		void ShowAxis(bool show);
-			
-		// Set vertex size
+        // Set show axis
+        void ShowAxis(bool show);
+            
+        // Set vertex size
         void SetVertexSize (GLint vsize);
 
         // Set screen size

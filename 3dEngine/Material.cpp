@@ -190,8 +190,8 @@ void Material::ReadTexture (const char *pFileName)
         delete (pBuffer);
     } catch (std::exception& e)
     {
-		std::string message = "Exception: ";
-		message.append(e.what());
+        std::string message = "Exception: ";
+        message.append(e.what());
         Error::WriteLog("EXCEPTION", "Material::ReadTexture", message.c_str());
         if (pTextureData != NULL) delete (pTextureData);
         pTextureData = NULL;
@@ -279,20 +279,20 @@ void Material::ReadNormalTexture (const char *pFileName)
                 return;
             }
 
-			// Check if image is the same size as texture image
+            // Check if image is the same size as texture image
             unsigned int width = abs (pBmi->bmiHeader.biWidth);
-			unsigned int height = abs (pBmi->bmiHeader.biHeight);
-			if ((textWidth != width) || (textHeight != height))
-			{
-				message.clear();
-				message.append("File read of normal texture cancelled (not the same size as texture): ");
-				message.append(pFileName);
-				Error::WriteLog("ERROR", "Material::ReadNormalTexture", message.c_str());
+            unsigned int height = abs (pBmi->bmiHeader.biHeight);
+            if ((textWidth != width) || (textHeight != height))
+            {
+                message.clear();
+                message.append("File read of normal texture cancelled (not the same size as texture): ");
+                message.append(pFileName);
+                Error::WriteLog("ERROR", "Material::ReadNormalTexture", message.c_str());
 
-				// Free buffer memory
-				delete (pBuffer);
-				return;
-			}
+                // Free buffer memory
+                delete (pBuffer);
+                return;
+            }
 
             // Get the pointer to the image bits
             pBits = (GLubyte *) pBmFh + (GLubyte) pBmFh->bfOffBits;
@@ -345,8 +345,8 @@ void Material::ReadNormalTexture (const char *pFileName)
         delete (pBuffer);
     } catch (std::exception& e)
     {
-		std::string message = "Exception: ";
-		message.append(e.what());
+        std::string message = "Exception: ";
+        message.append(e.what());
         Error::WriteLog("EXCEPTION", "Material::ReadNormalTexture", message.c_str());
         if (pTextureNormalData != NULL) delete (pTextureNormalData);
         pTextureNormalData = NULL;
