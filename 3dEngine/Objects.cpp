@@ -23,38 +23,38 @@ Objects::Objects (char *pApplicationFolder)
     numMaterials = 0;
     for (int i = 0; i < MAX_NUM_MESHES; i++) pMeshArray[i] = NULL;
     for (int i = 0; i < MAX_NUM_MATERIALS; i++) pMaterialArray[i] = NULL;
-
+     
     try
     {
         // Create a sky(cube) as a first object
         CreateSky();
 
-		// Create axis as next objects
-		CreateAxis();
+        // Create axis as next objects
+        CreateAxis();
 
         // Create terrain
         CreateTerrain();
 
-		/*
-		// Get a cone mesh
-		Cone *pCone = new Cone(2, 10, 10);
-		pCone->name = "Cone";
-		pCone->numMaterials = 1;
+        /*
+        // Get a cone mesh
+        Cone *pCone = new Cone(2, 10, 10);
+        pCone->name = "Cone";
+        pCone->numMaterials = 1;
 
-		// Assign material to the mesh
-		pMaterial = new Material(("default-" + pCone->name).c_str());
-		pCone->pMaterialEntryList[0] = new MaterialEntry();
-		pCone->pMaterialEntryList[0]->pMaterial = pMaterial;
+        // Assign material to the mesh
+        pMaterial = new Material(("default-" + pCone->name).c_str());
+        pCone->pMaterialEntryList[0] = new MaterialEntry();
+        pCone->pMaterialEntryList[0]->pMaterial = pMaterial;
 
-		// Add new Mesh to array of pointers (Objects list)
+        // Add new Mesh to array of pointers (Objects list)
         pMeshArray[numMeshes++] = pCone;
-		*/
+        */
 
-		// Open file stream (objets file)
+        // Open file stream (objets file)
         std::string strObjectsFile;
         strObjectsFile.append(applicationFolder);
         strObjectsFile.append("\\objects\\objects.txt");
-		std::ifstream objectsFile(strObjectsFile);
+        std::ifstream objectsFile(strObjectsFile);
         if (!objectsFile)
         {
             std::string message = "Error reading file: " + strObjectsFile;
@@ -62,12 +62,12 @@ Objects::Objects (char *pApplicationFolder)
             return;
         }
 
-		// Read objects file line by line
-		std::string strObjectsLine;
+        // Read objects file line by line
+        std::string strObjectsLine;
         std::string strObjectFile;
-		unsigned int lineObjectsFile = 1;
-		while (std::getline(objectsFile, strObjectsLine)) 
-		{
+        unsigned int lineObjectsFile = 1;
+        while (std::getline(objectsFile, strObjectsLine)) 
+        {
             // Setup strings
             strObjectFile.clear();
             strPosX.clear();
@@ -75,82 +75,82 @@ Objects::Objects (char *pApplicationFolder)
             strPosZ.clear();
             strObjectFile.append(applicationFolder);
             strObjectFile.append("\\objects\\");
-			
-			// Set position into the string
-			unsigned int posObjectsLine = 0;
+            
+            // Set position into the string
+            unsigned int posObjectsLine = 0;
 
             // Skip spaces, tabs, newlines and carriage returns
             while ((posObjectsLine < strObjectsLine.length()) && ((strObjectsLine[posObjectsLine] == ' ') || (strObjectsLine[posObjectsLine] == '\t') || (strObjectsLine[posObjectsLine] == '\n') || (strObjectsLine[posObjectsLine] == '\r'))) posObjectsLine++;
 
-			// Process if not comment and not an empty line
-			if ((strObjectsLine[posObjectsLine] != '#') && (posObjectsLine < strObjectsLine.length()))
-			{
-				// Get (file)name of object
-				while ((posObjectsLine < strObjectsLine.length()) && (strObjectsLine[posObjectsLine] != ' ') && (strObjectsLine[posObjectsLine] != '\t') && (strObjectsLine[posObjectsLine] != '\n') && (strObjectsLine[posObjectsLine] != '\r')) strObjectFile.push_back(strObjectsLine[posObjectsLine++]);
+            // Process if not comment and not an empty line
+            if ((strObjectsLine[posObjectsLine] != '#') && (posObjectsLine < strObjectsLine.length()))
+            {
+                // Get (file)name of object
+                while ((posObjectsLine < strObjectsLine.length()) && (strObjectsLine[posObjectsLine] != ' ') && (strObjectsLine[posObjectsLine] != '\t') && (strObjectsLine[posObjectsLine] != '\n') && (strObjectsLine[posObjectsLine] != '\r')) strObjectFile.push_back(strObjectsLine[posObjectsLine++]);
 
-				// Skip spaces and tabs
-				while ((posObjectsLine < strObjectsLine.length()) && ((strObjectsLine[posObjectsLine] == ' ') || (strObjectsLine[posObjectsLine] == '\t'))) posObjectsLine++;
+                // Skip spaces and tabs
+                while ((posObjectsLine < strObjectsLine.length()) && ((strObjectsLine[posObjectsLine] == ' ') || (strObjectsLine[posObjectsLine] == '\t'))) posObjectsLine++;
 
-				// Get x pos of object
-				while ((posObjectsLine < strObjectsLine.length()) && (strObjectsLine[posObjectsLine] != ' ') && (strObjectsLine[posObjectsLine] != '\t') && (strObjectsLine[posObjectsLine] != '\n') && (strObjectsLine[posObjectsLine] != '\r')) strPosX.push_back(strObjectsLine[posObjectsLine++]);
-				posX = Utils::StrToFloat((char *)strPosX.c_str());
+                // Get x pos of object
+                while ((posObjectsLine < strObjectsLine.length()) && (strObjectsLine[posObjectsLine] != ' ') && (strObjectsLine[posObjectsLine] != '\t') && (strObjectsLine[posObjectsLine] != '\n') && (strObjectsLine[posObjectsLine] != '\r')) strPosX.push_back(strObjectsLine[posObjectsLine++]);
+                posX = Utils::StrToFloat((char *)strPosX.c_str());
 
-				// Skip spaces and tabs
-				while ((posObjectsLine < strObjectsLine.length()) && ((strObjectsLine[posObjectsLine] == ' ') || (strObjectsLine[posObjectsLine] == '\t'))) posObjectsLine++;
+                // Skip spaces and tabs
+                while ((posObjectsLine < strObjectsLine.length()) && ((strObjectsLine[posObjectsLine] == ' ') || (strObjectsLine[posObjectsLine] == '\t'))) posObjectsLine++;
 
-				// Get y pos of object
-				while ((posObjectsLine < strObjectsLine.length()) && (strObjectsLine[posObjectsLine] != ' ') && (strObjectsLine[posObjectsLine] != '\t') && (strObjectsLine[posObjectsLine] != '\n') && (strObjectsLine[posObjectsLine] != '\r')) strPosY.push_back(strObjectsLine[posObjectsLine++]);
-				posY = Utils::StrToFloat((char *)strPosY.c_str());
+                // Get y pos of object
+                while ((posObjectsLine < strObjectsLine.length()) && (strObjectsLine[posObjectsLine] != ' ') && (strObjectsLine[posObjectsLine] != '\t') && (strObjectsLine[posObjectsLine] != '\n') && (strObjectsLine[posObjectsLine] != '\r')) strPosY.push_back(strObjectsLine[posObjectsLine++]);
+                posY = Utils::StrToFloat((char *)strPosY.c_str());
 
-				// Skip spaces and tabs
-				while ((posObjectsLine < strObjectsLine.length()) && ((strObjectsLine[posObjectsLine] == ' ') || (strObjectsLine[posObjectsLine] == '\t'))) posObjectsLine++;
+                // Skip spaces and tabs
+                while ((posObjectsLine < strObjectsLine.length()) && ((strObjectsLine[posObjectsLine] == ' ') || (strObjectsLine[posObjectsLine] == '\t'))) posObjectsLine++;
 
-				// Get z pos of object
-				while ((posObjectsLine < strObjectsLine.length()) && (strObjectsLine[posObjectsLine] != ' ') && (strObjectsLine[posObjectsLine] != '\t') && (strObjectsLine[posObjectsLine] != '\n') && (strObjectsLine[posObjectsLine] != '\r')) strPosZ.push_back(strObjectsLine[posObjectsLine++]);
-				posZ = Utils::StrToFloat((char *)strPosZ.c_str());
+                // Get z pos of object
+                while ((posObjectsLine < strObjectsLine.length()) && (strObjectsLine[posObjectsLine] != ' ') && (strObjectsLine[posObjectsLine] != '\t') && (strObjectsLine[posObjectsLine] != '\n') && (strObjectsLine[posObjectsLine] != '\r')) strPosZ.push_back(strObjectsLine[posObjectsLine++]);
+                posZ = Utils::StrToFloat((char *)strPosZ.c_str());
 
-				// Open file stream (object file)
-				std::ifstream objectFile(strObjectFile);
-				if (objectFile)
-				{
-					// Reset the offset for the indices (number of vertices allready read from previous meshes in this file)
-					offsetV = 0;
+                // Open file stream (object file)
+                std::ifstream objectFile(strObjectFile);
+                if (objectFile)
+                {
+                    // Reset the offset for the indices (number of vertices allready read from previous meshes in this file)
+                    offsetV = 0;
 
-					// Reset the offset for the mapping (number of texture vertices allready read from previous meshes in this file)
-					offsetT = 0;
+                    // Reset the offset for the mapping (number of texture vertices allready read from previous meshes in this file)
+                    offsetT = 0;
 
-					std::string strObjectLine;
-					unsigned int lineObjectFile = 1;
-					while (std::getline(objectFile, strObjectLine))
-					{
-						bool result = DecodeObjectLine(strObjectLine);
-						if (!result)
-						{
-							std::string message = "Error reading line in object file: \r\n" + strObjectFile + "\r\nSkipping line " + Utils::IntToStr(lineObjectFile) + " in object file";
-							Error::WriteLog("ERROR", "Objects::Objects", message.c_str());
-						}
+                    std::string strObjectLine;
+                    unsigned int lineObjectFile = 1;
+                    while (std::getline(objectFile, strObjectLine))
+                    {
+                        bool result = DecodeObjectLine(strObjectLine);
+                        if (!result)
+                        {
+                            std::string message = "Error reading line in object file: \r\n" + strObjectFile + "\r\nSkipping line " + Utils::IntToStr(lineObjectFile) + " in object file";
+                            Error::WriteLog("ERROR", "Objects::Objects", message.c_str());
+                        }
 
-						lineObjectFile++;
-					}
-				} else
-				{
-					std::string message = "Error reading file: \r\n" + strObjectFile + "\r\nSkipping line " + Utils::IntToStr(lineObjectsFile) + " in objects file";
-					Error::WriteLog("ERROR", "Objects::Objects", message.c_str());
-				}
+                        lineObjectFile++;
+                    }
+                } else
+                {
+                    std::string message = "Error reading file: \r\n" + strObjectFile + "\r\nSkipping line " + Utils::IntToStr(lineObjectsFile) + " in objects file";
+                    Error::WriteLog("ERROR", "Objects::Objects", message.c_str());
+                }
 
-				// Close object file
-				objectFile.close();
+                // Close object file
+                objectFile.close();
 
-				// If mesh present then close it
-				if (pMesh != NULL) CloseCurrentMesh();
-			}
+                // If mesh present then close it
+                if (pMesh != NULL) CloseCurrentMesh();
+            }
 
-			// Next line
-			lineObjectsFile++;
-		}
+            // Next line
+            lineObjectsFile++;
+        }
 
-		// Close objects file
-		objectsFile.close();
+        // Close objects file
+        objectsFile.close();
 
         // Give a list of meshes read
         std::string meshNames;
@@ -163,10 +163,10 @@ Objects::Objects (char *pApplicationFolder)
         // Write the list to the log file
         Error::WriteLog("INFO", "Objects::Objects", ("Meshes read: \r\n" + meshNames).c_str());
 
-	} catch (std::exception& e)
+    } catch (std::exception& e)
     {
-		std::string message = "Exception: ";
-		message.append(e.what());
+        std::string message = "Exception: ";
+        message.append(e.what());
         Error::WriteLog("EXCEPTION", "Objects::Objects", message.c_str());
     }
 }
@@ -189,387 +189,387 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
 {
     try
     {
-		unsigned int pos = 0;
-		bool found = false;
+        unsigned int pos = 0;
+        bool found = false;
 
-		// Skip spaces and tabs at the beginning of a new line
+        // Skip spaces and tabs at the beginning of a new line
         while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
 
-		// Process if not comment and not an empty line
-		if ((strObjectLine[pos] != '#') && (pos < strObjectLine.length()))
-		{
-			// Mesh name found
-			if ((strObjectLine[pos] == 'o') || (strObjectLine[pos] == 'O'))
-			{
-				found = true;
-
-				// New object, so if old object present then close it
-				if (pMesh != NULL) CloseCurrentMesh();
-
-				// Skip 'o', spaces and tabs
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'o') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
-
-				// Read name
-				std::string name;
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] != ' ') || (strObjectLine[pos] != '\t')))
-				{
-					name.push_back(strObjectLine[pos++]);
-				}
-
-				// Create a new object
-				if (!CreateCurrentMesh(name)) return (false);
-			}
-
-			// Material file name found
-			if ((strObjectLine[pos] == 'm') && (strObjectLine[pos + 1] == 't') && (strObjectLine[pos + 2] == 'l') && (strObjectLine[pos + 3] == 'l') && (strObjectLine[pos + 4] == 'i') && (strObjectLine[pos + 5] == 'b'))
-			{
-				found = true;
-
-				// Skip everything till space
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ')) pos++;
-
-				// Skip spaces and tabs
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
-
-				// Read material file name
-				std::string name;
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] != ' ') || (strObjectLine[pos] != '\t')))
-				{
-					name.push_back(strObjectLine[pos++]);
-				}
-
-				// Get the materials from the file
-				ReadMaterialFile(name);
-			}
-
-			// Use material found
-			if ((strObjectLine[pos] == 'u') && (strObjectLine[pos + 1] == 's') && (strObjectLine[pos + 2] == 'e') && (strObjectLine[pos + 3] == 'm') && (strObjectLine[pos + 4] == 't') && (strObjectLine[pos + 5] == 'l'))
-			{
-				found = true;
-
-				// Skip everything till space
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ')) pos++;
-
-				// Skip spaces and tabs
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
-
-				// Read material file name
-				std::string name;
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] != ' ') || (strObjectLine[pos] != '\t')))
-				{
-					name.push_back(strObjectLine[pos++]);
-				}
-
-				// If object available connect the material to the object
-				if (pMesh != NULL)
-				{
-					// Search material list for the correct material
-					bool found = false;
-					for (unsigned int i = 0; (i < numMaterials) && !found; i++)
-					{
-						if (!pMaterialArray[i]->name.compare(name))
-						{
-							found = true;
-
-							// Create new material entry in the current object
-							pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
-
-							// Put found material in the new entry
-							pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = pMaterialArray[i];
-
-							// Insert the starting face for this material
-							pMesh->pMaterialEntryList[pMesh->numMaterials++]->start = (int)fList.size();
-						}
-					}
-
-					if (!found)
-					{
-						std::string message;
-						message.append("Material not found: ");
-						message.append(name);
-						Error::WriteLog("WARNING", "Objects::ReadObjectFile", message.c_str());
-					}
-				}
-			}
-
-			// Vertex found
-			if ((strObjectLine[pos] == 'v') && ((strObjectLine[pos + 1] == ' ') || (strObjectLine[pos + 1] == '\t')))
-			{
-				found = true;
+        // Process if not comment and not an empty line
+        if ((strObjectLine[pos] != '#') && (pos < strObjectLine.length()))
+        {
+            // Mesh name found
+            if ((strObjectLine[pos] == 'o') || (strObjectLine[pos] == 'O'))
+            {
+                found = true;
+
+                // New object, so if old object present then close it
+                if (pMesh != NULL) CloseCurrentMesh();
+
+                // Skip 'o', spaces and tabs
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'o') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+
+                // Read name
+                std::string name;
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] != ' ') || (strObjectLine[pos] != '\t')))
+                {
+                    name.push_back(strObjectLine[pos++]);
+                }
+
+                // Create a new object
+                if (!CreateCurrentMesh(name)) return (false);
+            }
+
+            // Material file name found
+            if ((strObjectLine[pos] == 'm') && (strObjectLine[pos + 1] == 't') && (strObjectLine[pos + 2] == 'l') && (strObjectLine[pos + 3] == 'l') && (strObjectLine[pos + 4] == 'i') && (strObjectLine[pos + 5] == 'b'))
+            {
+                found = true;
+
+                // Skip everything till space
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ')) pos++;
+
+                // Skip spaces and tabs
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+
+                // Read material file name
+                std::string name;
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] != ' ') || (strObjectLine[pos] != '\t')))
+                {
+                    name.push_back(strObjectLine[pos++]);
+                }
+
+                // Get the materials from the file
+                ReadMaterialFile(name);
+            }
+
+            // Use material found
+            if ((strObjectLine[pos] == 'u') && (strObjectLine[pos + 1] == 's') && (strObjectLine[pos + 2] == 'e') && (strObjectLine[pos + 3] == 'm') && (strObjectLine[pos + 4] == 't') && (strObjectLine[pos + 5] == 'l'))
+            {
+                found = true;
+
+                // Skip everything till space
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ')) pos++;
+
+                // Skip spaces and tabs
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+
+                // Read material file name
+                std::string name;
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] != ' ') || (strObjectLine[pos] != '\t')))
+                {
+                    name.push_back(strObjectLine[pos++]);
+                }
+
+                // If object available connect the material to the object
+                if (pMesh != NULL)
+                {
+                    // Search material list for the correct material
+                    bool found = false;
+                    for (unsigned int i = 0; (i < numMaterials) && !found; i++)
+                    {
+                        if (!pMaterialArray[i]->name.compare(name))
+                        {
+                            found = true;
+
+                            // Create new material entry in the current object
+                            pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
+
+                            // Put found material in the new entry
+                            pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = pMaterialArray[i];
+
+                            // Insert the starting face for this material
+                            pMesh->pMaterialEntryList[pMesh->numMaterials++]->start = (int)fList.size();
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        std::string message;
+                        message.append("Material not found: ");
+                        message.append(name);
+                        Error::WriteLog("WARNING", "Objects::ReadObjectFile", message.c_str());
+                    }
+                }
+            }
+
+            // Vertex found
+            if ((strObjectLine[pos] == 'v') && ((strObjectLine[pos + 1] == ' ') || (strObjectLine[pos + 1] == '\t')))
+            {
+                found = true;
 
-				std::string strValue;
+                std::string strValue;
 
-				// If no object available, then create new
-				if (pMesh == NULL)
-				{
-					if (!CreateCurrentMesh("unknown")) return (false);
-				}
+                // If no object available, then create new
+                if (pMesh == NULL)
+                {
+                    if (!CreateCurrentMesh("unknown")) return (false);
+                }
 
-				// Create vertex
-				VecMat::Vertex vertex;
+                // Create vertex
+                VecMat::Vertex vertex;
 
-				// Set all coordinates at 0 by default
-				vertex.x = 0.0f;
-				vertex.y = 0.0f;
-				vertex.z = 0.0f;
+                // Set all coordinates at 0 by default
+                vertex.x = 0.0f;
+                vertex.y = 0.0f;
+                vertex.z = 0.0f;
 
-				// Skip 'v', spaces and tabs
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'v') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+                // Skip 'v', spaces and tabs
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'v') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
 
-				// Get value in string format
-				strValue.clear();
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
+                // Get value in string format
+                strValue.clear();
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
-				// Read x value
-				vertex.x = Utils::StrToFloat((char *)strValue.c_str()) + posX;
+                // Read x value
+                vertex.x = Utils::StrToFloat((char *)strValue.c_str()) + posX;
 
-				// Skip to begin of next value
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+                // Skip to begin of next value
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
 
-				// Get value in string format
-				strValue.clear();
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
+                // Get value in string format
+                strValue.clear();
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
-				// Read y value
-				vertex.y = Utils::StrToFloat((char *)strValue.c_str()) + posY;
+                // Read y value
+                vertex.y = Utils::StrToFloat((char *)strValue.c_str()) + posY;
 
-				// Skip to begin of next value
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+                // Skip to begin of next value
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
 
-				// Get value in string format
-				strValue.clear();
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
+                // Get value in string format
+                strValue.clear();
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
-				// Read z value
-				vertex.z = Utils::StrToFloat((char *)strValue.c_str()) + posZ;
+                // Read z value
+                vertex.z = Utils::StrToFloat((char *)strValue.c_str()) + posZ;
 
-				// Put the new vertex in the vertices list
-				vList.push_back(vertex);
-			}
+                // Put the new vertex in the vertices list
+                vList.push_back(vertex);
+            }
 
-			// Vertex normal found
-			if ((strObjectLine[pos] == 'v') && (strObjectLine[pos + 1] == 'n'))
-			{
-				found = true;
+            // Vertex normal found
+            if ((strObjectLine[pos] == 'v') && (strObjectLine[pos + 1] == 'n'))
+            {
+                found = true;
 
-				std::string strValue;
+                std::string strValue;
 
-				// If no object available, then create new
-				if (pMesh == NULL)
-				{
-					if (!CreateCurrentMesh("unknown")) return (false);
-				}
+                // If no object available, then create new
+                if (pMesh == NULL)
+                {
+                    if (!CreateCurrentMesh("unknown")) return (false);
+                }
 
-				// Create vertex
-				VecMat::Vertex vertex;
+                // Create vertex
+                VecMat::Vertex vertex;
 
-				// Set all coordinates at 0 by default
-				vertex.x = 0.0f;
-				vertex.y = 0.0f;
-				vertex.z = 0.0f;
+                // Set all coordinates at 0 by default
+                vertex.x = 0.0f;
+                vertex.y = 0.0f;
+                vertex.z = 0.0f;
 
-				// Skip 'v', 'n', spaces and tabs
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'v') || (strObjectLine[pos] == 'n') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+                // Skip 'v', 'n', spaces and tabs
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'v') || (strObjectLine[pos] == 'n') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
 
-				// Get value in string format
-				strValue.clear();
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
+                // Get value in string format
+                strValue.clear();
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
-				// Read x value
-				vertex.x = Utils::StrToFloat((char *)strValue.c_str()) + posX;
+                // Read x value
+                vertex.x = Utils::StrToFloat((char *)strValue.c_str()) + posX;
 
-				// Skip to begin of next value
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+                // Skip to begin of next value
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
 
-				// Get value in string format
-				strValue.clear();
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
+                // Get value in string format
+                strValue.clear();
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
-				// Read y value
-				vertex.y = Utils::StrToFloat((char *)strValue.c_str()) + posY;
+                // Read y value
+                vertex.y = Utils::StrToFloat((char *)strValue.c_str()) + posY;
 
-				// Skip to begin of next value
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+                // Skip to begin of next value
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
 
-				// Get value in string format
-				strValue.clear();
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
+                // Get value in string format
+                strValue.clear();
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
-				// Read z value
-				vertex.z = Utils::StrToFloat((char *)strValue.c_str()) + posZ;
+                // Read z value
+                vertex.z = Utils::StrToFloat((char *)strValue.c_str()) + posZ;
 
-				// Put the new vertex in the normals list
-				vnList.push_back(vertex);
-			}
+                // Put the new vertex in the normals list
+                vnList.push_back(vertex);
+            }
 
-			// Vertex texture found
-			if ((strObjectLine[pos] == 'v') && (strObjectLine[pos + 1] == 't'))
-			{
-				found = true;
+            // Vertex texture found
+            if ((strObjectLine[pos] == 'v') && (strObjectLine[pos + 1] == 't'))
+            {
+                found = true;
 
-				std::string strValue;
+                std::string strValue;
 
-				// If no object available, then create new
-				if (pMesh == NULL)
-				{
-					if (!CreateCurrentMesh("unknown")) return (false);
-				}
+                // If no object available, then create new
+                if (pMesh == NULL)
+                {
+                    if (!CreateCurrentMesh("unknown")) return (false);
+                }
 
-				// Create vertex
-				VecMat::Vertex vertex;
+                // Create vertex
+                VecMat::Vertex vertex;
 
-				// Set all coordinates at 0 by default
-				vertex.x = 0.0f;
-				vertex.y = 0.0f;
-				vertex.z = 0.0f;
+                // Set all coordinates at 0 by default
+                vertex.x = 0.0f;
+                vertex.y = 0.0f;
+                vertex.z = 0.0f;
 
-				// Skip 'v', 't', spaces and tabs
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'v') || (strObjectLine[pos] == 't') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+                // Skip 'v', 't', spaces and tabs
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'v') || (strObjectLine[pos] == 't') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
 
-				// Get value in string format
-				strValue.clear();
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
+                // Get value in string format
+                strValue.clear();
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
-				// Read x value
-				vertex.x = Utils::StrToFloat((char *)strValue.c_str()) + posX;
-
-				// Skip to begin of next value
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
-
-				// Get value in string format
-				strValue.clear();
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
-
-				// Read y value
-				vertex.y = Utils::StrToFloat((char *)strValue.c_str()) + posY;
-
-				// Skip to begin of next value
-				while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
-
-				// Get value in string format
-				strValue.clear();
-				while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
-
-				// Read z value
-				vertex.z = Utils::StrToFloat((char *)strValue.c_str()) + posZ;
-
-				// Put the new vertex in the vertex texture list
-				vtList.push_back(vertex);
-			}
-
-			// Face found
-			if ((strObjectLine[pos] == 'f') && ((strObjectLine[pos + 1] == ' ') || (strObjectLine[pos + 1] == '\t')))
-			{
-				found = true;
-
-				std::string strValue;
-
-				// If no object available, then create new
-				if (pMesh == NULL)
-				{
-					if (!CreateCurrentMesh((char *)"unknown")) return (false);
-				}
-
-				// Read all indices (of vertices) from this face into a temporary polygon list
-				std::vector<int> poly;
-
-				while (pos < strObjectLine.length())
-				{
-					// Skip 'f', spaces and tabs
-					while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'f') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
-
-					// Get value in string format
-					strValue.clear();
-					while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t') && (strObjectLine[pos] != '/')) strValue.push_back(strObjectLine[pos++]);
-
-					// Read value (-1 because the object file uses 1 as first vertex index for this face, we use 0)
-					// Also subtract the offset for the vertices
-					unsigned int ver = atoi(strValue.c_str()) - 1 - offsetV;
-
-					// Check if vertex number is within range
-					if ((ver >= 0) && (ver < vList.size()))
-					{
-						poly.push_back(ver);
-					} else
-					{
-						std::string message = "Vertex not in range in line: ";
-						message.append(strObjectLine);
-						Error::WriteLog("ERROR", "Objects::DecodeObjectLine", message.c_str());
-						return(false);
-					}
-
-					// Skip to begin of next value
-					while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
-
-					// Check if a texture vertex is provided
-					if (strObjectLine[pos] == '/')
-					{
-						pos++;
-						if ((pos < strObjectLine.length()) && (strObjectLine[pos] != '/'))
-						{
-							// Get value in string format
-							strValue.clear();
-							while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
-
-							// Read value (-1 because the object file uses 1 as first vertex index for this face, we use 0)
-							// Also subtract the offset for the texture vertices
-							unsigned int tex = atoi(strValue.c_str()) - 1 - offsetT;
-
-							// Create a new mapping
-							VecMat::Map mapping;
-							mapping.ver = ver;
-							mapping.tex = tex;
-
-							// Write the texture vertex
-							mList.push_back(mapping);
-						}
-
-						// Skip to end of value
-						while ((pos < strObjectLine.length()) && ((strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t'))) pos++;
-					}
-				}
-
-				// If the number of vertices in this face is more than 3 then triangulate (make triangles)
-				if (poly.size() > 3)
-				{
-					//  Invoke the triangulator to triangulate this polygon (put result in the fList).
-					if (!Triangulate::Process(poly, vList, fList))
-					{
-						// If error then add in list
-						pMesh->numTriangulationErrors++;
-					}
-				} else
-					if (poly.size() == 3)
-					{
-						// Create face
-						VecMat::Face face;
-
-						// Set all coordinates
-						face.first = poly[0];
-						face.second = poly[1];
-						face.third = poly[2];
-
-						// Put the new face in the faces list
-						fList.push_back(face);
-					} else
-					{
-						Error::WriteLog("WARNING", "Objects::DecodeObjectLine", "Face has less then 3 verices => ignored");
-					}
-			}
-
-			if (!found)
-			{
-				std::string message = "Unknown part in object file: ";
-				message.append(strObjectLine);
-				Error::WriteLog("WARNING", "Objects::DecodeObjectLine", message.c_str());
-			}
-		}
+                // Read x value
+                vertex.x = Utils::StrToFloat((char *)strValue.c_str()) + posX;
+
+                // Skip to begin of next value
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+
+                // Get value in string format
+                strValue.clear();
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
+
+                // Read y value
+                vertex.y = Utils::StrToFloat((char *)strValue.c_str()) + posY;
+
+                // Skip to begin of next value
+                while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+
+                // Get value in string format
+                strValue.clear();
+                while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
+
+                // Read z value
+                vertex.z = Utils::StrToFloat((char *)strValue.c_str()) + posZ;
+
+                // Put the new vertex in the vertex texture list
+                vtList.push_back(vertex);
+            }
+
+            // Face found
+            if ((strObjectLine[pos] == 'f') && ((strObjectLine[pos + 1] == ' ') || (strObjectLine[pos + 1] == '\t')))
+            {
+                found = true;
+
+                std::string strValue;
+
+                // If no object available, then create new
+                if (pMesh == NULL)
+                {
+                    if (!CreateCurrentMesh((char *)"unknown")) return (false);
+                }
+
+                // Read all indices (of vertices) from this face into a temporary polygon list
+                std::vector<int> poly;
+
+                while (pos < strObjectLine.length())
+                {
+                    // Skip 'f', spaces and tabs
+                    while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'f') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+
+                    // Get value in string format
+                    strValue.clear();
+                    while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t') && (strObjectLine[pos] != '/')) strValue.push_back(strObjectLine[pos++]);
+
+                    // Read value (-1 because the object file uses 1 as first vertex index for this face, we use 0)
+                    // Also subtract the offset for the vertices
+                    unsigned int ver = atoi(strValue.c_str()) - 1 - offsetV;
+
+                    // Check if vertex number is within range
+                    if ((ver >= 0) && (ver < vList.size()))
+                    {
+                        poly.push_back(ver);
+                    } else
+                    {
+                        std::string message = "Vertex not in range in line: ";
+                        message.append(strObjectLine);
+                        Error::WriteLog("ERROR", "Objects::DecodeObjectLine", message.c_str());
+                        return(false);
+                    }
+
+                    // Skip to begin of next value
+                    while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
+
+                    // Check if a texture vertex is provided
+                    if (strObjectLine[pos] == '/')
+                    {
+                        pos++;
+                        if ((pos < strObjectLine.length()) && (strObjectLine[pos] != '/'))
+                        {
+                            // Get value in string format
+                            strValue.clear();
+                            while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
+
+                            // Read value (-1 because the object file uses 1 as first vertex index for this face, we use 0)
+                            // Also subtract the offset for the texture vertices
+                            unsigned int tex = atoi(strValue.c_str()) - 1 - offsetT;
+
+                            // Create a new mapping
+                            VecMat::Map mapping;
+                            mapping.ver = ver;
+                            mapping.tex = tex;
+
+                            // Write the texture vertex
+                            mList.push_back(mapping);
+                        }
+
+                        // Skip to end of value
+                        while ((pos < strObjectLine.length()) && ((strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t'))) pos++;
+                    }
+                }
+
+                // If the number of vertices in this face is more than 3 then triangulate (make triangles)
+                if (poly.size() > 3)
+                {
+                    //  Invoke the triangulator to triangulate this polygon (put result in the fList).
+                    if (!Triangulate::Process(poly, vList, fList))
+                    {
+                        // If error then add in list
+                        pMesh->numTriangulationErrors++;
+                    }
+                } else
+                    if (poly.size() == 3)
+                    {
+                        // Create face
+                        VecMat::Face face;
+
+                        // Set all coordinates
+                        face.first = poly[0];
+                        face.second = poly[1];
+                        face.third = poly[2];
+
+                        // Put the new face in the faces list
+                        fList.push_back(face);
+                    } else
+                    {
+                        Error::WriteLog("WARNING", "Objects::DecodeObjectLine", "Face has less then 3 verices => ignored");
+                    }
+            }
+
+            if (!found)
+            {
+                std::string message = "Unknown part in object file: ";
+                message.append(strObjectLine);
+                Error::WriteLog("WARNING", "Objects::DecodeObjectLine", message.c_str());
+            }
+        }
     } catch (std::exception& e)
     {
-		std::string message = "Exception decoding object line: ";
-		message.append(strObjectLine);
-		message.append(": ");
-		message.append(e.what());
+        std::string message = "Exception decoding object line: ";
+        message.append(strObjectLine);
+        message.append(": ");
+        message.append(e.what());
         Error::WriteLog("EXCEPTION", "Objects::DecodeObjectLine", message.c_str());
 
         delete (pMesh);
@@ -1086,10 +1086,10 @@ void Objects::CloseCurrentMesh (void)
         mList.clear();
     } catch (std::exception& e)
     {
-		std::string message = "Exception closing mesh: ";
+        std::string message = "Exception closing mesh: ";
         message.append(pMesh->name);
-		message.append(": ");
-		message.append(e.what());
+        message.append(": ");
+        message.append(e.what());
         Error::WriteLog("EXCEPTION", "Objects::CloseCurrentMesh", message.c_str());
 
         // Free memory
@@ -1110,43 +1110,43 @@ void Objects::CloseCurrentMesh (void)
 *********************************************************************/
 bool Objects::ReadMaterialFile(std::string name)
 {
-	std::string strMaterialFile;
-	strMaterialFile.append(applicationFolder + "\\objects\\");
-	strMaterialFile.append(name);
+    std::string strMaterialFile;
+    strMaterialFile.append(applicationFolder + "\\objects\\");
+    strMaterialFile.append(name);
 
-	// Open file stream (object file)
-	std::ifstream materialFile(strMaterialFile);
-	if (materialFile)
-	{
-		std::string strMaterialLine;
-		unsigned int lineMaterialFile = 1;
-		while (std::getline(materialFile, strMaterialLine))
-		{
-			bool result = DecodeMaterialLine(strMaterialLine);
-			if (!result)
-			{
-				std::string message = "Error reading line in material file: \r\n" + strMaterialFile + "\r\nSkipping line " + Utils::IntToStr(lineMaterialFile) + " in material file";
-				Error::WriteLog("ERROR", "Objects::ReadMaterialFile", message.c_str());
-			}
+    // Open file stream (object file)
+    std::ifstream materialFile(strMaterialFile);
+    if (materialFile)
+    {
+        std::string strMaterialLine;
+        unsigned int lineMaterialFile = 1;
+        while (std::getline(materialFile, strMaterialLine))
+        {
+            bool result = DecodeMaterialLine(strMaterialLine);
+            if (!result)
+            {
+                std::string message = "Error reading line in material file: \r\n" + strMaterialFile + "\r\nSkipping line " + Utils::IntToStr(lineMaterialFile) + " in material file";
+                Error::WriteLog("ERROR", "Objects::ReadMaterialFile", message.c_str());
+            }
 
-			lineMaterialFile++;
-		}
+            lineMaterialFile++;
+        }
 
-		// Close last material
-		if (pMaterial != NULL) CloseCurrentMaterial();
+        // Close last material
+        if (pMaterial != NULL) CloseCurrentMaterial();
 
-	} else
-	{
-		std::string message = "Error reading file: \r\n" + strMaterialFile;
-		Error::WriteLog("ERROR", "Objects::ReadMaterialFile", message.c_str());
+    } else
+    {
+        std::string message = "Error reading file: \r\n" + strMaterialFile;
+        Error::WriteLog("ERROR", "Objects::ReadMaterialFile", message.c_str());
 
-		return (false);
-	}
+        return (false);
+    }
 
-	// Close material file
-	materialFile.close();
+    // Close material file
+    materialFile.close();
 
-	return (true);
+    return (true);
 }
 
 /*********************************************************************
@@ -1154,349 +1154,349 @@ bool Objects::ReadMaterialFile(std::string name)
 *********************************************************************/
 bool Objects::DecodeMaterialLine(std::string strMaterialLine)
 {
-	try
-	{
-		unsigned int pos = 0;
-
-		// Skip spaces and tabs at the beginning of a new line
-		while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-	
-		// Comment found
-		if (strMaterialLine[pos] == '#')
-		{
-			// Just return
-			return (true);
-		}
-
-		// New material found
-		if ((strMaterialLine[pos] == 'n') && (strMaterialLine[pos+1] == 'e') && (strMaterialLine[pos+2] == 'w') && (strMaterialLine[pos+3] == 'm') && (strMaterialLine[pos+4] == 't') && (strMaterialLine[pos+5] == 'l'))
-		{
-			// New material, so if old material present then close it
-			if (pMaterial != NULL) CloseCurrentMaterial();
-
-			// Skip to end of command
-			pos += 6;
-
-      		// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read name
-			std::string name;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				name.push_back(strMaterialLine[pos++]);
-			}
-
-			// Check if this material is allready in use
-			bool found = false;
-			for (unsigned int i = 0; i < numMaterials; i++)
-			{
-				if (!pMaterialArray[i]->name.compare(name)) found = true;
-			}
-
-			// If duplicate found, then show warning and ignore
-			if (found)
-			{
-				std::string message = "Duplicate material found: ";
-				message.append(name);
-				Error::WriteLog("WARNING", "Objects::DecodeMatrialLine", message.c_str());
-			} else
-			{
-				// Create new material
-				CreateCurrentMaterial(name);
-			}
-		}
-
-		// Texture found
-		if ((strMaterialLine[pos] == 'm') && (strMaterialLine[pos + 1] == 'a') && (strMaterialLine[pos + 2] == 'p') && (strMaterialLine[pos + 3] == '_') && (strMaterialLine[pos + 4] == 'K') && (strMaterialLine[pos + 5] == 'd'))
-		{
-			std::string strValue;
-
-			// Skip to end of command
-			pos += 6;
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Check for options
-			while (strMaterialLine[pos] == '-')
-			{
-				pos++;
-
-				// Scaling found
-				if (strMaterialLine[pos] == 's')
-				{
-					pos++;
-
-					// Skip spaces and tabs
-					while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-					// Get value in string format
-					strValue.clear();
-					while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
-
-					// Read x value
-					if (pMaterial != NULL) pMaterial->scaleX = Utils::StrToFloat((char *)strValue.c_str());
-
-					// Skip spaces and tabs
-					while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-					// Get value in string format
-					strValue.clear();
-					while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
-
-					// Read y value
-					if (pMaterial != NULL)  pMaterial->scaleY = Utils::StrToFloat((char *)strValue.c_str());
-
-					// Skip spaces and tabs
-					while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-					// Get value in string format
-					strValue.clear();
-					while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
-
-					// Read z value
-					if (pMaterial != NULL)  pMaterial->scaleZ = Utils::StrToFloat((char *)strValue.c_str());
-				}
-
-				// Offset found
-				if (strMaterialLine[pos] == 'o')
-				{
-					pos++;
-
-					// Skip spaces and tabs
-					while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-					// Get value in string format
-					strValue.clear();
-					while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
-
-					// Read x value
-					if (pMaterial != NULL) pMaterial->offsetX = Utils::StrToFloat((char *)strValue.c_str());
-
-					// Skip spaces and tabs
-					while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-					// Get value in string format
-					strValue.clear();
-					while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
-
-					// Read y value
-					if (pMaterial != NULL) pMaterial->offsetY = Utils::StrToFloat((char *)strValue.c_str());
-
-					// Skip spaces and tabs
-					while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-					// Get value in string format
-					strValue.clear();
-					while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
-
-					// Read z value
-					if (pMaterial != NULL) pMaterial->offsetZ = Utils::StrToFloat((char *)strValue.c_str());
-				}
-			}
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-			
-			// Read (normal) texture name
-			std::string nameTexture = "";
-			std::string nameNormal = "";
-			while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != '.')) 
-			{
-				nameTexture.push_back(strMaterialLine[pos]);
-				nameNormal.push_back(strMaterialLine[pos]);
-				pos++;
-			}
-
-			// Complete normal texture name
-			nameNormal.append("_normal");
-
-			// Add extension
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				nameTexture.push_back(strMaterialLine[pos]);
-				nameNormal.push_back(strMaterialLine[pos]);
-				pos++;
-			}
-
-			// Read texture
-			if (pMaterial != NULL) pMaterial->ReadTexture((char *)nameTexture.c_str());
-
-			// Read normal texture
-			if (pMaterial != NULL) pMaterial->ReadNormalTexture((char *)nameNormal.c_str());
-		}
-
-		// Ambient color albedo found
-		if ((strMaterialLine[pos] == 'K') && (strMaterialLine[pos + 1] == 'a'))
-		{
-			// Skip command
-			pos += 2;
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read red component
-			std::string red;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				red.push_back(strMaterialLine[pos++]);
-			}
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read green component
-			std::string green;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				green.push_back(strMaterialLine[pos++]);
-			}
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read blue component
-			std::string blue;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				blue.push_back(strMaterialLine[pos++]);
-			}
-
-			// Put in the color
-			if (pMaterial != NULL) pMaterial->pKa = new VecMat::Vec3(Utils::StrToFloat((char *)red.c_str()), Utils::StrToFloat((char *)green.c_str()), Utils::StrToFloat((char *)blue.c_str()));
-		}
-
-		// Diffuse color albedo found
-		if ((strMaterialLine[pos] == 'K') && (strMaterialLine[pos + 1] == 'd'))
-		{
-			// Skip command
-			pos += 2;
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read red component
-			std::string red;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				red.push_back(strMaterialLine[pos++]);
-			}
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read green component
-			std::string green;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				green.push_back(strMaterialLine[pos++]);
-			}
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read blue component
-			std::string blue;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				blue.push_back(strMaterialLine[pos++]);
-			}
-
-			// Put in the color
-			if (pMaterial != NULL) pMaterial->pKd = new VecMat::Vec3(Utils::StrToFloat((char *)red.c_str()), Utils::StrToFloat((char *)green.c_str()), Utils::StrToFloat((char *)blue.c_str()));
-		}
-
-		// Specular color albedo found
-		if ((strMaterialLine[pos] == 'K') && (strMaterialLine[pos + 1] == 's'))
-		{
-			// Skip command
-			pos += 2;
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read red component
-			std::string red;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				red.push_back(strMaterialLine[pos++]);
-			}
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read green component
-			std::string green;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				green.push_back(strMaterialLine[pos++]);
-			}
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read blue component
-			std::string blue;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				blue.push_back(strMaterialLine[pos++]);
-			}
-
-			// Put in the color
-			if (pMaterial != NULL) pMaterial->pKs = new VecMat::Vec3(Utils::StrToFloat((char *)red.c_str()), Utils::StrToFloat((char *)green.c_str()), Utils::StrToFloat((char *)blue.c_str()));
-		}
-
-		// Specular reflectivity found
-		if ((strMaterialLine[pos] == 'N') && (strMaterialLine[pos + 1] == 's'))
-		{
-			// Skip command
-			pos += 2;
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read specular factor
-			std::string specular;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				specular.push_back(strMaterialLine[pos++]);
-			}
-
-			// Put in the color
-			if (pMaterial != NULL) pMaterial->iKn = atoi((char *)specular.c_str());
-		}
-
-		// Illumination model found
-		if ((strMaterialLine[pos] == 'i') && (strMaterialLine[pos + 1] == 'l') && (strMaterialLine[pos + 2] == 'l') && (strMaterialLine[pos + 3] == 'u') && (strMaterialLine[pos + 4] == 'm'))
-		{
-			// Skip command
-			pos += 5;
-
-			// Skip spaces and tabs
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
-
-			// Read illumination model
-			std::string illum;
-			while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
-			{
-				illum.push_back(strMaterialLine[pos++]);
-			}
-
-			// Put in the color
-			if (pMaterial != NULL) pMaterial->iIllum = atoi((char *)illum.c_str());
-		}
-	} catch (std::exception& e)
-	{
-		std::string message = "Exception decoding material line: ";
-		message.append(strMaterialLine);
-		message.append(": ");
-		message.append(e.what());
-		Error::WriteLog("EXCEPTION", "Objects::DecodeMaterialLine", message.c_str());
-		return (false);
-	}
-
-	return (true);
+    try
+    {
+        unsigned int pos = 0;
+
+        // Skip spaces and tabs at the beginning of a new line
+        while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+    
+        // Comment found
+        if (strMaterialLine[pos] == '#')
+        {
+            // Just return
+            return (true);
+        }
+
+        // New material found
+        if ((strMaterialLine[pos] == 'n') && (strMaterialLine[pos+1] == 'e') && (strMaterialLine[pos+2] == 'w') && (strMaterialLine[pos+3] == 'm') && (strMaterialLine[pos+4] == 't') && (strMaterialLine[pos+5] == 'l'))
+        {
+            // New material, so if old material present then close it
+            if (pMaterial != NULL) CloseCurrentMaterial();
+
+            // Skip to end of command
+            pos += 6;
+
+              // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read name
+            std::string name;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                name.push_back(strMaterialLine[pos++]);
+            }
+
+            // Check if this material is allready in use
+            bool found = false;
+            for (unsigned int i = 0; i < numMaterials; i++)
+            {
+                if (!pMaterialArray[i]->name.compare(name)) found = true;
+            }
+
+            // If duplicate found, then show warning and ignore
+            if (found)
+            {
+                std::string message = "Duplicate material found: ";
+                message.append(name);
+                Error::WriteLog("WARNING", "Objects::DecodeMatrialLine", message.c_str());
+            } else
+            {
+                // Create new material
+                CreateCurrentMaterial(name);
+            }
+        }
+
+        // Texture found
+        if ((strMaterialLine[pos] == 'm') && (strMaterialLine[pos + 1] == 'a') && (strMaterialLine[pos + 2] == 'p') && (strMaterialLine[pos + 3] == '_') && (strMaterialLine[pos + 4] == 'K') && (strMaterialLine[pos + 5] == 'd'))
+        {
+            std::string strValue;
+
+            // Skip to end of command
+            pos += 6;
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Check for options
+            while (strMaterialLine[pos] == '-')
+            {
+                pos++;
+
+                // Scaling found
+                if (strMaterialLine[pos] == 's')
+                {
+                    pos++;
+
+                    // Skip spaces and tabs
+                    while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+                    // Get value in string format
+                    strValue.clear();
+                    while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
+
+                    // Read x value
+                    if (pMaterial != NULL) pMaterial->scaleX = Utils::StrToFloat((char *)strValue.c_str());
+
+                    // Skip spaces and tabs
+                    while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+                    // Get value in string format
+                    strValue.clear();
+                    while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
+
+                    // Read y value
+                    if (pMaterial != NULL)  pMaterial->scaleY = Utils::StrToFloat((char *)strValue.c_str());
+
+                    // Skip spaces and tabs
+                    while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+                    // Get value in string format
+                    strValue.clear();
+                    while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
+
+                    // Read z value
+                    if (pMaterial != NULL)  pMaterial->scaleZ = Utils::StrToFloat((char *)strValue.c_str());
+                }
+
+                // Offset found
+                if (strMaterialLine[pos] == 'o')
+                {
+                    pos++;
+
+                    // Skip spaces and tabs
+                    while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+                    // Get value in string format
+                    strValue.clear();
+                    while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
+
+                    // Read x value
+                    if (pMaterial != NULL) pMaterial->offsetX = Utils::StrToFloat((char *)strValue.c_str());
+
+                    // Skip spaces and tabs
+                    while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+                    // Get value in string format
+                    strValue.clear();
+                    while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
+
+                    // Read y value
+                    if (pMaterial != NULL) pMaterial->offsetY = Utils::StrToFloat((char *)strValue.c_str());
+
+                    // Skip spaces and tabs
+                    while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+                    // Get value in string format
+                    strValue.clear();
+                    while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')) strValue.push_back(strMaterialLine[pos++]);
+
+                    // Read z value
+                    if (pMaterial != NULL) pMaterial->offsetZ = Utils::StrToFloat((char *)strValue.c_str());
+                }
+            }
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+            
+            // Read (normal) texture name
+            std::string nameTexture = "";
+            std::string nameNormal = "";
+            while ((pos < strMaterialLine.length()) && (strMaterialLine[pos] != '.')) 
+            {
+                nameTexture.push_back(strMaterialLine[pos]);
+                nameNormal.push_back(strMaterialLine[pos]);
+                pos++;
+            }
+
+            // Complete normal texture name
+            nameNormal.append("_normal");
+
+            // Add extension
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                nameTexture.push_back(strMaterialLine[pos]);
+                nameNormal.push_back(strMaterialLine[pos]);
+                pos++;
+            }
+
+            // Read texture
+            if (pMaterial != NULL) pMaterial->ReadTexture((char *)nameTexture.c_str());
+
+            // Read normal texture
+            if (pMaterial != NULL) pMaterial->ReadNormalTexture((char *)nameNormal.c_str());
+        }
+
+        // Ambient color albedo found
+        if ((strMaterialLine[pos] == 'K') && (strMaterialLine[pos + 1] == 'a'))
+        {
+            // Skip command
+            pos += 2;
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read red component
+            std::string red;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                red.push_back(strMaterialLine[pos++]);
+            }
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read green component
+            std::string green;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                green.push_back(strMaterialLine[pos++]);
+            }
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read blue component
+            std::string blue;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                blue.push_back(strMaterialLine[pos++]);
+            }
+
+            // Put in the color
+            if (pMaterial != NULL) pMaterial->pKa = new VecMat::Vec3(Utils::StrToFloat((char *)red.c_str()), Utils::StrToFloat((char *)green.c_str()), Utils::StrToFloat((char *)blue.c_str()));
+        }
+
+        // Diffuse color albedo found
+        if ((strMaterialLine[pos] == 'K') && (strMaterialLine[pos + 1] == 'd'))
+        {
+            // Skip command
+            pos += 2;
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read red component
+            std::string red;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                red.push_back(strMaterialLine[pos++]);
+            }
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read green component
+            std::string green;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                green.push_back(strMaterialLine[pos++]);
+            }
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read blue component
+            std::string blue;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                blue.push_back(strMaterialLine[pos++]);
+            }
+
+            // Put in the color
+            if (pMaterial != NULL) pMaterial->pKd = new VecMat::Vec3(Utils::StrToFloat((char *)red.c_str()), Utils::StrToFloat((char *)green.c_str()), Utils::StrToFloat((char *)blue.c_str()));
+        }
+
+        // Specular color albedo found
+        if ((strMaterialLine[pos] == 'K') && (strMaterialLine[pos + 1] == 's'))
+        {
+            // Skip command
+            pos += 2;
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read red component
+            std::string red;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                red.push_back(strMaterialLine[pos++]);
+            }
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read green component
+            std::string green;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                green.push_back(strMaterialLine[pos++]);
+            }
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read blue component
+            std::string blue;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                blue.push_back(strMaterialLine[pos++]);
+            }
+
+            // Put in the color
+            if (pMaterial != NULL) pMaterial->pKs = new VecMat::Vec3(Utils::StrToFloat((char *)red.c_str()), Utils::StrToFloat((char *)green.c_str()), Utils::StrToFloat((char *)blue.c_str()));
+        }
+
+        // Specular reflectivity found
+        if ((strMaterialLine[pos] == 'N') && (strMaterialLine[pos + 1] == 's'))
+        {
+            // Skip command
+            pos += 2;
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read specular factor
+            std::string specular;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                specular.push_back(strMaterialLine[pos++]);
+            }
+
+            // Put in the color
+            if (pMaterial != NULL) pMaterial->iKn = atoi((char *)specular.c_str());
+        }
+
+        // Illumination model found
+        if ((strMaterialLine[pos] == 'i') && (strMaterialLine[pos + 1] == 'l') && (strMaterialLine[pos + 2] == 'l') && (strMaterialLine[pos + 3] == 'u') && (strMaterialLine[pos + 4] == 'm'))
+        {
+            // Skip command
+            pos += 5;
+
+            // Skip spaces and tabs
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] == ' ') || (strMaterialLine[pos] == '\t'))) pos++;
+
+            // Read illumination model
+            std::string illum;
+            while ((pos < strMaterialLine.length()) && ((strMaterialLine[pos] != ' ') && (strMaterialLine[pos] != '\t')))
+            {
+                illum.push_back(strMaterialLine[pos++]);
+            }
+
+            // Put in the color
+            if (pMaterial != NULL) pMaterial->iIllum = atoi((char *)illum.c_str());
+        }
+    } catch (std::exception& e)
+    {
+        std::string message = "Exception decoding material line: ";
+        message.append(strMaterialLine);
+        message.append(": ");
+        message.append(e.what());
+        Error::WriteLog("EXCEPTION", "Objects::DecodeMaterialLine", message.c_str());
+        return (false);
+    }
+
+    return (true);
 }
 
 /*********************************************************************
@@ -1618,13 +1618,13 @@ void Objects::SaveMeshes (void)
                 contentMaterial.append (pMeshArray[i]->name);
                 contentMaterial.append (".bmp\r\n\r\n");
             }
-		} catch (std::exception& e)
-		{
-			std::string message = "Could not save mesh: ";
+        } catch (std::exception& e)
+        {
+            std::string message = "Could not save mesh: ";
             message.append (pMeshArray[i]->name);
-			message.append(": ");
-			message.append(e.what());
-			Error::WriteLog("EXCEPTION", "Objects::SaveMeshes", message.c_str());
+            message.append(": ");
+            message.append(e.what());
+            Error::WriteLog("EXCEPTION", "Objects::SaveMeshes", message.c_str());
             return;
         }
     }
@@ -1672,43 +1672,43 @@ void Objects::CreateSky (void)
         // Fill vertices list
         VecMat::Vertex *ptrV = pMesh->pVertices;
 
-		// back
-		*ptrV++ = VecMat::Vertex(-10.0f, -5.0f, -10.0f);
-		*ptrV++ = VecMat::Vertex(-10.0f, 15.0f, -10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, 15.0f, -10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, -5.0f, -10.0f);
+        // back
+        *ptrV++ = VecMat::Vertex(-10.0f, -5.0f, -10.0f);
+        *ptrV++ = VecMat::Vertex(-10.0f, 15.0f, -10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, 15.0f, -10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, -5.0f, -10.0f);
 
-		// left
-		*ptrV++ = VecMat::Vertex(-10.0f, -5.0f, -10.0f);
-		*ptrV++ = VecMat::Vertex(-10.0f, 15.0f, -10.0f);
-		*ptrV++ = VecMat::Vertex(-10.0f, 15.0f, 10.0f);
-		*ptrV++ = VecMat::Vertex(-10.0f, -5.0f, 10.0f);
+        // left
+        *ptrV++ = VecMat::Vertex(-10.0f, -5.0f, -10.0f);
+        *ptrV++ = VecMat::Vertex(-10.0f, 15.0f, -10.0f);
+        *ptrV++ = VecMat::Vertex(-10.0f, 15.0f, 10.0f);
+        *ptrV++ = VecMat::Vertex(-10.0f, -5.0f, 10.0f);
 
-		// right
-		*ptrV++ = VecMat::Vertex(10.0f, -5.0f, -10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, 15.0f, -10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, 15.0f, 10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, -5.0f, 10.0f);
+        // right
+        *ptrV++ = VecMat::Vertex(10.0f, -5.0f, -10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, 15.0f, -10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, 15.0f, 10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, -5.0f, 10.0f);
 
-		// front
-		*ptrV++ = VecMat::Vertex(-10.0f, -5.0f, 10.0f);
-		*ptrV++ = VecMat::Vertex(-10.0f, 15.0f, 10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, 15.0f, 10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, -5.0f, 10.0f);
+        // front
+        *ptrV++ = VecMat::Vertex(-10.0f, -5.0f, 10.0f);
+        *ptrV++ = VecMat::Vertex(-10.0f, 15.0f, 10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, 15.0f, 10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, -5.0f, 10.0f);
 
-		// top
-		*ptrV++ = VecMat::Vertex(-10.0f, 15.0f, -10.0f);
-		*ptrV++ = VecMat::Vertex(-10.0f, 15.0f, 10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, 15.0f, 10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, 15.0f, -10.0f);
+        // top
+        *ptrV++ = VecMat::Vertex(-10.0f, 15.0f, -10.0f);
+        *ptrV++ = VecMat::Vertex(-10.0f, 15.0f, 10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, 15.0f, 10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, 15.0f, -10.0f);
 
-		// bottom
-		*ptrV++ = VecMat::Vertex(-10.0f, -5.0f, -10.0f);
-		*ptrV++ = VecMat::Vertex(-10.0f, -5.0f, 10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, -5.0f, 10.0f);
-		*ptrV++ = VecMat::Vertex(10.0f, -5.0f, -10.0f);
+        // bottom
+        *ptrV++ = VecMat::Vertex(-10.0f, -5.0f, -10.0f);
+        *ptrV++ = VecMat::Vertex(-10.0f, -5.0f, 10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, -5.0f, 10.0f);
+        *ptrV++ = VecMat::Vertex(10.0f, -5.0f, -10.0f);
 
-		// Number of faces in the Sky (Cube) (triangles, not squares)
+        // Number of faces in the Sky (Cube) (triangles, not squares)
         pMesh->numFaces = 12;
 
         // Allocate memory for the Sky faces
@@ -1965,12 +1965,12 @@ void Objects::CreateSky (void)
 
         // Add material to counter
         pMesh->numMaterials++;
-	} catch (std::exception& e)
-	{
-		std::string message = "Exception: ";
-		message.append(": ");
-		message.append(e.what());
-		Error::WriteLog("EXCEPTION", "Objects::CreateSky", message.c_str());
+    } catch (std::exception& e)
+    {
+        std::string message = "Exception: ";
+        message.append(": ");
+        message.append(e.what());
+        Error::WriteLog("EXCEPTION", "Objects::CreateSky", message.c_str());
         return;
     }
 }
@@ -1980,33 +1980,33 @@ void Objects::CreateSky (void)
 *********************************************************************/
 void Objects::CreateAxis (void)
 {
-	try
-	{
-		// Get an x-axis 
-		Axis *pAxisX = new Axis(0.2f, 'x');
+    try
+    {
+        // Get an x-axis 
+        Axis *pAxisX = new Axis(0.2f, 'x');
 
-		// Add new Mesh to array of pointers (Objects list)
-		pMeshArray[numMeshes++] = pAxisX;
+        // Add new Mesh to array of pointers (Objects list)
+        pMeshArray[numMeshes++] = pAxisX;
 
-		// Get an y-axis 
-		Axis *pAxisY = new Axis(0.2f, 'y');
+        // Get an y-axis 
+        Axis *pAxisY = new Axis(0.2f, 'y');
 
-		// Add new Mesh to array of pointers (Objects list)
-		pMeshArray[numMeshes++] = pAxisY;
+        // Add new Mesh to array of pointers (Objects list)
+        pMeshArray[numMeshes++] = pAxisY;
 
-		// Get an z-axis 
-		Axis *pAxisZ = new Axis(0.2f, 'z');
+        // Get an z-axis 
+        Axis *pAxisZ = new Axis(0.2f, 'z');
 
-		// Add new Mesh to array of pointers (Objects list)
-		pMeshArray[numMeshes++] = pAxisZ;
+        // Add new Mesh to array of pointers (Objects list)
+        pMeshArray[numMeshes++] = pAxisZ;
 
-	} catch (std::exception& e)
-	{
-		std::string message = "Exception: ";
-		message.append(e.what());
-		Error::WriteLog("EXCEPTION", "Objects::CreateAxis", message.c_str());
+    } catch (std::exception& e)
+    {
+        std::string message = "Exception: ";
+        message.append(e.what());
+        Error::WriteLog("EXCEPTION", "Objects::CreateAxis", message.c_str());
         return;
-	}
+    }
 }
 
 /*********************************************************************
@@ -2030,9 +2030,9 @@ void Objects::CreateTerrain (void)
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKa = new VecMat::Vec3(1.0f, 1.0f, 1.0f);
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
-		pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleX = 0.005f;
-		pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleY = 0.005f;
-		pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleZ = 0.005f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleX = 0.005f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleY = 0.005f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleZ = 0.005f;
 
         // Read texture
         std::string fileName = applicationFolder + "\\textures\\terrain.bmp";
@@ -2058,10 +2058,10 @@ void Objects::CreateTerrain (void)
 
         // Fill vertices list
         VecMat::Vertex *ptrV = pMesh->pVertices;
-		*ptrV++ = VecMat::Vertex(-1000.0f, 0.0f, -1000.0f);
-		*ptrV++ = VecMat::Vertex(-1000.0f, 0.0f,  1000.0f);
-		*ptrV++ = VecMat::Vertex( 1000.0f, 0.0f,  1000.0f);
-		*ptrV++ = VecMat::Vertex( 1000.0f, 0.0f, -1000.0f);
+        *ptrV++ = VecMat::Vertex(-1000.0f, 0.0f, -1000.0f);
+        *ptrV++ = VecMat::Vertex(-1000.0f, 0.0f,  1000.0f);
+        *ptrV++ = VecMat::Vertex( 1000.0f, 0.0f,  1000.0f);
+        *ptrV++ = VecMat::Vertex( 1000.0f, 0.0f, -1000.0f);
 
         // Number of faces in the Terrain (triangles, not squares)
         pMesh->numFaces = 2;
@@ -2075,8 +2075,8 @@ void Objects::CreateTerrain (void)
         // Fill faces list
         VecMat::Face *ptrF = pMesh->pFaces;
 
-		*ptrF++ = VecMat::Face(0, 1, 2);
-		*ptrF++ = VecMat::Face(2, 3, 0);
+        *ptrF++ = VecMat::Face(0, 1, 2);
+        *ptrF++ = VecMat::Face(2, 3, 0);
 
         // Number of texture vertices in the Terrain
         pMesh->numTextureVertices = 4;
@@ -2089,10 +2089,10 @@ void Objects::CreateTerrain (void)
 
         // Fill texture vertices list
         VecMat::Vertex *ptrTV = pMesh->pTextureVertices;
-		*ptrTV++ = VecMat::Vertex(0.0f, 0.0f, 0.0f);
-		*ptrTV++ = VecMat::Vertex(1.0f, 0.0f, 0.0f);
-		*ptrTV++ = VecMat::Vertex(1.0f, 1.0f, 0.0f);
-		*ptrTV++ = VecMat::Vertex(0.0f, 1.0f, 0.0f);
+        *ptrTV++ = VecMat::Vertex(0.0f, 0.0f, 0.0f);
+        *ptrTV++ = VecMat::Vertex(1.0f, 0.0f, 0.0f);
+        *ptrTV++ = VecMat::Vertex(1.0f, 1.0f, 0.0f);
+        *ptrTV++ = VecMat::Vertex(0.0f, 1.0f, 0.0f);
 
         // Number of vertex normals in the Terrain
         pMesh->numVertexNormals = 4;
@@ -2110,11 +2110,11 @@ void Objects::CreateTerrain (void)
             *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, 1.0f);
         }
 
-	} catch (std::exception& e)
-	{
-		std::string message = "Exception: ";
-		message.append(e.what());
-		Error::WriteLog("EXCEPTION", "Objects::CreateTerrain", message.c_str());
+    } catch (std::exception& e)
+    {
+        std::string message = "Exception: ";
+        message.append(e.what());
+        Error::WriteLog("EXCEPTION", "Objects::CreateTerrain", message.c_str());
         return;
-	}
+    }
 }
