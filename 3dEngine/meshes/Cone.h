@@ -4,18 +4,18 @@
 
 class Cone: public Mesh
 {
-	private:
+    private:
 
         // Pointers to the vertices and faces (copies to work with)
         VecMat::Vertex *pV;
         VecMat::Face   *pF;
 
-	public:
+    public:
 
-		// Constructor
-		Cone(GLfloat radius, GLint resolution, GLuint numSegments);
+        // Constructor
+        Cone(GLfloat radius, GLint resolution, GLuint numSegments);
 
-		// Destructor
-		~Cone(void);
+        // Destructor
+        ~Cone(void);
 };
 

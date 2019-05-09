@@ -3,20 +3,20 @@
 
 class Cube: public Mesh
 {
-	private:
+    private:
 
-		// Vertices to form a Cube
-		VecMat::Vertex vertices[8];
+        // Vertices to form a Cube
+        VecMat::Vertex vertices[8];
 
-		// Faces to form a Cube (triangles, not squares)
-		VecMat::Face faces[12];
+        // Faces to form a Cube (triangles, not squares)
+        VecMat::Face faces[12];
 
-	public:
+    public:
 
-		// Constructor
-		Cube(GLfloat size);
+        // Constructor
+        Cube(GLfloat size);
 
-		// Destructor
-		~Cube(void);
+        // Destructor
+        ~Cube(void);
 };
 

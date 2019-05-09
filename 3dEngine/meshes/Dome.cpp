@@ -14,8 +14,8 @@ Dome::Dome(GLfloat radius, GLint resolution, GLuint numSegments)
     // Temp value (argument)
     GLfloat arg;
 
-	// Number of vertices in the Dome
-	numVertices = resolution * 4 * numSegments;
+    // Number of vertices in the Dome
+    numVertices = resolution * 4 * numSegments;
 
     // Allocate memory for the Dome vertices
     pVertices = (VecMat::Vertex*) malloc (numVertices * sizeof(VecMat::Vertex));
@@ -26,8 +26,8 @@ Dome::Dome(GLfloat radius, GLint resolution, GLuint numSegments)
     // Copy vertices pointer to work with
     pV = pVertices;
 
-	// Number of faces in the Dome (triangles, not squares)
-	numFaces = resolution * 8 * numSegments;
+    // Number of faces in the Dome (triangles, not squares)
+    numFaces = resolution * 8 * numSegments;
 
     // Allocate memory for the Dome faces
     pFaces = (VecMat::Face*) malloc (numFaces * sizeof(VecMat::Face));

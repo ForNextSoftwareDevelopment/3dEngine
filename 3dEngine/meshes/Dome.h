@@ -4,18 +4,18 @@
 
 class Dome: public Mesh
 {
-	private:
+    private:
 
         // Pointers to the vertices and faces (copies to work with)
         VecMat::Vertex *pV;
         VecMat::Face   *pF;
 
-	public:
+    public:
 
-		// Constructor
-		Dome(GLfloat radius, GLint resolution, GLuint numSegments);
+        // Constructor
+        Dome(GLfloat radius, GLint resolution, GLuint numSegments);
 
-		// Destructor
-		~Dome(void);
+        // Destructor
+        ~Dome(void);
 };
 

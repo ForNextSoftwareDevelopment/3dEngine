@@ -14,8 +14,8 @@ Cone::Cone(GLfloat radius, GLint resolution, GLuint numSegments)
     // Temp value (argument)
     GLfloat arg;
 
-	// Number of vertices in the Cone
-	numVertices = resolution * 4 * numSegments;
+    // Number of vertices in the Cone
+    numVertices = resolution * 4 * numSegments;
 
     // Allocate memory for the Cone vertices
     pVertices = (VecMat::Vertex*) malloc (numVertices * sizeof(VecMat::Vertex));
@@ -26,8 +26,8 @@ Cone::Cone(GLfloat radius, GLint resolution, GLuint numSegments)
     // Copy vertices pointer to work with
     pV = pVertices;
 
-	// Number of faces in the Cone (triangles, not squares)
-	numFaces = resolution * 8 * numSegments;
+    // Number of faces in the Cone (triangles, not squares)
+    numFaces = resolution * 8 * numSegments;
 
     // Allocate memory for the Cone faces
     pFaces = (VecMat::Face*) malloc (numFaces * sizeof(VecMat::Face));

@@ -11,8 +11,8 @@ Tube::Tube(GLfloat radius, GLint resolution, GLuint numSegments)
     // Temp value (argument)
     GLfloat arg;
 
-	// Number of vertices in the Tube
-	numVertices = resolution * 4 * numSegments;
+    // Number of vertices in the Tube
+    numVertices = resolution * 4 * numSegments;
 
     // Allocate memory for the Tube vertices
     pVertices = (VecMat::Vertex*) malloc (numVertices * sizeof(VecMat::Vertex));
@@ -23,8 +23,8 @@ Tube::Tube(GLfloat radius, GLint resolution, GLuint numSegments)
     // Copy vertices pointer to work with
     pV = pVertices;
 
-	// Number of faces in the Tube (triangles, not squares)
-	numFaces = resolution * 8 * numSegments;
+    // Number of faces in the Tube (triangles, not squares)
+    numFaces = resolution * 8 * numSegments;
 
     // Allocate memory for the Tube faces
     pFaces = (VecMat::Face*) malloc (numFaces * sizeof(VecMat::Face));
