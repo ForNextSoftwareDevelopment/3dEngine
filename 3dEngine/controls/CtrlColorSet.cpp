@@ -37,7 +37,7 @@ CtrlColorSet::~CtrlColorSet (void)
 *********************************************************************/
 HWND CtrlColorSet::Create (int posX, int posY, int sizeX, int sizeY)
 {
-	WNDCLASS wndClass = { 0 };
+    WNDCLASS wndClass = { 0 };
 
     wndClass.style          = CS_HREDRAW | CS_VREDRAW;
     wndClass.lpfnWndProc    = (WNDPROC) WndProcControl;

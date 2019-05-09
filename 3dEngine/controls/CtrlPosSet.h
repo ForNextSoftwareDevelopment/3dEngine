@@ -45,5 +45,5 @@ class CtrlPosSet
         HWND Create (int posX, int posY, int sizeX, int sizeY);
 
         // Get (control)window handle
-	    HWND GetHWnd(void);
+        HWND GetHWnd(void);
 };
