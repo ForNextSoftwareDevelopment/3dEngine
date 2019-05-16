@@ -74,7 +74,7 @@ const char *Shader::fs_source[] =
     "uniform vec3 specular_albedo       = vec3(1.0, 1.0, 1.0);                                              \n"
     "uniform int  reflectivity          = 0;                                                                \n"
     "uniform int  illumination          = 0;                                                                \n"
-    "uniform bool texture_enable        = true;                                                             \n"
+    "uniform bool texture_color_enable  = true;                                                             \n"
     "uniform bool texture_normal_enable = true;                                                             \n"
     "uniform bool test                  = false;                                                            \n"
     "uniform vec3 texture_scale         = vec3(1.0, 1.0, 1.0);                                              \n"
@@ -93,7 +93,7 @@ const char *Shader::fs_source[] =
     "   vec3 tangent_position   = fs_in.tangent_position;                                                   \n"
     "   vec3 bitangent_position = fs_in.bitangent_position;                                                 \n"
     "                                                                                                       \n"
-    "   if (texture_enable && texture_normal_enable)                                                        \n"
+    "   if (texture_color_enable && texture_normal_enable)                                                  \n"
     "   {                                                                                                   \n"
     "       float x, y;                                                                                     \n"
     "       x =  -texture_position.x / texture_scale.x - texture_offset.x;                                  \n"
@@ -122,7 +122,7 @@ const char *Shader::fs_source[] =
     "       if (test) color = vec4(NewNormal, 1);                                                           \n"
     "   }                                                                                                   \n"
     "                                                                                                       \n"
-    "   if (texture_enable && !texture_normal_enable)                                                       \n"
+    "   if (texture_color_enable && !texture_normal_enable)                                                 \n"
     "   {                                                                                                   \n"
     "       float x, y;                                                                                     \n"
     "       x =  -texture_position.x / texture_scale.x - texture_offset.x;                                  \n"
@@ -142,7 +142,7 @@ const char *Shader::fs_source[] =
     "       if (test) color = vec4(NewNormal, 1);                                                           \n"
     "   }                                                                                                   \n"
     "                                                                                                       \n"
-    "   if (!texture_enable)                                                                                \n"
+    "   if (!texture_color_enable)                                                                          \n"
     "   {                                                                                                   \n"
     "       vec3 Normal = normalize(normal_position);                                                       \n"
     "                                                                                                       \n"
@@ -331,7 +331,7 @@ void Shader::CreateProgram ()
         ambient_albedo_location        = glGetUniformLocation(program, "ambient_albedo");
         diffuse_albedo_location        = glGetUniformLocation(program, "diffuse_albedo");
         specular_albedo_location       = glGetUniformLocation(program, "specular_albedo");
-        texture_enable_location        = glGetUniformLocation(program, "texture_enable");
+        texture_color_enable_location  = glGetUniformLocation(program, "texture_color_enable");
         texture_normal_enable_location = glGetUniformLocation(program, "texture_normal_enable");
         texture_data_location          = glGetUniformLocation(program, "texture_data");
         texture_normal_data_location   = glGetUniformLocation(program, "texture_normal_data");
@@ -594,21 +594,15 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
         GLfloat offsetPosX = 0.0f;
         GLfloat offsetPosY = 0.0f;
         GLfloat offsetPosZ = 0.0f;
-        if (offsetPos > 0)
-        {
-            offsetPosX = offsetPos * cos(VecMat::DtoR(angle_y));
-            offsetPosZ = offsetPos * sin(VecMat::DtoR(angle_y));
-        }
+        offsetPosX = offsetPos * cos(VecMat::DtoR(angle_y));
+        offsetPosZ = offsetPos * sin(VecMat::DtoR(angle_y));
 
         // Calculate all (x,y and z) angle offsets for the hdk2 device (if needed)
         GLfloat offsetAngleX = 0.0f;
         GLfloat offsetAngleY = 0.0f;
         GLfloat offsetAngleZ = 0.0f;
-        if (offsetAngle > 0)
-        {
-            offsetAngleY = offsetAngle * cos(VecMat::DtoR(angle_x));
-            offsetAngleZ = offsetAngle * sin(VecMat::DtoR(angle_x));
-        }
+        offsetAngleY = offsetAngle * cos(VecMat::DtoR(angle_x));
+        offsetAngleZ = offsetAngle * sin(VecMat::DtoR(angle_x));
 
         // Render all objects
         for (unsigned int i = 0; i < pObjects->numMeshes; i++)
@@ -664,8 +658,8 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
                     for (unsigned int j = 0; j < pObjects->pMeshArray[i]->numMaterials; j++)
                     {
                         // Set default texture mode (enabled / disabled)
-                        if (show_textures) glUniform1i(texture_enable_location, GL_TRUE);
-                        else glUniform1i(texture_enable_location, GL_FALSE);
+                        if (show_textures) glUniform1i(texture_color_enable_location, GL_TRUE);
+                        else glUniform1i(texture_color_enable_location, GL_FALSE);
 
                         // Set default texture normal map mode (enabled / disabled)
                         if (show_normalmap && pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pTextureNormalData != NULL) glUniform1i(texture_normal_enable_location, GL_TRUE);
@@ -805,7 +799,7 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
                             } else
                             {
                                 // Disable textures (not available for this material)
-                                glUniform1i(texture_enable_location, GL_FALSE);
+                                glUniform1i(texture_color_enable_location, GL_FALSE);
                             }
                         }
 
@@ -826,7 +820,7 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
                     if (show_outlining)
                     {
                         // Disable texture mode
-                        glUniform1i(texture_enable_location, GL_FALSE);
+                        glUniform1i(texture_color_enable_location, GL_FALSE);
 
                         // Set ambient to black for outlining the object
                         VecMat::Vec3 ambient_albedo(0.0f, 0.0f, 0.0f);
@@ -844,7 +838,7 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
                 if (render_mode == RM_EDGES)
                 {
                     // Disable texture mode
-                    glUniform1i(texture_enable_location, GL_FALSE);
+                    glUniform1i(texture_color_enable_location, GL_FALSE);
 
                     // Set mode
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -881,7 +875,7 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
                 if (render_mode == RM_VERTICES)
                 {
                     // Disable texture mode
-                    glUniform1i(texture_enable_location, GL_FALSE);
+                    glUniform1i(texture_color_enable_location, GL_FALSE);
 
                     // Set vertex size
                     glPointSize(vertex_size);

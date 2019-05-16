@@ -127,7 +127,7 @@ class Shader
         GLuint texture_data_location;
         GLuint texture_normal_data_location;
         GLuint texture_position_location;
-        GLuint texture_enable_location;
+        GLuint texture_color_enable_location;
         GLuint texture_normal_enable_location;
         GLuint texture_scale_location;
         GLuint texture_offset_location;

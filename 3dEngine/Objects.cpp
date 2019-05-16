@@ -1829,10 +1829,10 @@ void Objects::CreateSky (void)
         *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, -1.0f);
 
         // top
-        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  1.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  1.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  1.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  1.0f);
+        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  0.0f);
+        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  0.0f);
+        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  0.0f);
+        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  0.0f);
 
         // bottom
         *ptrVN++ = VecMat::Vertex( 0.0f,  1.0f,  0.0f);
@@ -2028,17 +2028,21 @@ void Objects::CreateTerrain (void)
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("Terrain");
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->iIllum = 1;
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKa = new VecMat::Vec3(1.0f, 1.0f, 1.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(1.0f, 1.0f, 1.0f);
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(1.0f, 1.0f, 1.0f);
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleX = 0.005f;
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleY = 0.005f;
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleZ = 0.005f;
 
-        // Read texture
-        std::string fileName = applicationFolder + "\\textures\\terrain.bmp";
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadTexture(fileName.c_str());
+		// Read texture
+		std::string textureFileName = applicationFolder + "\\textures\\terrain.bmp";
+		pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadTexture(textureFileName.c_str());
 
-        // Add new Material to array of pointers (Material list)
+		// Read normal texture
+		std::string normalFileName = applicationFolder + "\\textures\\terrain_normal.bmp";
+		pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadNormalTexture(normalFileName.c_str());
+		
+		// Add new Material to array of pointers (Material list)
         pMaterialArray[numMaterials++] = pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial;
 
         // Insert the starting face for this material
@@ -2107,10 +2111,25 @@ void Objects::CreateTerrain (void)
         VecMat::Vertex *ptrVN = pMesh->pVertexNormals;
         for (unsigned int i=0; i < pMesh->numVertexNormals; i++)
         {
-            *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, 1.0f);
+            *ptrVN++ = VecMat::Vertex( 0.0f, 1.0f, 0.0f);
         }
+	
+		// Number of face normals in the Terrain
+		pMesh->numFaceNormals = 2;
 
-    } catch (std::exception& e)
+		// Allocate memory for the Terrain face normals
+		pMesh->pFaceNormals = (VecMat::Vertex*) malloc(pMesh->numFaceNormals * sizeof(VecMat::Vertex));
+
+		// Fill this memory with 0's
+		ZeroMemory(pMesh->pFaceNormals, pMesh->numFaceNormals * sizeof(VecMat::Vertex));
+
+		// Fill face normals list
+		VecMat::Vertex *ptrFN = pMesh->pFaceNormals;
+		for (unsigned int i = 0; i < pMesh->numFaceNormals; i++)
+		{
+			*ptrFN++ = VecMat::Vertex(0.0f, 1.0f, 0.0f);
+		}
+	} catch (std::exception& e)
     {
         std::string message = "Exception: ";
         message.append(e.what());
