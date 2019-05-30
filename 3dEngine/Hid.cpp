@@ -58,14 +58,14 @@ std::string Hid::DeviceInfo()
         if (result)
         {
             // Call with 0-sized detail size, and let the function tell us how long the detail struct needs to be. The size is put in &required_size
-            SetupDiGetDeviceInterfaceDetailA(device_info_set, &device_interface_data, NULL, 0,    &required_size,    NULL);
+            SetupDiGetDeviceInterfaceDetailA(device_info_set, &device_interface_data, NULL, 0, &required_size, NULL);
 
             // Allocate a long enough structure for device_interface_detail_data
             device_interface_detail_data = (SP_DEVICE_INTERFACE_DETAIL_DATA_A*)malloc(required_size);
             device_interface_detail_data->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_A);
 
             // Get the detailed data for this device
-            result = SetupDiGetDeviceInterfaceDetailA(device_info_set, &device_interface_data, device_interface_detail_data, required_size,    NULL, NULL);
+            result = SetupDiGetDeviceInterfaceDetailA(device_info_set, &device_interface_data, device_interface_detail_data, required_size, NULL, NULL);
             if (result)
             {
                 // Populate devinfo_data

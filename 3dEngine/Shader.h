@@ -34,8 +34,8 @@ typedef unsigned int RenderMode;
 #define NPTOP             1.0f
 
 // Default offset for left and right window (eye) on extended display
-#define DEFAULTOFFSETPOS 80
-#define DEFAULTOFFSETANGLE 5
+#define DEFAULTOFFSETPOS   80
+#define DEFAULTOFFSETANGLE 10
 
 class Shader
 {

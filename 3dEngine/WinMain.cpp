@@ -362,7 +362,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                         mat4->column[3].row[3] = 1.0f;
                         
                         //pShader->SetViewAngle(mat4);
-                        */
 
 	                    double test = x*y + z*w;
 	                    if (test > 0.499) 
@@ -385,8 +384,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	                        roll= (float)asin(2*test) / (2 * PI * 360.0f);
 	                        yaw = (float)atan2(2*x*w-2*y*z , 1 - 2*sqx - 2*sqz) / (2 * PI * 360.0f);
                         }
+                        */
 
-                        /*
                         // roll (x-axis rotation)
                         double sinr_cosp = 2.0 * (w * x + y * z);
                         double cosr_cosp = 1.0 - 2.0 * (x * x + y * y);
@@ -403,8 +402,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                         double siny_cosp = 2.0 * (w * z + x * y);
                         double cosy_cosp = 1.0 - 2.0 * (y * y + z * z);
                         yaw = (float) atan2(siny_cosp, cosy_cosp) / PI * 360.0f;
-
-                        */
 
                         // Accelleration
                         float accelX = packet.accel[0] / 512.0f;

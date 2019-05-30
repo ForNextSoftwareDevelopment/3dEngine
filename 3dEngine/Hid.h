@@ -21,16 +21,16 @@ class Hid
 
         typedef struct 
         {
-            char            *path                    = nullptr;    // Platform-specific device path 
-            unsigned short     vendor_id                = 0;        // Device Vendor ID 
-            unsigned short     product_id                = 0;        // Device Product ID
-            wchar_t            *serial_number            = nullptr;    // Serial Number
-            unsigned short     version_number            = 0;        // Device Version Number 
-            wchar_t            *manufacturer_string    = nullptr;    // Manufacturer String 
-            wchar_t            *product_string            = nullptr;    // Product string 
-            unsigned short     usage_page                = 0;        // Usage Page for this Device/Interface
-            unsigned short     usage                    = 0;        // Usage for this Device/Interface
-            int                 interface_number        = 0;        // The HID interface which this logical device represents
+            char            *path                = nullptr;    // Platform-specific device path 
+            unsigned short   vendor_id           = 0;        // Device Vendor ID 
+            unsigned short   product_id          = 0;        // Device Product ID
+            wchar_t         *serial_number       = nullptr;    // Serial Number
+            unsigned short   version_number      = 0;        // Device Version Number 
+            wchar_t         *manufacturer_string = nullptr;    // Manufacturer String 
+            wchar_t         *product_string      = nullptr;    // Product string 
+            unsigned short   usage_page          = 0;        // Usage Page for this Device/Interface
+            unsigned short   usage               = 0;        // Usage for this Device/Interface
+            int              interface_number    = 0;        // The HID interface which this logical device represents
         } HID_DEVICE_INFO;
 
         typedef struct 
