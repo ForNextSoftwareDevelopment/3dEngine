@@ -21,7 +21,7 @@ class Objects
         std::string applicationFolder;
 
         // Current mesh read
-        Mesh *pMesh;
+        Mesh *pCurrentMesh;
 
         // Current material read
         Material *pMaterial;
@@ -51,16 +51,16 @@ class Objects
         std::vector<VecMat::Vertex> vnList;
 
         // Create a sky as a first object
-        void CreateSky (void);
+        void CreateSky(void);
 
         // Create axis 
         void CreateAxis(void);
             
         // Create terrain
-        void CreateTerrain (void);
+        void CreateTerrain(void);
 
         // Decode a line from the object file
-        bool DecodeObjectLine(std::string strObjectLine);
+        bool DecodeObjectLine(std::string strObjectLine, std::string strObjectsFile, unsigned int lineObjectFile);
 
         // Decode a line from the material file
         bool DecodeMaterialLine(std::string strMaterialLine);
@@ -68,8 +68,14 @@ class Objects
         // Create a new (current) mesh
         bool CreateCurrentMesh (std::string name);
 
-        // Close current mesh
-        void CloseCurrentMesh (void);
+        // Process current mesh
+        void ProcessCurrentMesh (void);
+
+        // Calculate all normals (face and vertex) for a mesh
+        bool CalculateNormals(Mesh *pMesh);
+
+        // Calculate all (bi-)tangents for a mesh
+        bool CalculateTangents(Mesh *pMesh);
 
         // Read materials from a material file
         bool ReadMaterialFile (std::string name);
@@ -77,8 +83,8 @@ class Objects
         // Create a new (current) material
         bool CreateCurrentMaterial (std::string name);
 
-        // Close current material
-        void CloseCurrentMaterial (void);
+        // Process current material
+        void ProcessCurrentMaterial (void);
 
     public:
 

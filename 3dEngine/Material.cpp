@@ -40,7 +40,7 @@ Material::Material (std::string name)
     offsetZ = 0.000000f;
 
     // Set name of texture buffer
-    texBuffer = 0;
+    texColorBuffer = 0;
 }
 
 /*********************************************************************
@@ -179,7 +179,7 @@ void Material::ReadTexture (const char *pFileName)
                         pBits++;
                         pTextureData[index + 1] = *pBits;
                         pBits++;
-                        pTextureData[index    ] = *pBits;
+                        pTextureData[index    ] = *pBits; 
                         pBits++;
                     }
                 }

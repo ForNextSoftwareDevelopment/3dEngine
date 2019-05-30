@@ -25,7 +25,7 @@ static bool left = false, right = false;
 static float delta = 0.05f;
 
 // Move and/or rotate scene (or just move mouse pointer)
-static bool move_rotate = true;
+static bool move_rotate = false;
 
 // Show status info in info window
 static bool show_info = false;
@@ -73,9 +73,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     prefs.show_axis = true;
     prefs.render_mode = RM_FACES;
     prefs.vertex_size = 1;
-    prefs.ambient_light = { 0xFF, 0xFF, 0xFF, 0x10 };
-    prefs.diffuse_light = { 0xFF, 0xFF, 0xFF, 0x18 };
-    prefs.diffuse_position = VecMat::Vec3(0.0f, 8.0f, 4.0f);
+    prefs.ambient_light = { 0xFF, 0xFF, 0xFF, 0x04 };
+    prefs.diffuse_light = { 0xFF, 0xFF, 0xFF, 0x28 };
+    prefs.diffuse_position = VecMat::Vec3(0.0f, 12.0f, 8.0f);
     prefs.pos_farplane = FARPLANEPOS;
     prefs.pos_nearplane = NEARPLANEPOS;
     prefs.hdk_offset_pos = DEFAULTOFFSETPOS;
@@ -102,7 +102,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     wndClass.hInstance = hInstance;
     wndClass.lpfnWndProc = (WNDPROC)WndProc;
     wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-    wndClass.lpszClassName = L"3dEngineOSVR";
+    wndClass.lpszClassName = L"3dEngine";
     wndClass.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
     wndClass.hCursor = LoadCursor(hInstance, IDC_ARROW);
     wndClass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
@@ -111,7 +111,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     RegisterClass(&wndClass);
 
     // Create main window and show
-    hWndMain = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE, L"3dEngineOSVR", L"3dEngineOSVR", 
+    hWndMain = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE, L"3dEngine", L"3dEngine", 
         WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         10, 10, SCREEN_WIDTH_MAIN, SCREEN_HEIGHT_MAIN, NULL, NULL, hInstance, NULL);
 
@@ -339,6 +339,54 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                         strPacket.append("w     = " + Utils::FloatToStr((float)w) + "\r\n");
                         #endif
 
+                        /*
+                        VecMat::Mat4 *mat4 = new VecMat::Mat4();
+                        mat4->column[0].row[0] = 1.0f - 2.0f * (y * y - z * z);
+                        mat4->column[0].row[1] = 2.0f * x * y + 2 * y * w;
+                        mat4->column[0].row[2] = 2.0f * ( x * z - y * w);
+                        mat4->column[0].row[3] = 0.0f; 
+
+                        mat4->column[1].row[0] = 2.0f * (x * y - z * w);
+                        mat4->column[1].row[1] = 1.0f - 2.0f * (x * x - z * z);
+                        mat4->column[1].row[2] = 2.0f * (y * z + x * w);
+                        mat4->column[1].row[3] = 0.0f;
+
+                        mat4->column[2].row[0] = 2.0f * (x * z + y * w);
+                        mat4->column[2].row[1] = 2.0f * (y * z - x * w);
+                        mat4->column[2].row[2] = 1.0f - 2.0f * (x * x - y * y);
+                        mat4->column[2].row[3] = 0.0f;
+
+                        mat4->column[3].row[0] = 0.0f;
+                        mat4->column[3].row[1] = 0.0f;
+                        mat4->column[3].row[2] = 0.0f;
+                        mat4->column[3].row[3] = 1.0f;
+                        
+                        //pShader->SetViewAngle(mat4);
+                        */
+
+	                    double test = x*y + z*w;
+	                    if (test > 0.499) 
+                        { // singularity at north pole
+		                    pitch = (float)atan2(x,w) / PI * 360.0f;
+		                    roll = 90.0f;
+		                    yaw = 0.0f;
+	                    } else
+	                    if (test < -0.499) 
+                        { // singularity at south pole
+		                    pitch = - (float)atan2(x,w) / PI * 360.0f;
+		                    roll = - 90.0f;
+		                    yaw = 0.0f;
+	                    } else
+                        {
+                            double sqx = x*x;
+                            double sqy = y*y;
+                            double sqz = z*z;
+                            pitch = (float)atan2(2*y*w-2*x*z , 1 - 2*sqy - 2*sqz) / (2 * PI * 360.0f);
+	                        roll= (float)asin(2*test) / (2 * PI * 360.0f);
+	                        yaw = (float)atan2(2*x*w-2*y*z , 1 - 2*sqx - 2*sqz) / (2 * PI * 360.0f);
+                        }
+
+                        /*
                         // roll (x-axis rotation)
                         double sinr_cosp = 2.0 * (w * x + y * z);
                         double cosr_cosp = 1.0 - 2.0 * (x * x + y * y);
@@ -355,6 +403,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                         double siny_cosp = 2.0 * (w * z + x * y);
                         double cosy_cosp = 1.0 - 2.0 * (y * y + z * z);
                         yaw = (float) atan2(siny_cosp, cosy_cosp) / PI * 360.0f;
+
+                        */
 
                         // Accelleration
                         float accelX = packet.accel[0] / 512.0f;
@@ -386,8 +436,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                         oldPitch = pitch;
 
                         #ifdef DEBUGHDK
-                        strPacket.append("roll  = " + Utils::FloatToStr(roll) + "\r\n");
                         strPacket.append("pitch = " + Utils::FloatToStr(pitch) + "\r\n");
+                        strPacket.append("roll  = " + Utils::FloatToStr(roll) + "\r\n");
                         strPacket.append("yaw   = " + Utils::FloatToStr(yaw) + "\r\n");
                         if (backwards) strPacket.append("Backward View\r\n"); else strPacket.append("Forward View\r\n");
                         Error::ShowInfoWindow(strPacket.c_str());
@@ -494,7 +544,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                         pOpenGLExtendedLeft->ClearScreen();
 
                         // Render 
-                        pShader->Render((GLint)clientRect.right, (GLint)clientRect.bottom, prefs.hdk_offset_pos /100.0f, -prefs.hdk_offset_angle / 10.0f);
+                        pShader->Render((GLint)clientRect.right, (GLint)clientRect.bottom, (float)prefs.hdk_offset_pos /100.0f, -(float)prefs.hdk_offset_angle / 10.0f);
 
                         // Swap screens
                         pOpenGLExtendedLeft->SwapBuffers();
@@ -521,7 +571,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
                         pOpenGLExtendedRight->ClearScreen();
 
                         // Render
-                        pShader->Render((GLint)clientRect.right, (GLint)clientRect.bottom, -prefs.hdk_offset_pos / 100.0f, prefs.hdk_offset_angle / 10.0f);
+                        pShader->Render((GLint)clientRect.right, (GLint)clientRect.bottom, -(float)prefs.hdk_offset_pos / 100.0f, (float)prefs.hdk_offset_angle / 10.0f);
 
                         // Swap screens
                         pOpenGLExtendedRight->SwapBuffers();

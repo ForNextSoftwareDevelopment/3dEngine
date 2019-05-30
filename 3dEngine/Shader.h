@@ -4,6 +4,10 @@
 #include "Objects.h"
 #include "VecMat.h"
 
+#define DEBUG_SHADOWMAP
+#define SHADOWMAP_WIDTH  1024
+#define SHADOWMAP_HEIGHT 1024
+
 // Ambient / Diffuse light
 struct Light
 {
@@ -21,7 +25,7 @@ typedef unsigned int RenderMode;
 
 // Near- and farplane positions (default)
 #define NEARPLANEPOS      2.0f
-#define FARPLANEPOS     800.0f
+#define FARPLANEPOS     100.0f
 
 // Left, right, top and bottom of nearplane
 #define NPLEFT           -1.0f
@@ -30,8 +34,8 @@ typedef unsigned int RenderMode;
 #define NPTOP             1.0f
 
 // Default offset for left and right window (eye) on extended display
-#define DEFAULTOFFSETPOS 170
-#define DEFAULTOFFSETANGLE 28
+#define DEFAULTOFFSETPOS 80
+#define DEFAULTOFFSETANGLE 5
 
 class Shader
 {
@@ -101,6 +105,12 @@ class Shader
         // Fragment shader name
         GLuint fragment_shader;
 
+        // Vertex shadow shader handler
+        GLuint vertex_shadow_shader;
+
+        // Fragment shadow shader handler
+        GLuint fragment_shadow_shader;
+
         // Vertex array object
         GLuint vao[MAX_NUM_MESHES];
 
@@ -114,17 +124,26 @@ class Shader
         GLuint index_buffer[MAX_NUM_MESHES];
 
         // Names (int) of the texture buffers
-        GLuint texture_buffer[MAX_NUM_MATERIALS];
+        GLuint texture_color_buffer[MAX_NUM_MATERIALS];
 
         // Names (int) of the texture normal buffers
         GLuint texture_normal_buffer[MAX_NUM_MATERIALS];
 
+        // Name (int) of the framebuffer used for shadow mapping
+        GLuint frame_buffer;
+
+        // Name (int) of the texturebuffer used for shadow mapping
+        GLuint texture_shadow_buffer;
+
         // Matrices for object path and projection
         GLuint path_matrix_location;
+        GLuint path_shadow_matrix_location;
         GLuint proj_matrix_location;
+        GLuint proj_shadow_matrix_location;
+        GLuint lightspace_matrix_location;
 
         // Mesh texture
-        GLuint texture_data_location;
+        GLuint texture_color_data_location;
         GLuint texture_normal_data_location;
         GLuint texture_position_location;
         GLuint texture_color_enable_location;
@@ -166,8 +185,17 @@ class Shader
         // Test in shader
         GLuint test_location;
 
+        // Vertices in shadow shader
+        GLuint vertex_shadow_position_location;
+
+        // Texture shadow map data location
+        GLuint texture_shadow_data_location;
+
         // Shader program name
         GLuint program;
+
+        // Shadow shader program name
+        GLuint program_shadow;
 
         // Matrix for HDK2 device
         VecMat::Mat4 HDK2Matrix;
@@ -178,17 +206,29 @@ class Shader
         // Fragment shader
         static const char *fs_source[];
 
+        // Vertex shadow shader
+        static const char *vs_shadow_source[];
+
+        // Fragment shadow shader
+        static const char *fs_shadow_source[];
+
         // Create and compile the vertex and fragment shader
         void CreateShaders (void);
 
-        // Create program for OpenGL
-        void CreateProgram (void);
+        // Create programs for OpenGL
+        void CreatePrograms (void);
 
         // Create and set buffers (vertex, index)
         void CreateBuffers (void);
 
+        // Create and set framebuffer (shadows)
+        void CreateFrameBuffer(void);
+
         // Create and set textures
         void CreateTextures (void);
+
+        // Draw all objects
+        void DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle);
 
     public:
 

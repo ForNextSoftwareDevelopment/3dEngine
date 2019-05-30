@@ -48,7 +48,7 @@ class Material
         GLfloat offsetX, offsetY, offsetZ;
 
         // Name of buffer for this texture
-        GLuint texBuffer;
+        GLuint texColorBuffer;
 
         // Name of normal buffer for this texture
         GLuint texNormalBuffer;

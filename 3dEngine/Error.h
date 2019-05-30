@@ -14,7 +14,7 @@
 
 // Switch for debugging (shows info window)
 #define DEBUG
-#undef  DEBUGBUMP
+#undef  DEBUGNORMALMAP
 #undef  DEBUGHID
 #define DEBUGHDK
 #undef  DEBUGTRIANGULATE

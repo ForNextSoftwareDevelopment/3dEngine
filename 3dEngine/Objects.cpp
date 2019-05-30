@@ -9,7 +9,7 @@ Objects::Objects (char *pApplicationFolder)
     applicationFolder.append(pApplicationFolder);
 
     // Reset current mesh / material
-    pMesh = NULL;
+    pCurrentMesh = NULL;
     pMaterial = NULL;
 
     // Position of the current mesh
@@ -45,6 +45,9 @@ Objects::Objects (char *pApplicationFolder)
         pMaterial = new Material(("default-" + pCone->name).c_str());
         pCone->pMaterialEntryList[0] = new MaterialEntry();
         pCone->pMaterialEntryList[0]->pMaterial = pMaterial;
+
+        // Get all normals for this mesh
+        CalculateNormals(pCone);
 
         // Add new Mesh to array of pointers (Objects list)
         pMeshArray[numMeshes++] = pCone;
@@ -123,13 +126,7 @@ Objects::Objects (char *pApplicationFolder)
                     unsigned int lineObjectFile = 1;
                     while (std::getline(objectFile, strObjectLine))
                     {
-                        bool result = DecodeObjectLine(strObjectLine);
-                        if (!result)
-                        {
-                            std::string message = "Error reading line in object file: \r\n" + strObjectFile + "\r\nSkipping line " + Utils::IntToStr(lineObjectFile) + " in object file";
-                            Error::WriteLog("ERROR", "Objects::Objects", message.c_str());
-                        }
-
+                        DecodeObjectLine(strObjectLine, strObjectFile, lineObjectFile);
                         lineObjectFile++;
                     }
                 } else
@@ -142,7 +139,7 @@ Objects::Objects (char *pApplicationFolder)
                 objectFile.close();
 
                 // If mesh present then close it
-                if (pMesh != NULL) CloseCurrentMesh();
+                if (pCurrentMesh != NULL) ProcessCurrentMesh();
             }
 
             // Next line
@@ -185,7 +182,7 @@ Objects::~Objects (void)
 /*********************************************************************
 * Decode a line from the object file
 *********************************************************************/
-bool Objects::DecodeObjectLine(std::string strObjectLine)
+bool Objects::DecodeObjectLine(std::string strObjectLine, std::string strObjectsFile, unsigned int lineObjectFile)
 {
     try
     {
@@ -204,7 +201,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
                 found = true;
 
                 // New object, so if old object present then close it
-                if (pMesh != NULL) CloseCurrentMesh();
+                if (pCurrentMesh != NULL) ProcessCurrentMesh();
 
                 // Skip 'o', spaces and tabs
                 while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == 'o') || (strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
@@ -261,7 +258,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
                 }
 
                 // If object available connect the material to the object
-                if (pMesh != NULL)
+                if (pCurrentMesh != NULL)
                 {
                     // Search material list for the correct material
                     bool found = false;
@@ -272,22 +269,25 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
                             found = true;
 
                             // Create new material entry in the current object
-                            pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
+                            pCurrentMesh->pMaterialEntryList[pCurrentMesh->numMaterials] = new MaterialEntry();
 
                             // Put found material in the new entry
-                            pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = pMaterialArray[i];
+                            pCurrentMesh->pMaterialEntryList[pCurrentMesh->numMaterials]->pMaterial = pMaterialArray[i];
 
                             // Insert the starting face for this material
-                            pMesh->pMaterialEntryList[pMesh->numMaterials++]->start = (int)fList.size();
+                            pCurrentMesh->pMaterialEntryList[pCurrentMesh->numMaterials++]->start = (int)fList.size();
                         }
                     }
 
                     if (!found)
                     {
                         std::string message;
-                        message.append("Material not found: ");
+                        message.append("Material '");
                         message.append(name);
+                        message.append("' not found in object file ");
+                        message.append(strObjectsFile);
                         Error::WriteLog("WARNING", "Objects::ReadObjectFile", message.c_str());
+                        return(false);
                     }
                 }
             }
@@ -300,7 +300,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
                 std::string strValue;
 
                 // If no object available, then create new
-                if (pMesh == NULL)
+                if (pCurrentMesh == NULL)
                 {
                     if (!CreateCurrentMesh("unknown")) return (false);
                 }
@@ -355,7 +355,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
                 std::string strValue;
 
                 // If no object available, then create new
-                if (pMesh == NULL)
+                if (pCurrentMesh == NULL)
                 {
                     if (!CreateCurrentMesh("unknown")) return (false);
                 }
@@ -410,7 +410,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
                 std::string strValue;
 
                 // If no object available, then create new
-                if (pMesh == NULL)
+                if (pCurrentMesh == NULL)
                 {
                     if (!CreateCurrentMesh("unknown")) return (false);
                 }
@@ -465,7 +465,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
                 std::string strValue;
 
                 // If no object available, then create new
-                if (pMesh == NULL)
+                if (pCurrentMesh == NULL)
                 {
                     if (!CreateCurrentMesh((char *)"unknown")) return (false);
                 }
@@ -492,8 +492,10 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
                         poly.push_back(ver);
                     } else
                     {
-                        std::string message = "Vertex not in range in line: ";
-                        message.append(strObjectLine);
+                        std::string message = "Vertex not in range in line nr. ";
+                        message.append(Utils::IntToStr(lineObjectFile));
+                        message.append(" in object file: ");
+                        message.append(strObjectsFile);
                         Error::WriteLog("ERROR", "Objects::DecodeObjectLine", message.c_str());
                         return(false);
                     }
@@ -536,7 +538,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
                     if (!Triangulate::Process(poly, vList, fList))
                     {
                         // If error then add in list
-                        pMesh->numTriangulationErrors++;
+                        pCurrentMesh->numTriangulationErrors++;
                     }
                 } else
                     if (poly.size() == 3)
@@ -553,27 +555,37 @@ bool Objects::DecodeObjectLine(std::string strObjectLine)
                         fList.push_back(face);
                     } else
                     {
-                        Error::WriteLog("WARNING", "Objects::DecodeObjectLine", "Face has less then 3 verices => ignored");
+                        std::string message = "Face has less then 3 verices (=> ignored) in line nr. ";
+                        message.append(Utils::IntToStr(lineObjectFile));
+                        message.append(" in object file: ");
+                        message.append(strObjectsFile);
+                        Error::WriteLog("WARNING", "Objects::DecodeObjectLine", message.c_str());
+                        return(false);
                     }
             }
 
             if (!found)
             {
-                std::string message = "Unknown part in object file: ";
-                message.append(strObjectLine);
+                std::string message = "Unknown part in line nr. ";
+                message.append(Utils::IntToStr(lineObjectFile));
+                message.append(" in object file: ");
+                message.append(strObjectsFile);
                 Error::WriteLog("WARNING", "Objects::DecodeObjectLine", message.c_str());
+                return(false);
             }
         }
     } catch (std::exception& e)
     {
-        std::string message = "Exception decoding object line: ";
-        message.append(strObjectLine);
+        std::string message = "Exception decoding object line in line nr. ";
+        message.append(Utils::IntToStr(lineObjectFile));
+        message.append(" in object file: ");
+        message.append(strObjectsFile);
         message.append(": ");
         message.append(e.what());
         Error::WriteLog("EXCEPTION", "Objects::DecodeObjectLine", message.c_str());
 
-        delete (pMesh);
-        pMesh = NULL;
+        delete (pCurrentMesh);
+        pCurrentMesh = NULL;
 
         return (false);
     }
@@ -589,9 +601,9 @@ bool Objects::CreateCurrentMesh (std::string name)
     if (numMeshes < MAX_NUM_MESHES)
     {
         // Create a new mesh
-        pMesh = new Mesh (name);
+        pCurrentMesh = new Mesh (name);
 
-        if (pMesh != NULL) return (true);
+        if (pCurrentMesh != NULL) return (true);
     }
 
     Error::WriteLog("ERROR", "Objects::CreateCurrentMesh", "Could not add (all) meshes (too many meshes)");
@@ -601,53 +613,199 @@ bool Objects::CreateCurrentMesh (std::string name)
 /*********************************************************************
 * Move the current mesh to the list and close it
 *********************************************************************/
-void Objects::CloseCurrentMesh (void)
+void Objects::ProcessCurrentMesh (void)
 {
     std::string error;
 
     #ifdef DEBUG
     // If errors have occured during the triangulation of the last object then show
-    if (pMesh->numTriangulationErrors > 0)
+    if (pCurrentMesh->numTriangulationErrors > 0)
     {
         error.clear();
-        error.append("Not all triangles found in '" + pMesh->name + "'\r\n");
+        error.append("Not all triangles found in '" + pCurrentMesh->name + "'\r\n");
         error.append("Number of errors = ");
-        error.append(std::to_string(pMesh->numTriangulationErrors));
+        error.append(std::to_string(pCurrentMesh->numTriangulationErrors));
         error.append(" (probably some polygons are illegal or have double vertices)\r\n");
-        Error::WriteLog("WARNING", "Objects::CloseCurrentMesh", error.c_str());
+        Error::WriteLog("WARNING", "Objects::ProcessCurrentMesh", error.c_str());
     }
     #endif
 
     try
     {
         // Get the number of vertices in the Mesh
-        pMesh->numVertices = (int)vList.size();
+        pCurrentMesh->numVertices = (int)vList.size();
 
         // Add the number of vertices to the offset
-        offsetV += pMesh->numVertices;
+        offsetV += pCurrentMesh->numVertices;
 
         // Add the number of texture vertices to the offset
-        offsetT += pMesh->numTextureVertices;
+        offsetT += pCurrentMesh->numTextureVertices;
 
         // Allocate memory for vertices and clear this memory
-        pMesh->pVertices = (VecMat::Vertex *) malloc (pMesh->numVertices * sizeof(VecMat::Vertex));
-        ZeroMemory (pMesh->pVertices, pMesh->numVertices * sizeof(VecMat::Vertex));
+        pCurrentMesh->pVertices = (VecMat::Vertex *) malloc (pCurrentMesh->numVertices * sizeof(VecMat::Vertex));
+        ZeroMemory (pCurrentMesh->pVertices, pCurrentMesh->numVertices * sizeof(VecMat::Vertex));
 
         // Copy vertices from the list to the vertices memory block
-        VecMat::Vertex *pv = pMesh->pVertices;
-        for (unsigned int i=0; i<pMesh->numVertices; i++) *pv++ = vList[i];
+        VecMat::Vertex *pv = pCurrentMesh->pVertices;
+        for (unsigned int i=0; i<pCurrentMesh->numVertices; i++) *pv++ = vList[i];
 
         // Get the number of faces (triangles) in the Mesh
-        pMesh->numFaces = (int)fList.size();
+        pCurrentMesh->numFaces = (int)fList.size();
 
         // Allocate memory for faces and clear this memory
-        pMesh->pFaces = (VecMat::Face *) malloc (pMesh->numFaces * sizeof(VecMat::Face));
-        ZeroMemory (pMesh->pFaces, pMesh->numFaces * sizeof(VecMat::Face));
+        pCurrentMesh->pFaces = (VecMat::Face *) malloc (pCurrentMesh->numFaces * sizeof(VecMat::Face));
+        ZeroMemory (pCurrentMesh->pFaces, pCurrentMesh->numFaces * sizeof(VecMat::Face));
 
         // Copy faces from the list to the faces memory block
-        VecMat::Face *pf = pMesh->pFaces;
-        for (unsigned int i=0; i<pMesh->numFaces; i++) *pf++ = fList[i];
+        VecMat::Face *pf = pCurrentMesh->pFaces;
+        for (unsigned int i=0; i<pCurrentMesh->numFaces; i++) *pf++ = fList[i];
 
+        // Check if vertex normals are provided
+        bool result = true;
+        if (vnList.size() != vList.size())
+        {
+            // Calculate all normals (face and vertex) for the current mesh
+            CalculateNormals(pCurrentMesh);
+        } else
+        {
+            // Set the number of normals in the Mesh
+            pCurrentMesh->numVertexNormals = (int)vList.size();
+
+            // Allocate memory
+            pCurrentMesh->pVertexNormals = (VecMat::Vertex *) malloc (pCurrentMesh->numVertexNormals * sizeof(VecMat::Vertex));
+            ZeroMemory (pCurrentMesh->pVertexNormals, pCurrentMesh->numVertexNormals * sizeof(VecMat::Vertex));
+
+            VecMat::Vertex *pvn = pCurrentMesh->pVertexNormals;
+
+            // Just copy the provided vertex normals
+            for (unsigned int i=0; i<pCurrentMesh->numVertexNormals; i++)
+            {
+                pvn[i] = vnList[i];
+            }
+        }
+
+        // Check if texture mapping is provided (mappings and texture vertices present)
+        if ((mList.size() != 0) && (vtList.size() != 0))
+        {
+            // Set marker that mapping has been provided in this mesh
+            pCurrentMesh->mapped = true;
+
+            // Set the number of texture vertices in the Mesh
+            pCurrentMesh->numTextureVertices = (int)vtList.size();
+
+            // Allocate memory
+            pCurrentMesh->pTextureVertices = (VecMat::Vertex *) malloc (pCurrentMesh->numTextureVertices * sizeof(VecMat::Vertex));
+            ZeroMemory (pCurrentMesh->pTextureVertices, pCurrentMesh->numTextureVertices * sizeof(VecMat::Vertex));
+
+            VecMat::Vertex *pvt = pCurrentMesh->pTextureVertices;
+
+            // Copy vertices from the mapping list to the texture vertices memory block
+            for (unsigned int i=0; i<mList.size(); i++)
+            {
+                unsigned int indexVertex  = mList[i].ver;
+                unsigned int indexTexture = mList[i].tex;
+                if ((indexVertex < pCurrentMesh->numTextureVertices) && (indexTexture < pCurrentMesh->numTextureVertices))
+                {
+                    pvt[indexVertex] = vtList[indexTexture];
+                }
+            }
+        } else
+        {
+            // Calculate the scale (max and min x,y,z)
+            float minX = vList[0].x;
+            float minY = vList[0].y;
+            float minZ = vList[0].z;
+            float maxX = vList[0].x;
+            float maxY = vList[0].y;
+            float maxZ = vList[0].z;
+
+            for (unsigned int i=0; i<pCurrentMesh->numVertices; i++)
+            {
+                if (vList[i].x < minX) minX = vList[i].x;
+                if (vList[i].y < minY) minY = vList[i].y;
+                if (vList[i].z < minZ) minZ = vList[i].z;
+                if (vList[i].x > maxX) maxX = vList[i].x;
+                if (vList[i].y > maxY) maxY = vList[i].y;
+                if (vList[i].z > maxZ) maxZ = vList[i].z;
+            }
+
+            float scaleX = std::abs(maxX - minX);
+            float scaleY = std::abs(maxY - minY);
+            float scaleZ = std::abs(maxZ - minZ);
+
+            // Set the number of texture vertices in the Mesh (allways number of vertices, every vertex will be mapped)
+            pCurrentMesh->numTextureVertices = pCurrentMesh->numVertices;
+
+            // Allocate memory
+            pCurrentMesh->pTextureVertices = (VecMat::Vertex *) malloc (pCurrentMesh->numTextureVertices * sizeof(VecMat::Vertex));
+            ZeroMemory (pCurrentMesh->pTextureVertices, pCurrentMesh->numTextureVertices * sizeof(VecMat::Vertex));
+
+            // Copy vertices from the list (now used as texture vertices) to the texture vertices memory block
+            VecMat::Vertex *pvt = pCurrentMesh->pTextureVertices;
+            for (unsigned int i=0; i<pCurrentMesh->numTextureVertices; i++)
+            {
+                // Scale and assign
+                if (scaleX > 0.0f) vList[i].x = (vList[i].x - minX) / scaleX;
+                if (scaleY > 0.0f) vList[i].y = (vList[i].y - minY) / scaleY;
+                if (scaleZ > 0.0f) vList[i].z = (vList[i].z - minZ) / scaleZ;
+
+                //VecMat::Vec3 vec = VecMat::Normalize(VecMat::Vec3(pvn[i].x, pvn[i].y, pvn[i].z));
+                //pvt->x = vList[i].x +      std::abs(VecMat::Dot(vec, VecMat::Vec3(0, 1, 0)))  * std::abs(vList[i].z);
+                //pvt->y = vList[i].y + (1 - std::abs(VecMat::Dot(vec, VecMat::Vec3(1, 0, 0)))) * std::abs(vList[i].z);
+                pvt->x = vList[i].x + vList[i].z;
+                pvt->y = vList[i].y - vList[i].z;
+                pvt->z = 0;
+
+                pvt++;
+            }
+        }
+
+        // Check if material is provided, if not then supply default material
+        if (pCurrentMesh->numMaterials == 0)
+        {
+            pCurrentMesh->numMaterials = 1;
+            pMaterial = new Material(("default-" + pCurrentMesh->name).c_str());
+            pCurrentMesh ->pMaterialEntryList[0] = new MaterialEntry();
+            pCurrentMesh ->pMaterialEntryList[0]->pMaterial = pMaterial;
+        }
+
+        // Calculate all (bi-)tangents for the current mesh
+        CalculateTangents(pCurrentMesh);
+
+        // Clear vertices, faces and mapping lists
+        vList.clear();
+        vtList.clear();
+        vnList.clear();
+        fList.clear();
+        mList.clear();
+    } catch (std::exception& e)
+    {
+        std::string message = "Exception processing mesh: ";
+        message.append(pCurrentMesh->name);
+        message.append(": ");
+        message.append(e.what());
+        Error::WriteLog("EXCEPTION", "Objects::ProcessCurrentMesh", message.c_str());
+
+        // Free memory
+        free (pCurrentMesh->pVertices);
+        free (pCurrentMesh->pFaceNormals);
+        free (pCurrentMesh->pVertexNormals);
+        free (pCurrentMesh->pFaces);
+        free (pCurrentMesh->pTangents);
+        free (pCurrentMesh->pBiTangents);
+    }
+
+    // Set current object to NULL
+    pCurrentMesh = NULL;
+}
+
+/*********************************************************************
+* Calculate all normals (face and vertex) for a mesh
+*********************************************************************/
+bool Objects::CalculateNormals(Mesh *pMesh)
+{
+    try
+    {
         // Calculate all face normals and put them in a list
         std::vector<VecMat::Vertex> fnList;
         for (unsigned int i=0; i<pMesh->numFaces; i++)
@@ -656,15 +814,16 @@ void Objects::CloseCurrentMesh (void)
 
             // Calculate first vector
             VecMat::Vec3 first;
-            first[0] = vList[fList[i].second].x - vList[fList[i].first].x;
-            first[1] = vList[fList[i].second].y - vList[fList[i].first].y;
-            first[2] = vList[fList[i].second].z - vList[fList[i].first].z;
+
+            first[0] = pMesh->pVertices[pMesh->pFaces[i].second].x - pMesh->pVertices[pMesh->pFaces[i].first].x;
+            first[1] = pMesh->pVertices[pMesh->pFaces[i].second].y - pMesh->pVertices[pMesh->pFaces[i].first].y;
+            first[2] = pMesh->pVertices[pMesh->pFaces[i].second].z - pMesh->pVertices[pMesh->pFaces[i].first].z;
 
             // Calculate second vector
             VecMat::Vec3 second;
-            second[0] = vList[fList[i].third].x - vList[fList[i].first].x;
-            second[1] = vList[fList[i].third].y - vList[fList[i].first].y;
-            second[2] = vList[fList[i].third].z - vList[fList[i].first].z;
+            second[0] = pMesh->pVertices[pMesh->pFaces[i].third].x - pMesh->pVertices[pMesh->pFaces[i].first].x;
+            second[1] = pMesh->pVertices[pMesh->pFaces[i].third].y - pMesh->pVertices[pMesh->pFaces[i].first].y;
+            second[2] = pMesh->pVertices[pMesh->pFaces[i].third].z - pMesh->pVertices[pMesh->pFaces[i].first].z;
 
             // Calculate cross product of these two vectors (= normal)
             normal = first * second;
@@ -697,138 +856,56 @@ void Objects::CloseCurrentMesh (void)
         ZeroMemory (pMesh->pVertexNormals, pMesh->numVertexNormals * sizeof(VecMat::Vertex));
         VecMat::Vertex *pvn = pMesh->pVertexNormals;
 
-        // Check if vertex normals are provided
-        bool result = true;
-        if (vnList.size() != vList.size())
+        // Check all faces for vertices in them and add the face normal to that vertex normal
+        for (unsigned int i=0; i<pMesh->numFaces; i++)
         {
-            // Not valid, so clear
-            vnList.clear();
+            unsigned int first  = pMesh->pFaces[i].first;
+            unsigned int second = pMesh->pFaces[i].second;
+            unsigned int third  = pMesh->pFaces[i].third;
 
-            // Check all faces for vertices in them and add the face normal to that vertex normal
-            for (unsigned int i=0; i<pMesh->numFaces; i++)
-            {
-                unsigned int first  = pMesh->pFaces[i].first;
-                unsigned int second = pMesh->pFaces[i].second;
-                unsigned int third  = pMesh->pFaces[i].third;
+            pvn[first]  = pvn[first]  + fnList[i];
+            pvn[second] = pvn[second] + fnList[i];
+            pvn[third]  = pvn[third]  + fnList[i];
+        }
 
-                pvn[first]  = pvn[first]  + fnList[i];
-                pvn[second] = pvn[second] + fnList[i];
-                pvn[third]  = pvn[third]  + fnList[i];
-            }
-
-            // Normalize all vertex normals
-            for (unsigned int i=0; i<pMesh->numVertexNormals; i++)
-            {
-                float normFactor = sqrt(pvn[i].x * pvn[i].x + pvn[i].y * pvn[i].y + pvn[i].z * pvn[i].z);
-                if (normFactor == 0.0f) result = false; else
-                {
-                    pvn[i].x = pvn[i].x / normFactor;
-                    pvn[i].y = pvn[i].y / normFactor;
-                    pvn[i].z = pvn[i].z / normFactor;
-                }
-            }
-        } else
+        // Normalize all vertex normals
+        bool error = false;
+        for (unsigned int i=0; i<pMesh->numVertexNormals; i++)
         {
-            // Just copy the provided vertex normals
-            for (unsigned int i=0; i<pMesh->numVertexNormals; i++)
+            float normFactor = sqrt(pvn[i].x * pvn[i].x + pvn[i].y * pvn[i].y + pvn[i].z * pvn[i].z);
+            if (normFactor == 0.0f) error = true; else
             {
-                pvn[i] = vnList[i];
+                pvn[i].x = pvn[i].x / normFactor;
+                pvn[i].y = pvn[i].y / normFactor;
+                pvn[i].z = pvn[i].z / normFactor;
             }
         }
 
         // Error in calculation
-        if (!result)
+        if (error)
         {
             std::string message = "Could not calculate all normals for: ";
             message.append(pMesh->name);
-            Error::WriteLog("WARNING", "Objects::CloseCurrentMesh", message.c_str());
+            Error::WriteLog("WARNING", "Objects::CalculateNormals", message.c_str());
         }
 
-        // Check if texture mapping is provided (mappings and texture vertices present)
-        if ((mList.size() != 0) && (vtList.size() != 0))
-        {
-            // Set marker that mapping has been provided in this mesh
-            pMesh->mapped = true;
+        return (true);
+    } catch (std::exception& e)
+    {
+        std::string message = "Exception calculating normals: ";
+        message.append(e.what());
+        Error::WriteLog("EXCEPTION", "Objects::CalculateNormals", message.c_str());
+        return (false);
+    }
+}
 
-            // Set the number of texture vertices in the Mesh
-            pMesh->numTextureVertices = (int)vtList.size();
-
-            // Allocate memory
-            pMesh->pTextureVertices = (VecMat::Vertex *) malloc (pMesh->numTextureVertices * sizeof(VecMat::Vertex));
-            ZeroMemory (pMesh->pTextureVertices, pMesh->numTextureVertices * sizeof(VecMat::Vertex));
-
-            VecMat::Vertex *pvt = pMesh->pTextureVertices;
-
-            // Copy vertices from the mapping list to the texture vertices memory block
-            for (unsigned int i=0; i<mList.size(); i++)
-            {
-                unsigned int indexVertex  = mList[i].ver;
-                unsigned int indexTexture = mList[i].tex;
-                if ((indexVertex < pMesh->numTextureVertices) && (indexTexture < pMesh->numTextureVertices))
-                {
-                    pvt[indexVertex] = vtList[indexTexture];
-                }
-            }
-        } else
-        {
-            // Calculate the scale (max and min x,y,z)
-            float minX = vList[0].x;
-            float minY = vList[0].y;
-            float minZ = vList[0].z;
-            float maxX = vList[0].x;
-            float maxY = vList[0].y;
-            float maxZ = vList[0].z;
-
-            for (unsigned int i=0; i<pMesh->numVertices; i++)
-            {
-                if (vList[i].x < minX) minX = vList[i].x;
-                if (vList[i].y < minY) minY = vList[i].y;
-                if (vList[i].z < minZ) minZ = vList[i].z;
-                if (vList[i].x > maxX) maxX = vList[i].x;
-                if (vList[i].y > maxY) maxY = vList[i].y;
-                if (vList[i].z > maxZ) maxZ = vList[i].z;
-            }
-
-            float scaleX = std::abs(maxX - minX);
-            float scaleY = std::abs(maxY - minY);
-            float scaleZ = std::abs(maxZ - minZ);
-
-            // Set the number of texture vertices in the Mesh (allways number of vertices, every vertex will be mapped)
-            pMesh->numTextureVertices = pMesh->numVertices;
-
-            // Allocate memory
-            pMesh->pTextureVertices = (VecMat::Vertex *) malloc (pMesh->numTextureVertices * sizeof(VecMat::Vertex));
-            ZeroMemory (pMesh->pTextureVertices, pMesh->numTextureVertices * sizeof(VecMat::Vertex));
-
-            // Copy vertices from the list (now used as texture vertices) to the texture vertices memory block
-            VecMat::Vertex *pvt = pMesh->pTextureVertices;
-            for (unsigned int i=0; i<pMesh->numTextureVertices; i++)
-            {
-                // Scale and assign
-                if (scaleX > 0.0f) vList[i].x = (vList[i].x - minX) / scaleX;
-                if (scaleY > 0.0f) vList[i].y = (vList[i].y - minY) / scaleY;
-                if (scaleZ > 0.0f) vList[i].z = (vList[i].z - minZ) / scaleZ;
-
-                //VecMat::Vec3 vec = VecMat::Normalize(VecMat::Vec3(pvn[i].x, pvn[i].y, pvn[i].z));
-                //pvt->x = vList[i].x +      std::abs(VecMat::Dot(vec, VecMat::Vec3(0, 1, 0)))  * std::abs(vList[i].z);
-                //pvt->y = vList[i].y + (1 - std::abs(VecMat::Dot(vec, VecMat::Vec3(1, 0, 0)))) * std::abs(vList[i].z);
-                pvt->x = vList[i].x + vList[i].z;
-                pvt->y = vList[i].y - vList[i].z;
-                pvt->z = 0;
-
-                pvt++;
-            }
-        }
-
-        // Check if material is provided, if not then supply default material
-        if (pMesh->numMaterials == 0)
-        {
-            pMesh->numMaterials = 1;
-            pMaterial = new Material(("default-" + pMesh->name).c_str());
-            pMesh ->pMaterialEntryList[0] = new MaterialEntry();
-            pMesh ->pMaterialEntryList[0]->pMaterial = pMaterial;
-        }
-
+/*********************************************************************
+* Calculate all (bi-)tangents for a mesh
+*********************************************************************/
+bool Objects::CalculateTangents(Mesh *pMesh)
+{
+    try
+    {
         // Set number of tangents
         pMesh->numTangents = pMesh->numVertices;
 
@@ -848,7 +925,7 @@ void Objects::CloseCurrentMesh (void)
         // Check all faces and calculate the (bi-)tangent for that face
         std::vector<VecMat::Vertex> ftList;
         std::vector<VecMat::Vertex> fbtList;
-        result = true;
+        bool result = true;
         for (unsigned int i=0; i<pMesh->numFaces; i++)
         {
             VecMat::Vec3 tangent, bitangent;
@@ -903,11 +980,11 @@ void Objects::CloseCurrentMesh (void)
 
             // Calculate bitangent
             bitangent = normal * tangent;
-/*
-            bitangent[0] = f * (deltaUV1[0] * deltaPos2[0] - deltaUV2[0] * deltaPos1[0]);
-            bitangent[1] = f * (deltaUV1[0] * deltaPos2[1] - deltaUV2[0] * deltaPos1[1]);
-            bitangent[2] = f * (deltaUV1[0] * deltaPos2[2] - deltaUV2[0] * deltaPos1[2]);
-*/
+            
+            //bitangent[0] = f * (deltaUV1[0] * deltaPos2[0] - deltaUV2[0] * deltaPos1[0]);
+            //bitangent[1] = f * (deltaUV1[0] * deltaPos2[1] - deltaUV2[0] * deltaPos1[1]);
+            //bitangent[2] = f * (deltaUV1[0] * deltaPos2[2] - deltaUV2[0] * deltaPos1[2]);
+
             VecMat::Vertex fBiTangent;
             fBiTangent.x = bitangent[0];
             fBiTangent.y = bitangent[1];
@@ -922,10 +999,10 @@ void Objects::CloseCurrentMesh (void)
         {
             std::string message = "Could not calculate all (bi)tangent for: ";
             message.append(pMesh->name);
-            Error::WriteLog("WARNING", "Objects::CloseCurrentMesh", message.c_str());
+            Error::WriteLog("WARNING", "Objects::ProcessCurrentMesh", message.c_str());
         }
 
-        #ifdef DEBUGBUMP
+        #ifdef DEBUGNORMALMAP
         // Give info for all normals and (bi-)tangents
         if (pMesh->name != "Bulb")
         {
@@ -1016,7 +1093,7 @@ void Objects::CloseCurrentMesh (void)
         // Add new Mesh to array of pointers (Objects list)
         pMeshArray[numMeshes++] = pMesh;
 
-        #ifdef DEBUGBUMP
+        #ifdef DEBUGNORMALMAP
         // Give info for all normals and (bi-)tangents
         if (pMesh->name != "Bulb")
         {
@@ -1078,31 +1155,14 @@ void Objects::CloseCurrentMesh (void)
         }
         #endif
 
-        // Clear vertices, faces and mapping lists
-        vList.clear();
-        vtList.clear();
-        vnList.clear();
-        fList.clear();
-        mList.clear();
+        return (true);
     } catch (std::exception& e)
     {
-        std::string message = "Exception closing mesh: ";
-        message.append(pMesh->name);
-        message.append(": ");
+        std::string message = "Exception calculating tangents: ";
         message.append(e.what());
-        Error::WriteLog("EXCEPTION", "Objects::CloseCurrentMesh", message.c_str());
-
-        // Free memory
-        free (pMesh->pVertices);
-        free (pMesh->pFaceNormals);
-        free (pMesh->pVertexNormals);
-        free (pMesh->pFaces);
-        free (pMesh->pTangents);
-        free (pMesh->pBiTangents);
+        Error::WriteLog("EXCEPTION", "Objects::CalculateTangents", message.c_str());
+        return (false);
     }
-
-    // Set current object to NULL
-    pMesh = NULL;
 }
 
 /*********************************************************************
@@ -1122,18 +1182,21 @@ bool Objects::ReadMaterialFile(std::string name)
         unsigned int lineMaterialFile = 1;
         while (std::getline(materialFile, strMaterialLine))
         {
-            bool result = DecodeMaterialLine(strMaterialLine);
-            if (!result)
+            if (strMaterialLine != "")
             {
-                std::string message = "Error reading line in material file: \r\n" + strMaterialFile + "\r\nSkipping line " + Utils::IntToStr(lineMaterialFile) + " in material file";
-                Error::WriteLog("ERROR", "Objects::ReadMaterialFile", message.c_str());
+                bool result = DecodeMaterialLine(strMaterialLine);
+                if (!result)
+                {
+                    std::string message = "Error reading line in material file: \r\n" + strMaterialFile + "\r\nSkipping line " + Utils::IntToStr(lineMaterialFile) + " in material file";
+                    Error::WriteLog("ERROR", "Objects::ReadMaterialFile", message.c_str());
+                }
             }
 
             lineMaterialFile++;
         }
 
-        // Close last material
-        if (pMaterial != NULL) CloseCurrentMaterial();
+        // Process last material
+        if (pMaterial != NULL) ProcessCurrentMaterial();
 
     } else
     {
@@ -1154,6 +1217,8 @@ bool Objects::ReadMaterialFile(std::string name)
 *********************************************************************/
 bool Objects::DecodeMaterialLine(std::string strMaterialLine)
 {
+    bool found = false;
+
     try
     {
         unsigned int pos = 0;
@@ -1171,8 +1236,10 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
         // New material found
         if ((strMaterialLine[pos] == 'n') && (strMaterialLine[pos+1] == 'e') && (strMaterialLine[pos+2] == 'w') && (strMaterialLine[pos+3] == 'm') && (strMaterialLine[pos+4] == 't') && (strMaterialLine[pos+5] == 'l'))
         {
+            found = true;
+
             // New material, so if old material present then close it
-            if (pMaterial != NULL) CloseCurrentMaterial();
+            if (pMaterial != NULL) ProcessCurrentMaterial();
 
             // Skip to end of command
             pos += 6;
@@ -1210,6 +1277,8 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
         // Texture found
         if ((strMaterialLine[pos] == 'm') && (strMaterialLine[pos + 1] == 'a') && (strMaterialLine[pos + 2] == 'p') && (strMaterialLine[pos + 3] == '_') && (strMaterialLine[pos + 4] == 'K') && (strMaterialLine[pos + 5] == 'd'))
         {
+            found = true;
+
             std::string strValue;
 
             // Skip to end of command
@@ -1330,6 +1399,8 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
         // Ambient color albedo found
         if ((strMaterialLine[pos] == 'K') && (strMaterialLine[pos + 1] == 'a'))
         {
+            found = true;
+
             // Skip command
             pos += 2;
 
@@ -1370,6 +1441,8 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
         // Diffuse color albedo found
         if ((strMaterialLine[pos] == 'K') && (strMaterialLine[pos + 1] == 'd'))
         {
+            found = true;
+
             // Skip command
             pos += 2;
 
@@ -1410,6 +1483,8 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
         // Specular color albedo found
         if ((strMaterialLine[pos] == 'K') && (strMaterialLine[pos + 1] == 's'))
         {
+            found = true;
+
             // Skip command
             pos += 2;
 
@@ -1450,6 +1525,8 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
         // Specular reflectivity found
         if ((strMaterialLine[pos] == 'N') && (strMaterialLine[pos + 1] == 's'))
         {
+            found = true;
+
             // Skip command
             pos += 2;
 
@@ -1470,6 +1547,8 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
         // Illumination model found
         if ((strMaterialLine[pos] == 'i') && (strMaterialLine[pos + 1] == 'l') && (strMaterialLine[pos + 2] == 'l') && (strMaterialLine[pos + 3] == 'u') && (strMaterialLine[pos + 4] == 'm'))
         {
+            found = true;
+
             // Skip command
             pos += 5;
 
@@ -1496,7 +1575,13 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
         return (false);
     }
 
-    return (true);
+   if (found)
+   {
+       return (true);
+   } else 
+   {
+       return (false);
+   } 
 }
 
 /*********************************************************************
@@ -1519,7 +1604,7 @@ bool Objects::CreateCurrentMaterial (std::string name)
 /*********************************************************************
 * Move the current material to the list and close it
 *********************************************************************/
-void Objects::CloseCurrentMaterial (void)
+void Objects::ProcessCurrentMaterial (void)
 {
     // Add new Material to array of pointers (Material list)
     pMaterialArray[numMaterials++] = pMaterial;
@@ -1792,54 +1877,6 @@ void Objects::CreateSky (void)
         *ptrTV++ = VecMat::Vertex(1.0f, 1.0f, 0.0f);
         *ptrTV++ = VecMat::Vertex(1.0f, 0.0f, 0.0f);
 
-        // Number of vertex normals in the sky (cube)
-        pMesh->numVertexNormals = 24;
-
-        // Allocate memory for the Sky vertex normals
-        pMesh->pVertexNormals = (VecMat::Vertex*) malloc (pMesh->numVertexNormals * sizeof(VecMat::Vertex));
-
-        // Fill this memory with 0's
-        ZeroMemory(pMesh->pVertexNormals, pMesh->numVertexNormals * sizeof(VecMat::Vertex));
-
-        // Fill vertex normals list
-        VecMat::Vertex *ptrVN = pMesh->pVertexNormals;
-
-        // back
-        *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, 1.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, 1.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, 1.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, 1.0f);
-
-        // left
-        *ptrVN++ = VecMat::Vertex( 1.0f,  0.0f, 0.0f);
-        *ptrVN++ = VecMat::Vertex( 1.0f,  0.0f, 0.0f);
-        *ptrVN++ = VecMat::Vertex( 1.0f,  0.0f, 0.0f);
-        *ptrVN++ = VecMat::Vertex( 1.0f,  0.0f, 0.0f);
-
-        // right
-        *ptrVN++ = VecMat::Vertex( -1.0f,  0.0f, 0.0f);
-        *ptrVN++ = VecMat::Vertex( -1.0f,  0.0f, 0.0f);
-        *ptrVN++ = VecMat::Vertex( -1.0f,  0.0f, 0.0f);
-        *ptrVN++ = VecMat::Vertex( -1.0f,  0.0f, 0.0f);
-
-        // front
-        *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, -1.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, -1.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, -1.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f,  0.0f, -1.0f);
-
-        // top
-        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  0.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  0.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  0.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f, -1.0f,  0.0f);
-
-        // bottom
-        *ptrVN++ = VecMat::Vertex( 0.0f,  1.0f,  0.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f,  1.0f,  0.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f,  1.0f,  0.0f);
-        *ptrVN++ = VecMat::Vertex( 0.0f,  1.0f,  0.0f);
-
         // Create a new material for the backplane
         pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("SkyBack");
@@ -2028,21 +2065,21 @@ void Objects::CreateTerrain (void)
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("Terrain");
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->iIllum = 1;
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKa = new VecMat::Vec3(1.0f, 1.0f, 1.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(1.0f, 1.0f, 1.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(1.0f, 1.0f, 1.0f);
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(0.5f, 0.5f, 0.5f);
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(0.1f, 0.1f, 0.1f);
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleX = 0.005f;
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleY = 0.005f;
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleZ = 0.005f;
 
-		// Read texture
-		std::string textureFileName = applicationFolder + "\\textures\\terrain.bmp";
-		pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadTexture(textureFileName.c_str());
+        // Read texture
+        std::string textureFileName = applicationFolder + "\\textures\\terrain.bmp";
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadTexture(textureFileName.c_str());
 
-		// Read normal texture
-		std::string normalFileName = applicationFolder + "\\textures\\terrain_normal.bmp";
-		pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadNormalTexture(normalFileName.c_str());
-		
-		// Add new Material to array of pointers (Material list)
+        // Read normal texture
+        std::string normalFileName = applicationFolder + "\\textures\\terrain_normal.bmp";
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadNormalTexture((char *)normalFileName.c_str());
+
+        // Add new Material to array of pointers (Material list)
         pMaterialArray[numMaterials++] = pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial;
 
         // Insert the starting face for this material
@@ -2098,38 +2135,13 @@ void Objects::CreateTerrain (void)
         *ptrTV++ = VecMat::Vertex(1.0f, 1.0f, 0.0f);
         *ptrTV++ = VecMat::Vertex(0.0f, 1.0f, 0.0f);
 
-        // Number of vertex normals in the Terrain
-        pMesh->numVertexNormals = 4;
+        // Calculate normals for this mesh
+        CalculateNormals(pMesh);
 
-        // Allocate memory for the Terrain vertex normals
-        pMesh->pVertexNormals = (VecMat::Vertex*) malloc (pMesh->numVertexNormals * sizeof(VecMat::Vertex));
+        // Calculate (bi-)tangents for this mesh
+        CalculateTangents(pMesh);
 
-        // Fill this memory with 0's
-        ZeroMemory(pMesh->pVertexNormals, pMesh->numVertexNormals * sizeof(VecMat::Vertex));
-
-        // Fill vertex normals list
-        VecMat::Vertex *ptrVN = pMesh->pVertexNormals;
-        for (unsigned int i=0; i < pMesh->numVertexNormals; i++)
-        {
-            *ptrVN++ = VecMat::Vertex( 0.0f, 1.0f, 0.0f);
-        }
-	
-		// Number of face normals in the Terrain
-		pMesh->numFaceNormals = 2;
-
-		// Allocate memory for the Terrain face normals
-		pMesh->pFaceNormals = (VecMat::Vertex*) malloc(pMesh->numFaceNormals * sizeof(VecMat::Vertex));
-
-		// Fill this memory with 0's
-		ZeroMemory(pMesh->pFaceNormals, pMesh->numFaceNormals * sizeof(VecMat::Vertex));
-
-		// Fill face normals list
-		VecMat::Vertex *ptrFN = pMesh->pFaceNormals;
-		for (unsigned int i = 0; i < pMesh->numFaceNormals; i++)
-		{
-			*ptrFN++ = VecMat::Vertex(0.0f, 1.0f, 0.0f);
-		}
-	} catch (std::exception& e)
+    } catch (std::exception& e)
     {
         std::string message = "Exception: ";
         message.append(e.what());

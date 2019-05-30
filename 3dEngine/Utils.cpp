@@ -3,6 +3,11 @@
 namespace Utils
 {
     /*********************************************************************
+    * Window handle for displaying bmp's
+    *********************************************************************/
+    HWND hWndBump;
+
+    /*********************************************************************
     * Convert short to a string
     *********************************************************************/
     std::string ShortToStr(short num, unsigned int base)
@@ -486,6 +491,248 @@ namespace Utils
             NULL, NULL /* no default char */);
 
         return dblstr;
+    }
+
+    /*********************************************************************
+    * Show bmp file with provided raw data
+    *********************************************************************/
+    bool ShowBmp(std::wstring name, int sizeX, int sizeY, char* data)
+    {
+        // Error message
+        std::string message;
+
+        // Offset to view properly on screen
+        int offset = 0;
+
+        // Result writing bmp
+        bool result = false;
+
+        try
+        {
+            // Create window (if nescessary)
+            if (hWndBump == NULL)
+            {
+                HINSTANCE hInstance = GetModuleHandle(0);
+
+                // Create window class for this window
+                WNDCLASS wndClass = { 0 };
+
+                wndClass.style = CS_HREDRAW | CS_VREDRAW;
+                wndClass.lpfnWndProc = (WNDPROC)WndProcInfo;
+                wndClass.cbClsExtra = 0;
+                wndClass.cbWndExtra = 0;
+                wndClass.hInstance = hInstance;
+                wndClass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
+                wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+                wndClass.hbrBackground = GetSysColorBrush(COLOR_INACTIVECAPTION);
+                wndClass.lpszMenuName = L"ShowBump";
+                wndClass.lpszClassName = L"ShowBump";
+                RegisterClass(&wndClass);
+
+                // Create and show info window
+                hWndBump = CreateWindow(L"ShowBump", L"ShowBump", WS_DLGFRAME, 810, 10, sizeX + 8, sizeY + 10, NULL, NULL, hInstance, NULL);
+
+                ShowWindow(hWndBump, SW_SHOWNORMAL);
+                UpdateWindow(hWndBump);
+            }
+
+            // Create Bitmap info-header
+            BITMAPINFOHEADER bmih;
+            bmih.biSize = sizeof(BITMAPINFOHEADER);     // size of the structure = 40
+            bmih.biWidth = sizeX;                       // width of the image in pixels
+            bmih.biHeight = sizeY;                      // height of the image in pixels
+            bmih.biPlanes = 1;                          // = 1
+            bmih.biBitCount = 24;                       // bits per pixel (1, 4, 8, 16, 24, or 32)
+            bmih.biCompression = BI_RGB;                // compression code
+            bmih.biSizeImage = 0;                       // the size of the DIB pixel data in bytes
+            bmih.biXPelsPerMeter = 72;                  // horizontal resolution
+            bmih.biYPelsPerMeter = 72;                  // vertical resolution
+            bmih.biClrUsed = 0;                         // number of colors used (0 for true-color)
+            bmih.biClrImportant = 0;                    // number of important colors
+
+            // Get device context
+            HDC hdcWindow = GetWindowDC(hWndBump);
+
+            // Create a Device Independent Bitmap
+            void *pBits;
+            HBITMAP hBitmap = CreateDIBSection(NULL, (BITMAPINFO *)&bmih, 0, &pBits, NULL, 0);
+
+            // Copy data to DIB (mirrored in y-direction)
+            char *ptr = (char*)pBits;
+            for (int i = 0; i < sizeY; i++)
+            {
+                for (int j = 0; j < sizeX; j++)
+                {
+                    *ptr++ = data[(i * sizeX * 3) + (j * 3)];
+                    *ptr++ = data[(i * sizeX * 3) + (j * 3) + 1];
+                    *ptr++ = data[(i * sizeX * 3) + (j * 3) + 2];
+                };
+            };
+
+            // Create memory device context
+            HDC hdcMemory = CreateCompatibleDC(hdcWindow);
+            SelectObject(hdcMemory, hBitmap);
+
+            // Flush
+            GdiFlush();
+
+            // Copy data from the memory device to the screen device
+            BitBlt(hdcWindow, offset, offset, sizeX, sizeY, hdcMemory, 0, 0, SRCCOPY);
+
+            // Free bitmap memory / dc
+            DeleteObject(hBitmap);
+            ReleaseDC(hWndBump, hdcWindow);
+            DeleteDC(hdcMemory);
+
+            // File shown ok
+            result = true;
+
+        } catch (...)
+        {
+            std::string message;
+            message.append("Could not show BMP file: ");
+            message.append(Utils::ConvertWCSToMBS(name.c_str(), (long)wcslen(name.c_str())));
+            Error::WriteLog("ERROR", "Utils::ShowBmp", message.c_str());
+            return (false);
+        };
+
+        return (result);
+    }
+
+    /*********************************************************************
+    * Create bmp file with provided raw data
+    *********************************************************************/
+    bool WriteBmp(std::wstring name, int sizeX, int sizeY, char* data)
+    {
+        // Error message
+        std::string message;
+
+        // Result writing bmp
+        bool result = false;
+        unsigned long bytesWritten;
+
+        try
+        {
+            // Add file extension to name
+            name.append(L".bmp");
+
+            // Create (and open) file
+            HANDLE hFile = CreateFile((L"textures\\" + name).c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+            if (hFile == INVALID_HANDLE_VALUE) return false;
+
+            // Create Bitmap file-header
+            BITMAPFILEHEADER bmfh;
+            bmfh.bfType = *(WORD *) "BM";                                         // signature word "BM" or 0x4D42
+            bmfh.bfSize = sizeof(BITMAPFILEHEADER) + sizeX * sizeY * 3;           // entire size of file
+            bmfh.bfReserved1 = 0;                                                 // must be zero
+            bmfh.bfReserved2 = 0;                                                 // must be zero
+            bmfh.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER); // offset in file of DIB pixel bits
+
+            // Write the BITMAPFILEHEADER
+            result = WriteFile(hFile, &bmfh, sizeof(BITMAPFILEHEADER), &bytesWritten, NULL);
+            if (!result || (bytesWritten != sizeof(BITMAPFILEHEADER)))
+            {
+                CloseHandle(hFile);
+                DeleteFile(name.c_str());
+                return false;
+            };
+
+            // Create Bitmap info-header
+            BITMAPINFOHEADER bmih;
+            bmih.biSize = sizeof(BITMAPINFOHEADER);     // size of the structure = 40
+            bmih.biWidth = sizeX;                       // width of the image in pixels
+            bmih.biHeight = sizeY;                      // height of the image in pixels
+            bmih.biPlanes = 1;                          // = 1
+            bmih.biBitCount = 24;                       // bits per pixel (1, 4, 8, 16, 24, or 32)
+            bmih.biCompression = BI_RGB;                // compression code
+            bmih.biSizeImage = 0;                       // the size of the DIB pixel data in bytes
+            bmih.biXPelsPerMeter = 72;                  // horizontal resolution
+            bmih.biYPelsPerMeter = 72;                  // vertical resolution
+            bmih.biClrUsed = 0;                         // number of colors used (0 for true-color)
+            bmih.biClrImportant = 0;                    // number of important colors
+
+            // Write the BITMAPINFOHEADER
+            result = WriteFile(hFile, &bmih, sizeof(BITMAPINFOHEADER), &bytesWritten, NULL);
+            if (!result || (bytesWritten != sizeof(BITMAPINFOHEADER)))
+            {
+                CloseHandle(hFile);
+                DeleteFile(name.c_str());
+                return false;
+            };
+
+            // Write the image data
+            result = WriteFile(hFile, data, sizeX * sizeY * 3, &bytesWritten, NULL);
+            if (!result || (bytesWritten != ((unsigned int)sizeX * (unsigned int)sizeY * 3)))
+            {
+                CloseHandle(hFile);
+                DeleteFile(name.c_str());
+                return false;
+            };
+
+            // Close file
+            CloseHandle(hFile);
+
+            // File written ok
+            result = true;
+
+        } catch (...)
+        {
+            std::string message;
+            message.append("Could not write BMP file: ");
+            message.append(Utils::ConvertWCSToMBS(name.c_str(), (long)wcslen(name.c_str())));
+            Error::WriteLog("ERROR", "Utils::WriteBmp", message.c_str());
+            return (false);
+        };
+
+        return (result);
+    }
+
+    /*********************************************************************
+    * Windows procedure (handle messages for the 'Bump View' window)
+    *********************************************************************/
+    LRESULT CALLBACK WndProcInfo(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        switch (message)
+        {
+            case WM_CREATE:
+                break;
+
+            case WM_SIZE:
+                break;
+
+            case WM_MOUSEWHEEL:
+                break;
+
+            case WM_KEYDOWN:
+                switch (wParam)
+                {
+                    case VK_ESCAPE:
+                        DestroyWindow(hWnd);
+                        hWnd = NULL;
+                        break;
+
+                    case 'Z':
+                        DestroyWindow(hWnd);
+                        hWnd = NULL;
+                        break;
+                }
+                break;
+
+            case WM_DESTROY:
+                DestroyWindow(hWnd);
+                hWnd = NULL;
+                break;
+
+            case WM_CLOSE:
+                DestroyWindow(hWnd);
+                hWnd = NULL;
+                break;
+
+            default:
+                return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+
+        return (0);
     }
 }
 

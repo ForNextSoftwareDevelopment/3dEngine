@@ -136,7 +136,7 @@ LRESULT CALLBACK Settings::WndProcSettings (HWND hWnd, UINT message, WPARAM wPar
             hWndCbTextures = cbTextures->Create(10, 90, 80, 40);
 
             // Create a new checkbox
-            cbNormalMap = new CtrlCheckBox("Show Normal Map (Key = B)", Settings::prefs->show_normalmap, hWnd);
+            cbNormalMap = new CtrlCheckBox("Show Normal Map (Key = N)", Settings::prefs->show_normalmap, hWnd);
             hWndCbNormalMap = cbNormalMap->Create(10, 120, 80, 40);
 
             // Create a new checkbox

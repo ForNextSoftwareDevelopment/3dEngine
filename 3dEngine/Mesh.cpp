@@ -6,7 +6,7 @@
 Mesh::Mesh (void)
 {
     // Set default name of object
-    this->name.append("Mesh");
+    this->name = "Mesh";
 
     // Set number of triangulation errors (while importing this object) to 0
     numTriangulationErrors = 0;
@@ -42,7 +42,7 @@ Mesh::Mesh (void)
 Mesh::Mesh(std::string name)
 {
     // Set default name of object
-    this->name.append(name);
+    this->name = name;
 
     // Set number of triangulation errors (while importing this object) to 0
     numTriangulationErrors = 0;

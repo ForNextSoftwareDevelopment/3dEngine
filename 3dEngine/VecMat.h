@@ -430,9 +430,9 @@ namespace VecMat
 
                 column[2].row[2] = -2.0f / (f - n);
 
-                column[3].row[0] = -(right + left) / (right - left);
-                column[3].row[1] = -(top + bottom) / (top - bottom);
-                column[3].row[2] = -(f + n) / (f - n);
+                column[3].row[0] = -((right + left) / (right - left));
+                column[3].row[1] = -((top + bottom) / (top - bottom));
+                column[3].row[2] = -((f + n) / (f - n));
                 column[3].row[3] =  1.0f;
             }
     };
@@ -455,10 +455,10 @@ namespace VecMat
 
                 column[2].row[0] = (right + left) / (right - left);
                 column[2].row[1] = (top + bottom) / (top - bottom);
-                column[2].row[2] = -(f + n) / (f - n);
+                column[2].row[2] = -((f + n) / (f - n));
                 column[2].row[3] = -1.0f;
 
-                column[3].row[2] = -(2.0f * f * n) / (f - n);
+                column[3].row[2] = -((2.0f * f * n) / (f - n));
             }
     };
 
