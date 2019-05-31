@@ -500,9 +500,16 @@ namespace VecMat
             Vec3  f = Normalize(center - eye);
             Vec3  u = Normalize(up);
             Vec3  s = Normalize(f * u);
+
+            // f and u are parallel
+            if ((s[0] == 0.0f) && (s[1] == 0.0f) && (s[2] == 0.0f))
+            {
+                s[0] = 0.0f;
+                s[1] = 0.0f;
+                s[2] = 1.0f;
+            }
             u = s * f;
 
-            Mat4 result;
             column[0].row[0] = s.row[0];
             column[1].row[0] = s.row[1];
             column[2].row[0] = s.row[2];

@@ -25,7 +25,7 @@ typedef unsigned int RenderMode;
 
 // Near- and farplane positions (default)
 #define NEARPLANEPOS      2.0f
-#define FARPLANEPOS     100.0f
+#define FARPLANEPOS     800.0f
 
 // Left, right, top and bottom of nearplane
 #define NPLEFT           -1.0f

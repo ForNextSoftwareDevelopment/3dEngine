@@ -166,7 +166,6 @@
     <ClInclude Include="meshes\Cube.h" />
     <ClInclude Include="meshes\Dome.h" />
     <ClInclude Include="meshes\Sphere.h" />
-    <ClInclude Include="meshes\Tube.h" />
     <ClInclude Include="Objects.h" />
     <ClInclude Include="OpenGL.h" />
     <ClInclude Include="WinMain.h" />
@@ -195,7 +194,6 @@
     <ClCompile Include="meshes\Cube.cpp" />
     <ClCompile Include="meshes\Dome.cpp" />
     <ClCompile Include="meshes\Sphere.cpp" />
-    <ClCompile Include="meshes\Tube.cpp" />
     <ClCompile Include="Objects.cpp" />
     <ClCompile Include="OpenGL.cpp" />
     <ClCompile Include="WinMain.cpp" />

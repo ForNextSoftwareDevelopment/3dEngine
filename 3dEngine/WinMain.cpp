@@ -160,7 +160,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     // Give warning messagebox if HDK2 is not found
     if (!hid->HDK2)
     {
-        MessageBox(NULL, L"HDK2 Device not found", L"WARNING", MB_OK | MB_ICONEXCLAMATION);
+        //MessageBox(NULL, L"HDK2 Device not found", L"WARNING", MB_OK | MB_ICONEXCLAMATION);
     }
 
     // Get display info (look for multiple displays, first two found will be marked as primary and secundary)

@@ -114,9 +114,6 @@
     <ClInclude Include="meshes\Sphere.h">
       <Filter>Header Files\Meshes</Filter>
     </ClInclude>
-    <ClInclude Include="meshes\Tube.h">
-      <Filter>Header Files\Meshes</Filter>
-    </ClInclude>
     <ClInclude Include="meshes\Axis.h">
       <Filter>Header Files\Meshes</Filter>
     </ClInclude>
@@ -189,9 +186,6 @@
       <Filter>Source Files\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="meshes\Sphere.cpp">
-      <Filter>Source Files\Meshes</Filter>
-    </ClCompile>
-    <ClCompile Include="meshes\Tube.cpp">
       <Filter>Source Files\Meshes</Filter>
     </ClCompile>
     <ClCompile Include="meshes\Axis.cpp">

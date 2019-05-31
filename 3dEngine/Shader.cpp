@@ -706,15 +706,12 @@ void Shader::CreateTextures(void)
         // Bind it to the context using the GL_TEXTURE_2D binding point
         glBindTexture(GL_TEXTURE_2D, texture_shadow_buffer);
 
-        // Set texture
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-
         // Set texture mode to luminance
         glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
 
         // Disable compare mode
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-        
+
         // Set texture border color to white
         float color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
@@ -725,7 +722,10 @@ void Shader::CreateTextures(void)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-       
+
+        // Set texture
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
         // Check for OpenGL errors
         Error::CheckOpenGLError("Shader::CreateTextures - Create/Bind Texture Buffers - GL_TEXTURE2");
 
@@ -801,7 +801,6 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
         glViewport(0, 0, SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT);
 
         // Calculate the projection matrix
-        //VecMat::Mat4 proj_shadow_matrix = VecMat::Orthogonal(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
         VecMat::Mat4 proj_shadow_matrix = VecMat::Frustum(NPLEFT, NPRIGHT, NPBOTTOM, NPTOP, pos_np, pos_fp);
         glProgramUniformMatrix4fv(program_shadow, proj_shadow_matrix_location, 1, GL_FALSE, proj_shadow_matrix);
 
@@ -955,8 +954,8 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                     //Disable color rendering, we only want to write to the Z-Buffer
                     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-                    // Don't draw the bulb and sky in shadowmap
-                    if ((pObjects->pMeshArray[i]->name != "Bulb") && (pObjects->pMeshArray[i]->name != "Sky"))
+                    // Don't draw the bulb, sky and axis in shadowmap
+                    if ((pObjects->pMeshArray[i]->name != "Bulb") && (pObjects->pMeshArray[i]->name != "Sky") && (pObjects->pMeshArray[i]->name != "Axis"))
                     {
                         // Set mode
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -988,6 +987,14 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                     //Enabling color write
                     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
+                    // Set ambient light (color and power)
+                    glUniform4fv(ambient_light_location, 1, VecMat::Vec4(ambient_light.r, ambient_light.g, ambient_light.b, ambient_light.a));
+
+                    // Check for OpenGL errors and report in info file
+                    #ifdef DEBUG
+                    Error::CheckOpenGLError("Shader::DrawObjects - Ambient Light");
+                    #endif
+
                     // Calculate the object-path matrix
                     VecMat::Mat4 path_matrix = VecMat::Rotate(angle_x + offsetAngleX, angle_y + offsetAngleY, angle_z + offsetAngleZ) * VecMat::Translate(pos_x + offsetPosX, pos_y + offsetPosY, pos_z + offsetPosZ);
                     glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
@@ -997,14 +1004,17 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                     Error::CheckOpenGLError("Shader::DrawObjects - ObjPathMatrix");
                     #endif
 
-                    // If Bulb (Light) then adjust the object-path matrix
+                    // If Bulb (Light) then adjust the object-path matrix and set ambient color to max
                     if (pObjects->pMeshArray[i]->name == "Bulb")
                     {
+                        // Set ambient light (color and power)
+                        glUniform4fv(ambient_light_location, 1, VecMat::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
                         path_matrix = path_matrix * VecMat::Translate(this->diff_pos_x, this->diff_pos_y, this->diff_pos_z);
                         glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
                     }
 
-                    // If Sky then disable depth test and front face culling and adjust the object-path matrix (only rotation)
+                    // If Sky then disable depth test and front face culling, adjust the object-path matrix (only rotation) and set ambient color to max
                     if (pObjects->pMeshArray[i]->name == "Sky")
                     {
                         // Disable depth settings
@@ -1014,15 +1024,21 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                         // Disable front face culling
                         glDisable(GL_CULL_FACE);
 
+                        // Set ambient light (color and power)
+                        glUniform4fv(ambient_light_location, 1, VecMat::Vec4(1.0f, 1.0f, 1.0f, 0.8f));
+
                         path_matrix = VecMat::Rotate(angle_x, angle_y, angle_z);
                         glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
                     }
 
-                    // If Axis then disable front face culling
+                    // If Axis then disable front face culling and set ambient color to max
                     if (pObjects->pMeshArray[i]->name == "Axis")
                     {
                         // Disable front face culling
                         glDisable(GL_CULL_FACE);
+
+                        // Set ambient light (color and power)
+                        glUniform4fv(ambient_light_location, 1, VecMat::Vec4(1.0f, 1.0f, 1.0f, 0.8f));
                     }
 
                     // Check for OpenGL errors and report in info file

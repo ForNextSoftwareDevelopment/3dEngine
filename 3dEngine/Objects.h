@@ -11,7 +11,6 @@
 #include "Meshes/Cube.h"
 #include "Meshes/Dome.h"
 #include "Meshes/Sphere.h"
-#include "Meshes/Tube.h"
 
 class Objects
 {
