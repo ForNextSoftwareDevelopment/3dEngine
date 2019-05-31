@@ -7,7 +7,7 @@ Axis::Axis(GLfloat size, char direction)
 {
     if ((direction != 'x') && (direction != 'y') && (direction != 'z')) return;
 
-    name = "AxisPosX";
+    name = "Axis";
 
     GLfloat sizeX = size;
     GLfloat sizeY = size;

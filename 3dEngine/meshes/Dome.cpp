@@ -102,8 +102,8 @@ Dome::Dome(GLfloat radius, GLint resolution, GLuint numSegments)
             pF->third = curSegment * (resolution * 4) -1;
             pF++;
             pF->first = curSegment * (resolution * 4);
-            pF->second = (curSegment - 1) * (resolution * 4);
-            pF->third = curSegment * (resolution * 4) -1;
+            pF->second = curSegment * (resolution * 4) - 1;
+            pF->third = (curSegment - 1) * (resolution * 4);
             pF++;
         };
     };
