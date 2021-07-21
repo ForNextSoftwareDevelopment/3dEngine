@@ -305,7 +305,7 @@ namespace Error
                     count = 0;
                 }
 
-                if (count >= 80)
+                if (count >= 120)
                 {
                     strMessage.append("\r\n");
                     count = 0;
