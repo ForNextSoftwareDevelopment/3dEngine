@@ -9,21 +9,21 @@ Material::Material (std::string name)
     this->name.append(name);
 
     // Set pointer to texture
-    pTextureData  = NULL;
+    pTextureColorData  = NULL;
 
     // Set pointer to texture Normal
     pTextureNormalData  = NULL;
 
     // Set default color albedo
-    pKa = NULL;
-    pKd = NULL;
-    pKs = NULL;
+    Ka = VecMat::Vec3(1.0f, 1.0f, 1.0f);
+    Kd = VecMat::Vec3(0.8f, 0.8f, 0.8f);
+    Ks = VecMat::Vec3(0.1f, 0.1f, 0.1f);
 
     // Set specular reflectivity
-    iKn = 64;
+    Kn = 64;
 
     // Set illumination model (no illumination)
-    iIllum = 1;
+    Illum = 1;
 
     // Set texture height and width
     textHeight = 0;
@@ -48,16 +48,14 @@ Material::Material (std::string name)
 *********************************************************************/
 Material::~Material (void)
 {
-    if (pTextureData  != NULL) delete (pTextureData);
-    if (pKa != NULL) delete (pKa);
-    if (pKd != NULL) delete (pKd);
-    if (pKs != NULL) delete (pKs);
+    if (pTextureColorData  != NULL) delete (pTextureColorData);
+    if (pTextureNormalData  != NULL) delete (pTextureNormalData);
 }
 
 /*********************************************************************
 * Read the texture for this material
 *********************************************************************/
-void Material::ReadTexture (const char *pFileName)
+bool Material::ReadTexture (const char *pFileName)
 {
     // Pointer to file buffer (contents of file)
     char *pBuffer = NULL;
@@ -72,9 +70,6 @@ void Material::ReadTexture (const char *pFileName)
 
     try
     {
-        // Set hourglass cursor
-        SetCursor (LoadCursor (NULL, IDC_WAIT));
-
         // Read file
         unsigned int fileSize;
         pBuffer = Files::ReadBinary(pFileName, &fileSize);
@@ -84,10 +79,8 @@ void Material::ReadTexture (const char *pFileName)
             message.append("Could not read file: ");
             message.append(pFileName);
             Error::WriteLog("WARNING", "Material::ReadTexture", message.c_str());
+            return(false);
         }
-
-        // Set normal cursor
-        SetCursor (LoadCursor (NULL, IDC_ARROW));
 
         // If file has been (correctly) read
         if (pBuffer != NULL)
@@ -104,7 +97,7 @@ void Material::ReadTexture (const char *pFileName)
 
                 // Free buffer memory
                 delete pBuffer;
-                return;
+                return(false);
             }
 
             // Get the pointer to the info structure
@@ -120,7 +113,7 @@ void Material::ReadTexture (const char *pFileName)
 
                 // Free buffer memory
                 delete pBuffer;
-                return;
+                return(false);
             }
 
             // Check if image is the correct format (32 bits not compressed)
@@ -133,7 +126,7 @@ void Material::ReadTexture (const char *pFileName)
 
                 // Free buffer memory
                 delete pBuffer;
-                return;
+                return(false);
             }
 
             // Get the DIB width and height
@@ -145,7 +138,7 @@ void Material::ReadTexture (const char *pFileName)
 
             // Allocate memory for texture
             GLuint tSize  = textWidth * textHeight * 4 * sizeof (GLubyte);
-            pTextureData = new GLubyte [tSize];
+            pTextureColorData = new GLubyte [tSize];
 
             // Copy data to new buffer (top down because the image is mirrored vertically)
             if (pBmi->bmiHeader.biBitCount == 32)
@@ -156,13 +149,13 @@ void Material::ReadTexture (const char *pFileName)
                     {
                         int index = (i * textWidth * 4) + (j * 4);
 
-                        pTextureData[index + 2] = *pBits;
+                        pTextureColorData[index + 2] = *pBits;
                         pBits++;
-                        pTextureData[index + 1] = *pBits;
+                        pTextureColorData[index + 1] = *pBits;
                         pBits++;
-                        pTextureData[index    ] = *pBits;
+                        pTextureColorData[index    ] = *pBits;
                         pBits++;
-                        pTextureData[index + 3] = *pBits;
+                        pTextureColorData[index + 3] = *pBits;
                         pBits++;
                     }
                 }
@@ -174,12 +167,12 @@ void Material::ReadTexture (const char *pFileName)
                     {
                         int index = (i * textWidth * 4) + (j * 4);
 
-                        pTextureData[index + 3] = 0xFF;
-                        pTextureData[index + 2] = *pBits;
+                        pTextureColorData[index + 3] = 0xFF;
+                        pTextureColorData[index + 2] = *pBits;
                         pBits++;
-                        pTextureData[index + 1] = *pBits;
+                        pTextureColorData[index + 1] = *pBits;
                         pBits++;
-                        pTextureData[index    ] = *pBits; 
+                        pTextureColorData[index    ] = *pBits;
                         pBits++;
                     }
                 }
@@ -188,20 +181,24 @@ void Material::ReadTexture (const char *pFileName)
             
         // Free buffer memory
         delete (pBuffer);
+
+        return(true);
     } catch (std::exception& e)
     {
         std::string message = "Exception: ";
         message.append(e.what());
         Error::WriteLog("EXCEPTION", "Material::ReadTexture", message.c_str());
-        if (pTextureData != NULL) delete (pTextureData);
-        pTextureData = NULL;
+        if (pTextureColorData != NULL) delete (pTextureColorData);
+        pTextureColorData = NULL;
     }
+
+    return(false);
 }
 
 /*********************************************************************
 * Read the normal texture for this material
 *********************************************************************/
-void Material::ReadNormalTexture (const char *pFileName)
+bool Material::ReadNormalTexture (const char *pFileName)
 {
     // Pointer to file buffer (contents of file)
     char *pBuffer = NULL;
@@ -216,9 +213,6 @@ void Material::ReadNormalTexture (const char *pFileName)
 
     try
     {
-        // Set hourglass cursor
-        SetCursor (LoadCursor (NULL, IDC_WAIT));
-
         // Read file
         unsigned int fileSize;
         pBuffer = Files::ReadBinary(pFileName, &fileSize);
@@ -229,10 +223,8 @@ void Material::ReadNormalTexture (const char *pFileName)
             message.append("Could not read file: ");
             message.append(pFileName);
             Error::WriteLog("WARNING", "Material::ReadNormalTexture", message.c_str());
+            return(false);
         }
-
-        // Set normal cursor
-        SetCursor (LoadCursor (NULL, IDC_ARROW));
 
         // If file has been (correctly) read
         if (pBuffer != NULL)
@@ -247,7 +239,7 @@ void Material::ReadNormalTexture (const char *pFileName)
 
                 // Free buffer memory
                 delete (pBuffer);
-                return;
+                return(false);
             }
 
             // Get the pointer to the info structure
@@ -263,7 +255,7 @@ void Material::ReadNormalTexture (const char *pFileName)
 
                 // Free buffer memory
                 delete (pBuffer);
-                return;
+                return(false);
             }
 
             // Check if image is the correct format (32 bits not compressed)
@@ -276,7 +268,7 @@ void Material::ReadNormalTexture (const char *pFileName)
 
                 // Free buffer memory
                 delete (pBuffer);
-                return;
+                return(false);
             }
 
             // Check if image is the same size as texture image
@@ -291,7 +283,7 @@ void Material::ReadNormalTexture (const char *pFileName)
 
                 // Free buffer memory
                 delete (pBuffer);
-                return;
+                return(false);
             }
 
             // Get the pointer to the image bits
@@ -343,6 +335,8 @@ void Material::ReadNormalTexture (const char *pFileName)
 
         // Free buffer memory
         delete (pBuffer);
+
+        return(true);
     } catch (std::exception& e)
     {
         std::string message = "Exception: ";
@@ -351,4 +345,6 @@ void Material::ReadNormalTexture (const char *pFileName)
         if (pTextureNormalData != NULL) delete (pTextureNormalData);
         pTextureNormalData = NULL;
     }
+
+    return(false);
 }

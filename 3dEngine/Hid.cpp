@@ -321,98 +321,102 @@ std::string Hid::DeviceWrite(HANDLE hidDeviceHandle, unsigned char *data, size_t
     OVERLAPPED overlapped;
     memset(&overlapped, 0, sizeof(overlapped));
     overlapped.hEvent = CreateEvent(NULL, false, false, NULL);
+	if (overlapped.hEvent != NULL)
+	{
+		SetLastError(0);
+		result = WriteFile(hidDeviceHandle, data, (DWORD)length, NULL, &overlapped);
+		if (!result)
+		{
+			void *pMsgBuf;
+			DWORD error = GetLastError();
+			if (error != ERROR_IO_PENDING)
+			{
+				message = "*Could not write to device: ";
+				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+				message.append((char*)pMsgBuf);
 
-    SetLastError(0);
-    result = WriteFile(hidDeviceHandle, data, (DWORD)length, NULL, &overlapped);
-    if (!result)
-    {
-        void *pMsgBuf;
-        DWORD error = GetLastError();
-        if (error != ERROR_IO_PENDING)
-        {
-            message = "*Could not write to device: ";
-            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
-            message.append((char*)pMsgBuf);
+				SetLastError(0);
+				result = CancelIo(hidDeviceHandle);
+				if (!result)
+				{
+					void *pMsgBuf;
+					DWORD error = GetLastError();
+					FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
 
-            SetLastError(0);
-            result = CancelIo(hidDeviceHandle);
-            if (!result)
-            {
-                void *pMsgBuf;
-                DWORD error = GetLastError();
-                FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+					message = "*Could not cancel write to device: ";
+					message.append((char*)pMsgBuf);
+					message.append("\r\n");
+				}
 
-                message = "*Could not cancel write to device: ";
-                message.append((char*)pMsgBuf);
-                message.append("\r\n");
-            }
+				return (message);
+			}
+		}
 
-            return (message);
-        }
-    }
+		// See if there is any data yet within the selected timeout
+		DWORD waitResult = WaitForSingleObject(overlapped.hEvent, TIMEOUT);
+		switch (waitResult)
+		{
+			void *pMsgBuf;
+			DWORD error;
 
-    // See if there is any data yet within the selected timeout
-    DWORD waitResult = WaitForSingleObject(overlapped.hEvent, TIMEOUT);
-    switch (waitResult)
-    {
-        void *pMsgBuf;
-        DWORD error;
+		case WAIT_FAILED:
+			error = GetLastError();
+			FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
 
-    case WAIT_FAILED:
-        error = GetLastError();
-        FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+			message = "*Could not wait for write to device: ";
+			message.append((char*)pMsgBuf);
+			message.append("\r\n");
+			return (message);
+			break;
 
-        message = "*Could not wait for write to device: ";
-        message.append((char*)pMsgBuf);
-        message.append("\r\n");
-        return (message);
-        break;
+		case WAIT_OBJECT_0:
+			SetLastError(0);
+			result = GetOverlappedResult(hidDeviceHandle, &overlapped, &bytes_written, FALSE);
+			if (!result)
+			{
+				void *pMsgBuf;
+				DWORD error = GetLastError();
+				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
 
-    case WAIT_OBJECT_0:
-        SetLastError(0);
-        result = GetOverlappedResult(hidDeviceHandle, &overlapped, &bytes_written, FALSE);
-        if (!result)
-        {
-            void *pMsgBuf;
-            DWORD error = GetLastError();
-            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+				message = "*Could not get overlaped result: ";
+				message.append((char*)pMsgBuf);
 
-            message = "*Could not get overlaped result: ";
-            message.append((char*)pMsgBuf);
+				SetLastError(0);
+				result = CancelIo(hidDeviceHandle);
+				if (!result)
+				{
+					void *pMsgBuf;
+					DWORD error = GetLastError();
+					FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
 
-            SetLastError(0);
-            result = CancelIo(hidDeviceHandle);
-            if (!result)
-            {
-                void *pMsgBuf;
-                DWORD error = GetLastError();
-                FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+					message.append("*Could not cancel write to device: ");
+					message.append((char*)pMsgBuf);
+					message.append("\r\n");
+				}
 
-                message.append("*Could not cancel write to device: ");
-                message.append((char*)pMsgBuf);
-                message.append("\r\n");
-            }
+				return (message);
+			}
+			return ("OK, Written " + Utils::IntToStr(bytes_written) + "\r\n");
+			break;
 
-            return (message);
-        }
-        return ("OK, Written " + Utils::IntToStr(bytes_written) + "\r\n");
-        break;
+		case WAIT_TIMEOUT:
+			message = "*Timeout in write to device";
+			return (message);
+			break;
 
-    case WAIT_TIMEOUT:
-        message = "*Timeout in write to device";
-        return (message);
-        break;
+		case WAIT_ABANDONED:
+			message = "*Waiting abandoned in write to device";
+			return (message);
+			break;
 
-    case WAIT_ABANDONED:
-        message = "*Waiting abandoned in write to device";
-        return (message);
-        break;
+		default:
+			message = "*Unknown wait-result status in write to device";
+			return (message);
+			break;
+		}
+	}
 
-    default:
-        message = "*Unknown wait-result status in write to device";
-        return (message);
-        break;
-    }
+	return ("*Could not write to device");
 }
 
 /*********************************************************************
@@ -428,96 +432,101 @@ std::string Hid::DeviceRead(HANDLE hidDeviceHandle, unsigned char *data, size_t 
     memset(&overlapped, 0, sizeof(overlapped));
     overlapped.hEvent = CreateEvent(NULL, false, false, NULL);
 
-    SetLastError(0);
-    result = ReadFile(hidDeviceHandle, data, (DWORD)length, &bytes_read, &overlapped);
-    if (!result)
-    {
-        void *pMsgBuf;
-        DWORD error = GetLastError();
-        if (error != ERROR_IO_PENDING)
-        {
-            message = "*Could not read from device: ";
-            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
-            message.append((char*)pMsgBuf);
+	if (overlapped.hEvent != NULL)
+	{
+		SetLastError(0);
+		result = ReadFile(hidDeviceHandle, data, (DWORD)length, &bytes_read, &overlapped);
+		if (!result)
+		{
+			void *pMsgBuf;
+			DWORD error = GetLastError();
+			if (error != ERROR_IO_PENDING)
+			{
+				message = "*Could not read from device: ";
+				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+				message.append((char*)pMsgBuf);
 
-            SetLastError(0);
-            result = CancelIo(hidDeviceHandle);
-            if (!result)
-            {
-                void *pMsgBuf;
-                DWORD error = GetLastError();
-                FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+				SetLastError(0);
+				result = CancelIo(hidDeviceHandle);
+				if (!result)
+				{
+					void *pMsgBuf;
+					DWORD error = GetLastError();
+					FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
 
-                message = "*Could not cancel read from device: ";
-                message.append((char*)pMsgBuf);
-                message.append("\r\n");
-            }
+					message = "*Could not cancel read from device: ";
+					message.append((char*)pMsgBuf);
+					message.append("\r\n");
+				}
 
-            return (message);
-        }
-    }
+				return (message);
+			}
+		}
 
-    // See if there is any data yet within the selected timeout
-    DWORD waitResult = WaitForSingleObject(overlapped.hEvent, TIMEOUT);
-    switch (waitResult)
-    {
-        void *pMsgBuf;
-        DWORD error;
+		// See if there is any data yet within the selected timeout
+		DWORD waitResult = WaitForSingleObject(overlapped.hEvent, TIMEOUT);
+		switch (waitResult)
+		{
+			void *pMsgBuf;
+			DWORD error;
         
-        case WAIT_FAILED:
-            error = GetLastError();
-            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+			case WAIT_FAILED:
+				error = GetLastError();
+				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
 
-            message = "*Could not wait for read from device: ";
-            message.append((char*)pMsgBuf);
-            message.append("\r\n");
-            return (message);
-            break;
+				message = "*Could not wait for read from device: ";
+				message.append((char*)pMsgBuf);
+				message.append("\r\n");
+				return (message);
+				break;
 
-        case WAIT_OBJECT_0:
-            SetLastError(0);
-            result = GetOverlappedResult(hidDeviceHandle, &overlapped, &bytes_read, FALSE);
-            if (!result)
-            {
-                void *pMsgBuf;
-                DWORD error = GetLastError();
-                FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+			case WAIT_OBJECT_0:
+				SetLastError(0);
+				result = GetOverlappedResult(hidDeviceHandle, &overlapped, &bytes_read, FALSE);
+				if (!result)
+				{
+					void *pMsgBuf;
+					DWORD error = GetLastError();
+					FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
 
-                message = "*Could not get overlaped result: ";
-                message.append((char*)pMsgBuf);
+					message = "*Could not get overlaped result: ";
+					message.append((char*)pMsgBuf);
 
-                SetLastError(0);
-                result = CancelIo(hidDeviceHandle);
-                if (!result)
-                {
-                    void *pMsgBuf;
-                    DWORD error = GetLastError();
-                    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+					SetLastError(0);
+					result = CancelIo(hidDeviceHandle);
+					if (!result)
+					{
+						void *pMsgBuf;
+						DWORD error = GetLastError();
+						FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
 
-                    message.append("*Could not cancel read from device: ");
-                    message.append((char*)pMsgBuf);
-                    message.append("\r\n");
-                }
+						message.append("*Could not cancel read from device: ");
+						message.append((char*)pMsgBuf);
+						message.append("\r\n");
+					}
 
-                return (message);
-            }
-            return ("OK, Read " + Utils::IntToStr(bytes_read) + "\r\n");
-            break;
+					return (message);
+				}
+				return ("OK, Read " + Utils::IntToStr(bytes_read) + "\r\n");
+				break;
 
-        case WAIT_TIMEOUT:
-            message = "*Timeout in read from device";
-            return (message);
-            break;
+			case WAIT_TIMEOUT:
+				message = "*Timeout in read from device";
+				return (message);
+				break;
 
-        case WAIT_ABANDONED:
-            message = "*Waiting abandoned in read from device";
-            return (message);
-            break;
+			case WAIT_ABANDONED:
+				message = "*Waiting abandoned in read from device";
+				return (message);
+				break;
 
-        default:
-            message = "*Unknown wait-result status in read from device";
-            return (message);
-            break;
-    }
+			default:
+				message = "*Unknown wait-result status in read from device";
+				return (message);
+				break;
+		}
+	}
+
+	return ("*Could not read from device");
 }
 

@@ -10,7 +10,7 @@
 #include "Material.h"
 
 // Maximum number of meshes to render
-#define MAX_NUM_MESHES 1000
+#define MAX_NUM_MESHES 10000
 
 // Maximum number of materials to use
 #define MAX_NUM_MATERIALS 100
@@ -41,11 +41,23 @@ class Mesh
         // Name of object
         std::string name;
 
+        // Position of object
+        GLfloat pos_x, pos_y, pos_z;
+
+        // Center of object
+        GLfloat center_x, center_y, center_z;
+
+        // Angle of object
+        GLfloat angle_x, angle_y, angle_z;
+
+        // (Maximum) size of object
+        GLfloat size_x, size_y, size_z;
+
+        // Speed of object
+        GLfloat speed_angle, speed_pos;
+
         // Number of triangulation errors in this object
         unsigned int numTriangulationErrors;
-
-        // Mapping has been provided for this mesh by texture vertices (so no unwrapping needed)
-        bool mapped;
 
         // Number of materials in this object
         GLuint numMaterials;

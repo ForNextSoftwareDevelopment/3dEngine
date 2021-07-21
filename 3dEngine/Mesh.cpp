@@ -11,9 +11,6 @@ Mesh::Mesh (void)
     // Set number of triangulation errors (while importing this object) to 0
     numTriangulationErrors = 0;
 
-    // Set 'no mapping provided' as default
-    mapped = false;
-
     // Set number of vertices, texture vertices, faces and materials
     numVertices        = 0;
     numVertexNormals   = 0;
@@ -24,16 +21,16 @@ Mesh::Mesh (void)
     numMaterials       = 0;
 
     // Set pointers to the vertices and faces
-    pVertices         = NULL;
-    pVertexNormals    = NULL;
-    pFaceNormals      = NULL;
-    pTangents         = NULL;
-    pBiTangents       = NULL;
-    pTextureVertices  = NULL;
-    pFaces            = NULL;
+    pVertices         = nullptr;
+    pVertexNormals    = nullptr;
+    pFaceNormals      = nullptr;
+    pTangents         = nullptr;
+    pBiTangents       = nullptr;
+    pTextureVertices  = nullptr;
+    pFaces            = nullptr;
 
     // Set pointers to the array of material entries for this object
-    for (int i=0; i<MAX_NUM_MATERIALS; i++) pMaterialEntryList[i] = NULL;
+    for (int i=0; i<MAX_NUM_MATERIALS; i++) pMaterialEntryList[i] = nullptr;
 }
 
 /*********************************************************************
@@ -44,11 +41,32 @@ Mesh::Mesh(std::string name)
     // Set default name of object
     this->name = name;
 
+    // Set initial position
+    pos_x = 0.0f;
+    pos_y = 0.0f;
+    pos_z = 0.0f;
+
+    // Set initial angle
+    angle_x = 0.0f;
+    angle_y = 0.0f;
+    angle_z = 0.0f;
+
+    // Set initial center
+    center_x = 0.0f;
+    center_y = 0.0f;
+    center_z = 0.0f;
+
+    // Set initial size
+    size_x = 0.0f;
+    size_y = 0.0f;
+    size_z = 0.0f;
+
+    // Set (angle)speed
+    speed_pos = 0.0f;
+    speed_angle = 0.0f;
+
     // Set number of triangulation errors (while importing this object) to 0
     numTriangulationErrors = 0;
-
-    // Set 'no mapping provided' as default
-    mapped = false;
 
     // Set number of vertices, texture vertices, faces and materials
     numVertices        = 0;
@@ -60,16 +78,16 @@ Mesh::Mesh(std::string name)
     numMaterials       = 0;
 
     // Set pointers to the vertices and faces
-    pVertices         = NULL;
-    pVertexNormals    = NULL;
-    pFaceNormals      = NULL;
-    pTangents         = NULL;
-    pBiTangents       = NULL;
-    pTextureVertices  = NULL;
-    pFaces            = NULL;
+    pVertices         = nullptr;
+    pVertexNormals    = nullptr;
+    pFaceNormals      = nullptr;
+    pTangents         = nullptr;
+    pBiTangents       = nullptr;
+    pTextureVertices  = nullptr;
+    pFaces            = nullptr;
 
     // Set pointers to the array of material entries for this object
-    for (int i=0; i<MAX_NUM_MATERIALS; i++) pMaterialEntryList[i] = NULL;
+    for (int i=0; i<MAX_NUM_MATERIALS; i++) pMaterialEntryList[i] = nullptr;
 }
 
 /*********************************************************************
@@ -77,13 +95,13 @@ Mesh::Mesh(std::string name)
 *********************************************************************/
 Mesh::~Mesh (void)
 {
-    if (pVertices        != NULL) free (pVertices);
-    if (pVertexNormals   != NULL) free (pVertexNormals);
-    if (pFaceNormals     != NULL) free (pFaceNormals);
-    if (pTangents        != NULL) free (pTangents);
-    if (pBiTangents      != NULL) free (pBiTangents);
-    if (pTextureVertices != NULL) free (pTextureVertices);
-    if (pFaces           != NULL) free (pFaces);
+    if (pVertices        != nullptr) delete[] (pVertices);
+    if (pVertexNormals   != nullptr) delete[] (pVertexNormals);
+    if (pFaceNormals     != nullptr) delete[] (pFaceNormals);
+    if (pTangents        != nullptr) delete[] (pTangents);
+    if (pBiTangents      != nullptr) delete[] (pBiTangents);
+    if (pTextureVertices != nullptr) delete[] (pTextureVertices);
+    if (pFaces           != nullptr) delete[] (pFaces);
 
     for (int i=0; i<MAX_NUM_MATERIALS; i++)
     {

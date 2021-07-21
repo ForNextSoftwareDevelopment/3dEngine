@@ -18,22 +18,22 @@ class Material
         std::string name;
 
         // Ambient color albedo
-        VecMat::Vec3 *pKa;
+        VecMat::Vec3 Ka;
 
         // Diffuse color albedo
-        VecMat::Vec3 *pKd;
+        VecMat::Vec3 Kd;
 
         // Specular color albedo
-        VecMat::Vec3 *pKs;
+        VecMat::Vec3 Ks;
 
         // Specular reflectivity factor
-        GLint iKn;
+        GLint Kn;
 
         // Illumination model
-        GLint iIllum;
+        GLint Illum;
 
         // Texture (raw) data
-        GLubyte *pTextureData;
+        GLubyte *pTextureColorData;
 
         // Texture Normal (raw) data
         GLubyte *pTextureNormalData;
@@ -60,9 +60,9 @@ class Material
         ~Material (void);
 
         // Read texture from a bmp file
-        void ReadTexture (const char *fileName);
+        bool ReadTexture (const char *fileName);
 
         // Read normal texture from a bmp file
-        void ReadNormalTexture (const char *fileName);
+        bool ReadNormalTexture (const char *fileName);
 };
 
