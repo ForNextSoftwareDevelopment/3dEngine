@@ -11,13 +11,17 @@
 #include "resource.h"
 #include "Files.h"
 #include "Utils.h"
+#include "VecMat.h"
 
 // Switch for debugging (shows info window)
 #define DEBUG
 #undef  DEBUGNORMALMAP
 #undef  DEBUGHID
-#define DEBUGHDK
+#undef  DEBUGHDK
 #undef  DEBUGTRIANGULATE
+
+// Max number of lines before clearing
+#define MAXLINES 200
 
 namespace Error
 {
@@ -56,6 +60,15 @@ namespace Error
 
      // Show message info window on screen (ascii)
     void ShowInfoWindow (const char *message);
+
+    // Show message info window on screen (vector)
+    void ShowInfoWindow(VecMat::Vec4 vec4);
+
+    // Show message info window on screen (matrix)
+    void ShowInfoWindow(VecMat::Mat4 mat4);
+
+    // Clear all messages in info window
+    void ClearInfoWindow (void);
 
     // Windows procedure (handle messages for the 'info' window)
     LRESULT CALLBACK WndProcInfo (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

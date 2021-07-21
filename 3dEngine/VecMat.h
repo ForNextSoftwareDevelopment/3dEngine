@@ -293,6 +293,25 @@ namespace VecMat
     };
 
     /*********************************************************************
+    * Normalize a Vec4 vector
+    *********************************************************************/
+    inline Vec4 Normalize(Vec4 vec4)
+    {
+        // Normalize this vector
+        float normFactor = sqrt(vec4[0] * vec4[0] + vec4[1] * vec4[1] + vec4[2] * vec4[2] + vec4[3] * vec4[3]);
+
+        if (normFactor != 0.0f)
+        {
+            vec4[0] = vec4[0] / normFactor;
+            vec4[1] = vec4[1] / normFactor;
+            vec4[2] = vec4[2] / normFactor;
+            vec4[3] = vec4[3] / normFactor;
+        }
+
+        return (vec4);
+    }
+
+    /*********************************************************************
     * 3 by 3 matrix
     *********************************************************************/
     class Mat3
@@ -303,6 +322,7 @@ namespace VecMat
 
             Vec3 column[3];
 
+            // Constructor (null matrix)
             inline Mat3 ()
             {
                 column[0] = Vec3 (0.0f, 0.0f, 0.0f);
@@ -361,6 +381,7 @@ namespace VecMat
 
             Vec4 column[4];
 
+            // Constructor (null matrix)
             inline Mat4 ()
             {
                 column[0] = Vec4 (0.0f, 0.0f, 0.0f, 0.0f);
@@ -459,6 +480,7 @@ namespace VecMat
                 column[2].row[3] = -1.0f;
 
                 column[3].row[2] = -((2.0f * f * n) / (f - n));
+                column[3].row[3] = 0.0f;
             }
     };
 
@@ -483,6 +505,7 @@ namespace VecMat
                 column[2].row[2] = B;
                 column[2].row[3] = -1.0f;
                 column[3].row[2] = C;
+                column[3].row[3] = 0.0f;
             }
     };
 
@@ -560,10 +583,19 @@ namespace VecMat
     {
         private:
 
-            float rads_x, rads_y, rads_z;
-            float A, B, C, D, E, F;
+            float rads_x = 0.0f;
+            float rads_y = 0.0f;
+            float rads_z = 0.0f;
+            float A = 0.0f;
+            float B = 0.0f;
+            float C = 0.0f; 
+            float D = 0.0f;
+            float E = 0.0f;
+            float F = 0.0f;
 
         public:
+            
+            // From 3 angles 
             inline Rotate (float angle_x, float angle_y, float angle_z)
             {
                 rads_x = float(angle_x) * 0.0174532925f;
@@ -588,6 +620,56 @@ namespace VecMat
                 column[2].row[0] =  D;
                 column[2].row[1] = -B * C;
                 column[2].row[2] =  A * C;
+
+                column[3].row[3] = 1.0f;
+            }
+
+            // From a quaternion
+            inline Rotate (float r, float i, float j, float k)
+            {
+                column[0].row[0] = 1.0f - 2.0f * j * j - 2.0f * k * k;
+                column[0].row[1] = 2.0f * i * j + 2.0f * k * r;
+                column[0].row[2] = 2.0f * i * k - 2.0f * j * r;
+                column[0].row[3] = 0.0f;
+
+                column[1].row[0] = 2.0f * i * j - 2.0f * k * r;
+                column[1].row[1] = 1.0f - 2.0f * i * i - 2.0f * k * k;
+                column[1].row[2] = 2.0f * j * k + 2.0f * i * r;
+                column[1].row[3] = 0.0f;
+
+                column[2].row[0] = 2.0f * i * k + 2.0f * j * r;
+                column[2].row[1] = 2.0f * j * k - 2.0f * i * r;
+                column[2].row[2] = 1.0f - 2.0f * i * i - 2.0f * j * j;
+                column[2].row[3] = 0.0f;
+
+                column[3].row[0] = 0.0f;
+                column[3].row[1] = 0.0f;
+                column[3].row[2] = 0.0f;
+                column[3].row[3] = 1.0f;
+            }
+    };
+
+    /*********************************************************************
+    * 4 by 4 rotation matrix
+    *********************************************************************/
+    class RotateX : public Mat4
+    {
+        private:
+
+        public:
+
+            // Constructor 
+            inline RotateX(float angle_x)
+            {
+                float rads_x = float(angle_x) * 0.0174532925f;
+
+                column[0].row[0] = 1.0f;
+
+                column[1].row[1] = cos(rads_x);
+                column[1].row[2] = sin(rads_x);
+
+                column[2].row[1] = -sin(rads_x);
+                column[2].row[2] = cos(rads_x);
 
                 column[3].row[3] = 1.0f;
             }

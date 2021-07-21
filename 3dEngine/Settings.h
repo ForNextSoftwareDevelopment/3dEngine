@@ -18,25 +18,25 @@ typedef unsigned int RenderMode;
 struct struct_prefs
 {
     // Show settings flag
-    bool show_settings;
+    bool         show_settings      = false;
 
-    bool         show_axis;
-    int             hdk_offset_pos;
-    int             hdk_offset_angle;
-    VecMat::Vec3 diffuse_position;
+    bool         show_axis          = false;
+    int          hdk_offset_angle   = 0;
+    VecMat::Vec3 diffuse_position   = { 0, 0, 0 };
+    unsigned int terrain            = 0;
 
     // Preferences for shader
-    bool         show_textures;
-    bool         show_normalmap;
-    bool         repeat_textures;
-    bool         filter_textures;
-    bool         show_outlining;
-    int          vertex_size;
-    RenderMode   render_mode;
-    Color        ambient_light;
-    Color        diffuse_light;
-    float        pos_nearplane;
-    float        pos_farplane;
+    bool         show_textures      = false;
+    bool         show_normalmap     = false;
+    bool         repeat_textures    = false;
+    bool         filter_textures    = false;
+    bool         show_outlining     = false;
+    int          vertex_size        = 0;
+    RenderMode   render_mode        = RM_FACES;
+    Color        ambient_light      = { 0xFF, 0xFF, 0xFF, 0xFF };
+    Color        diffuse_light      = { 0xFF, 0xFF, 0xFF, 0xFF };
+    float        pos_nearplane      = 0.0f;
+    float        pos_farplane       = 0.0f;
 };
 
 class Settings

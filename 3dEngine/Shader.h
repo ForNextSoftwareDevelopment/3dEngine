@@ -4,7 +4,6 @@
 #include "Objects.h"
 #include "VecMat.h"
 
-#define DEBUG_SHADOWMAP
 #define SHADOWMAP_WIDTH  1024
 #define SHADOWMAP_HEIGHT 1024
 
@@ -33,9 +32,8 @@ typedef unsigned int RenderMode;
 #define NPBOTTOM         -1.0f
 #define NPTOP             1.0f
 
-// Default offset for left and right window (eye) on extended display
-#define DEFAULTOFFSETPOS   80
-#define DEFAULTOFFSETANGLE 10
+// Default angle offset for left and right window (eye) on extended display
+#define DEFAULTOFFSETANGLE 20
 
 class Shader
 {
@@ -75,22 +73,31 @@ class Shader
         // Size of the vertices drawn
         GLshort vertex_size;
 
-           // Mesh angles
+        // Mesh angles
         GLfloat angle_x, angle_y, angle_z;
 
+        // Mesh angles 
+        VecMat::Mat4 angle_matrix;
+        
         // Mesh position
         GLfloat pos_x, pos_y, pos_z;
 
-           // Ambient color
+        // Mesh position 
+        VecMat::Mat4 position_matrix;
+        
+        // Mesh offset (angles and translation)
+        VecMat::Mat4 offset_matrix;
+
+        // Ambient color
         Light ambient_light;
 
-           // Diffuse color
+        // Diffuse color
         Light diffuse_light;
 
         // Diffuse light position
         GLfloat diff_pos_x, diff_pos_y, diff_pos_z;
 
-           // Reflectivity factor
+        // Reflectivity factor
         GLint reflectivity;
 
         // Position of Near Plane
@@ -140,7 +147,7 @@ class Shader
         GLuint path_shadow_matrix_location;
         GLuint proj_matrix_location;
         GLuint proj_shadow_matrix_location;
-        GLuint lightspace_matrix_location;
+        GLuint path_lightspace_matrix_location;
 
         // Mesh texture
         GLuint texture_color_data_location;
@@ -197,9 +204,6 @@ class Shader
         // Shadow shader program name
         GLuint program_shadow;
 
-        // Matrix for HDK2 device
-        VecMat::Mat4 HDK2Matrix;
-
         // Vertex shader
         static const char *vs_source[];
 
@@ -228,7 +232,7 @@ class Shader
         void CreateTextures (void);
 
         // Draw all objects
-        void DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle);
+        void DrawObjects(bool shadowMap);
 
     public:
 
@@ -239,7 +243,7 @@ class Shader
         ~Shader (void);
 
         // Render mesh object
-        void Render (GLint screen_width, GLint screen_height, GLfloat offsetPos = 0.0f, GLfloat offsetAngle = 0.0f);
+        void Render (GLint screen_width, GLint screen_height);
 
         // Set color for ambient light
         void SetAmbientLight (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
@@ -248,13 +252,13 @@ class Shader
         void SetDiffuseLight (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 
         // Set position for diffuse light (and Bulb)
-           void SetDiffusePosition (GLfloat x, GLfloat y, GLfloat z);
+        void SetDiffusePosition (GLfloat x, GLfloat y, GLfloat z);
 
         // Set view angle
         void SetViewAngle (GLfloat angle_x, GLfloat angle_y, GLfloat angle_z);
 
-        // Get view angle (viewing from 'ground level' to left and right)
-        GLfloat GetViewAngle (void);
+        // Set view angle (quaternion)
+        void SetViewAngle (VecMat::Mat4 rotate);
 
         // Change view angle
         void ChangeViewAngle (GLfloat delta_angle_x, GLfloat delta_angle_y, GLfloat delta_angle_z);
@@ -264,6 +268,12 @@ class Shader
 
         // Change view position
         void ChangeViewPosition (GLfloat delta_pos_x, GLfloat delta_pos_y, GLfloat delta_pos_z);
+
+        // Get view position with provided delta
+        void GetDeltaViewPosition(GLfloat& x, GLfloat& y, GLfloat& z, GLfloat delta_pos_x, GLfloat delta_pos_y, GLfloat delta_pos_z);
+
+        // Set offset
+        void SetOffset (GLfloat pos_x, GLfloat pos_y, GLfloat pos_z, GLfloat angle_x, GLfloat angle_y, GLfloat angle_z);
 
         // Set near plane vision (perspective)
         void SetNearPlanePosition (GLfloat pos_np);

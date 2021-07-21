@@ -21,9 +21,9 @@ Objects::Objects (char *pApplicationFolder)
     // Reset all meshes / materials
     numMeshes = 0;
     numMaterials = 0;
-    for (int i = 0; i < MAX_NUM_MESHES; i++) pMeshArray[i] = NULL;
-    for (int i = 0; i < MAX_NUM_MATERIALS; i++) pMaterialArray[i] = NULL;
-     
+    for (int i = 0; i < MAX_NUM_MESHES; i++) pMeshArray[i] = nullptr;
+    for (int i = 0; i < MAX_NUM_MATERIALS; i++) pMaterialArray[i] = nullptr;
+
     try
     {
         // Create a sky(cube) as a first object
@@ -33,25 +33,10 @@ Objects::Objects (char *pApplicationFolder)
         CreateAxis();
 
         // Create terrain
-        CreateTerrain();
+        pTerrain = CreateTerrain();
 
-        /*
-        // Get a cone mesh
-        Cone *pCone = new Cone(2, 10, 10);
-        pCone->name = "Cone";
-        pCone->numMaterials = 1;
-
-        // Assign material to the mesh
-        pMaterial = new Material(("default-" + pCone->name).c_str());
-        pCone->pMaterialEntryList[0] = new MaterialEntry();
-        pCone->pMaterialEntryList[0]->pMaterial = pMaterial;
-
-        // Get all normals for this mesh
-        CalculateNormals(pCone);
-
-        // Add new Mesh to array of pointers (Objects list)
-        pMeshArray[numMeshes++] = pCone;
-        */
+        // Create a bulb (for directional lighting)
+        CreateBulb();
 
         // Open file stream (objets file)
         std::string strObjectsFile;
@@ -149,17 +134,175 @@ Objects::Objects (char *pApplicationFolder)
         // Close objects file
         objectsFile.close();
 
-        // Give a list of meshes read
-        std::string meshNames;
-        meshNames.clear();
-        for (unsigned int i=0; i<numMeshes; i++)
+        // Create some materials
+        unsigned int startMaterial = numMaterials;
+        for (unsigned int i = 0; i < 10; i++)
         {
-            meshNames.append("           " + pMeshArray[i]->name + "\r\n");
+            Material *pMaterial = new Material("Material" + Utils::IntToStr(i));
+
+            // Read texture
+            std::string fileTextureName = applicationFolder + "\\textures\\material" + Utils::IntToStr(i) + ".bmp";
+            std::string fileNormalName = applicationFolder + "\\textures\\material" + Utils::IntToStr(i) + "_normal.bmp";
+            bool result = pMaterial->ReadTexture(fileTextureName.c_str());
+            pMaterial->ReadNormalTexture(fileNormalName.c_str());
+
+            if (!result)
+            {
+                float r = Utils::Random();
+                float g = Utils::Random();
+                float b = Utils::Random();
+
+                pMaterial->Ka[0] = r;
+                pMaterial->Ka[1] = g;
+                pMaterial->Ka[2] = b;
+
+                pMaterial->Kd[0] = r;
+                pMaterial->Kd[1] = g;
+                pMaterial->Kd[2] = b;
+            }
+
+            // Add new Material to array of pointers (Material list)
+            pMaterialArray[numMaterials++] = pMaterial;
         }
+        
+        // Create random objects
+        for (unsigned int i=0; i<50; i++)
+        {
+            std::string texture;
 
-        // Write the list to the log file
-        Error::WriteLog("INFO", "Objects::Objects", ("Meshes read: \r\n" + meshNames).c_str());
+            // Set random positions and sizes
+            float randomX = (Utils::Random() - 0.5f) * 3;
+            float randomY =  Utils::Random()         * 3;
+            float randomZ = (Utils::Random() - 0.5f) * 3;
+            float randomW = Utils::Random();
+            float randomS = Utils::Random()  - 0.5f;
 
+            // Pick a shape
+            float shape = Utils::Random();
+            if ((shape >= 0.0f) && (shape < 0.25f)) 
+            {
+                // Get a cube mesh
+                Cube *pCube = new Cube(randomW * 2.0f);
+                pCube->pos_x = randomX * 50;
+                pCube->pos_y = randomY * 10;
+                pCube->pos_z = randomZ * 50;
+                pCube->speed_angle = randomS;
+                pCube->speed_pos = randomS;
+                pCube->name = "Cube" + Utils::IntToStr(i);
+                pCube->numMaterials = 1;
+
+                // Set material for this cube
+                MaterialEntry *pMaterialEntry = new MaterialEntry();
+                unsigned int index = (unsigned int) (startMaterial + Utils::Random() * (numMaterials - startMaterial - 1));
+                pMaterialEntry->pMaterial = pMaterialArray[index];
+                pCube->pMaterialEntryList[0] = pMaterialEntry;
+
+                // Get all normals for this mesh
+                CalculateNormals(pCube);
+
+                // Get all (bi-)tangents for this mesh
+                CalculateTangents(pCube);
+
+                // Calculate sizes in x,y and z direction
+                CalculateSizes(pCube);
+            
+                // Add new Mesh to array of pointers (Objects list)
+                pMeshArray[numMeshes++] = pCube;
+            }
+
+            if ((shape >= 0.25f) && (shape < 0.5f)) 
+            {
+                // Get a sphere mesh
+                Sphere *pSphere = new Sphere(randomW * 2.0f, 30, 30);
+                pSphere->pos_x = randomX * 50;
+                pSphere->pos_y = randomY * 10;
+                pSphere->pos_z = randomZ * 50;
+                pSphere->speed_angle = randomS;
+                pSphere->speed_pos = randomS;
+                pSphere->name = "Sphere" + Utils::IntToStr(i);
+                pSphere->numMaterials = 1;
+
+                // Set material for this cube
+                MaterialEntry *pMaterialEntry = new MaterialEntry();
+                unsigned int index = (unsigned int) (startMaterial + Utils::Random() * (numMaterials - startMaterial - 1));
+                pMaterialEntry->pMaterial = pMaterialArray[index];
+                pSphere->pMaterialEntryList[0] = pMaterialEntry;
+
+                // Get all normals for this mesh
+                CalculateNormals(pSphere);
+
+                // Get all (bi-)tangents for this mesh
+                CalculateTangents(pSphere);
+
+                // Calculate sizes in x,y and z direction
+                CalculateSizes(pSphere);
+            
+                // Add new Mesh to array of pointers (Objects list)
+                pMeshArray[numMeshes++] = pSphere;
+            }
+
+            if ((shape >= 0.50f) && (shape < 0.75f)) 
+            {
+                // Get a cone mesh
+                Cone *pCone = new Cone(randomW * 3.0f, 10, 10);
+                pCone->pos_x = randomX * 50;
+                pCone->pos_y = 0.0f;
+                pCone->pos_z = randomZ * 50;
+                pCone->speed_angle = randomS;
+                pCone->speed_pos = randomS;
+                pCone->name = "Cone" + Utils::IntToStr(i);
+                pCone->numMaterials = 1;
+
+                // Set material for this cube
+                MaterialEntry *pMaterialEntry = new MaterialEntry();
+                unsigned int index = (unsigned int) (startMaterial + Utils::Random() * (numMaterials - startMaterial - 1));
+                pMaterialEntry->pMaterial = pMaterialArray[index];
+                pCone->pMaterialEntryList[0] = pMaterialEntry;
+
+                // Get all normals for this mesh
+                CalculateNormals(pCone);
+
+                // Get all (bi-)tangents for this mesh
+                CalculateTangents(pCone);
+
+                // Calculate sizes in x,y and z direction
+                CalculateSizes(pCone);
+            
+                // Add new Mesh to array of pointers (Objects list)
+                pMeshArray[numMeshes++] = pCone;
+            }
+
+            if ((shape >= 0.75f) && (shape < 1.0f)) 
+            {
+                // Get a dome mesh
+                Dome *pDome = new Dome(randomW * 3.0f, 10, 10);
+                pDome->pos_x = randomX * 50;
+                pDome->pos_y = 0.0f;
+                pDome->pos_z = randomZ * 50;
+                pDome->speed_angle = randomS;
+                pDome->speed_pos = randomS;
+                pDome->name = "Dome" + Utils::IntToStr(i);
+                pDome->numMaterials = 1;
+
+                // Set material for this cube
+                MaterialEntry *pMaterialEntry = new MaterialEntry();
+                unsigned int index = (unsigned int) (startMaterial + Utils::Random() * (numMaterials - startMaterial - 1));
+                pMaterialEntry->pMaterial = pMaterialArray[index];
+                pDome->pMaterialEntryList[0] = pMaterialEntry;
+
+                // Get all normals for this mesh
+                CalculateNormals(pDome);
+
+                // Get all (bi-)tangents for this mesh
+                CalculateTangents(pDome);
+
+                // Calculate sizes in x,y and z direction
+                CalculateSizes(pDome);
+            
+                // Add new Mesh to array of pointers (Objects list)
+                pMeshArray[numMeshes++] = pDome;
+            }
+        }
     } catch (std::exception& e)
     {
         std::string message = "Exception: ";
@@ -321,7 +464,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine, std::string strObjects
                 while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
                 // Read x value
-                vertex.x = Utils::StrToFloat((char *)strValue.c_str()) + posX;
+                vertex.x = Utils::StrToFloat((char *)strValue.c_str());
 
                 // Skip to begin of next value
                 while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
@@ -331,7 +474,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine, std::string strObjects
                 while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
                 // Read y value
-                vertex.y = Utils::StrToFloat((char *)strValue.c_str()) + posY;
+                vertex.y = Utils::StrToFloat((char *)strValue.c_str());
 
                 // Skip to begin of next value
                 while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
@@ -341,7 +484,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine, std::string strObjects
                 while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
                 // Read z value
-                vertex.z = Utils::StrToFloat((char *)strValue.c_str()) + posZ;
+                vertex.z = Utils::StrToFloat((char *)strValue.c_str());
 
                 // Put the new vertex in the vertices list
                 vList.push_back(vertex);
@@ -376,7 +519,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine, std::string strObjects
                 while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
                 // Read x value
-                vertex.x = Utils::StrToFloat((char *)strValue.c_str()) + posX;
+                vertex.x = Utils::StrToFloat((char *)strValue.c_str());
 
                 // Skip to begin of next value
                 while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
@@ -386,7 +529,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine, std::string strObjects
                 while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
                 // Read y value
-                vertex.y = Utils::StrToFloat((char *)strValue.c_str()) + posY;
+                vertex.y = Utils::StrToFloat((char *)strValue.c_str());
 
                 // Skip to begin of next value
                 while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
@@ -396,7 +539,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine, std::string strObjects
                 while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
                 // Read z value
-                vertex.z = Utils::StrToFloat((char *)strValue.c_str()) + posZ;
+                vertex.z = Utils::StrToFloat((char *)strValue.c_str());
 
                 // Put the new vertex in the normals list
                 vnList.push_back(vertex);
@@ -431,7 +574,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine, std::string strObjects
                 while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
                 // Read x value
-                vertex.x = Utils::StrToFloat((char *)strValue.c_str()) + posX;
+                vertex.x = Utils::StrToFloat((char *)strValue.c_str());
 
                 // Skip to begin of next value
                 while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
@@ -441,7 +584,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine, std::string strObjects
                 while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
                 // Read y value
-                vertex.y = Utils::StrToFloat((char *)strValue.c_str()) + posY;
+                vertex.y = Utils::StrToFloat((char *)strValue.c_str());
 
                 // Skip to begin of next value
                 while ((pos < strObjectLine.length()) && ((strObjectLine[pos] == ' ') || (strObjectLine[pos] == '\t'))) pos++;
@@ -451,7 +594,7 @@ bool Objects::DecodeObjectLine(std::string strObjectLine, std::string strObjects
                 while ((pos < strObjectLine.length()) && (strObjectLine[pos] != ' ') && (strObjectLine[pos] != '\t')) strValue.push_back(strObjectLine[pos++]);
 
                 // Read z value
-                vertex.z = Utils::StrToFloat((char *)strValue.c_str()) + posZ;
+                vertex.z = Utils::StrToFloat((char *)strValue.c_str());
 
                 // Put the new vertex in the vertex texture list
                 vtList.push_back(vertex);
@@ -613,7 +756,7 @@ bool Objects::CreateCurrentMesh (std::string name)
 /*********************************************************************
 * Move the current mesh to the list and close it
 *********************************************************************/
-void Objects::ProcessCurrentMesh (void)
+bool Objects::ProcessCurrentMesh (void)
 {
     std::string error;
 
@@ -632,6 +775,11 @@ void Objects::ProcessCurrentMesh (void)
 
     try
     {
+        // Set position of the mesh
+        pCurrentMesh->pos_x = posX;
+        pCurrentMesh->pos_y = posY;
+        pCurrentMesh->pos_z = posZ;
+
         // Get the number of vertices in the Mesh
         pCurrentMesh->numVertices = (int)vList.size();
 
@@ -642,7 +790,8 @@ void Objects::ProcessCurrentMesh (void)
         offsetT += pCurrentMesh->numTextureVertices;
 
         // Allocate memory for vertices and clear this memory
-        pCurrentMesh->pVertices = (VecMat::Vertex *) malloc (pCurrentMesh->numVertices * sizeof(VecMat::Vertex));
+        pCurrentMesh->pVertices = new VecMat::Vertex[pCurrentMesh->numVertices];
+		if (pCurrentMesh->pVertices == nullptr) return false;
         ZeroMemory (pCurrentMesh->pVertices, pCurrentMesh->numVertices * sizeof(VecMat::Vertex));
 
         // Copy vertices from the list to the vertices memory block
@@ -653,8 +802,9 @@ void Objects::ProcessCurrentMesh (void)
         pCurrentMesh->numFaces = (int)fList.size();
 
         // Allocate memory for faces and clear this memory
-        pCurrentMesh->pFaces = (VecMat::Face *) malloc (pCurrentMesh->numFaces * sizeof(VecMat::Face));
-        ZeroMemory (pCurrentMesh->pFaces, pCurrentMesh->numFaces * sizeof(VecMat::Face));
+        pCurrentMesh->pFaces = new VecMat::Face[pCurrentMesh->numFaces];
+		if (pCurrentMesh->pFaces == nullptr) return false;
+		ZeroMemory (pCurrentMesh->pFaces, pCurrentMesh->numFaces * sizeof(VecMat::Face));
 
         // Copy faces from the list to the faces memory block
         VecMat::Face *pf = pCurrentMesh->pFaces;
@@ -672,8 +822,9 @@ void Objects::ProcessCurrentMesh (void)
             pCurrentMesh->numVertexNormals = (int)vList.size();
 
             // Allocate memory
-            pCurrentMesh->pVertexNormals = (VecMat::Vertex *) malloc (pCurrentMesh->numVertexNormals * sizeof(VecMat::Vertex));
-            ZeroMemory (pCurrentMesh->pVertexNormals, pCurrentMesh->numVertexNormals * sizeof(VecMat::Vertex));
+            pCurrentMesh->pVertexNormals = new VecMat::Vertex[pCurrentMesh->numVertexNormals];
+			if (pCurrentMesh->pVertexNormals == nullptr) return false;
+			ZeroMemory (pCurrentMesh->pVertexNormals, pCurrentMesh->numVertexNormals * sizeof(VecMat::Vertex));
 
             VecMat::Vertex *pvn = pCurrentMesh->pVertexNormals;
 
@@ -687,15 +838,13 @@ void Objects::ProcessCurrentMesh (void)
         // Check if texture mapping is provided (mappings and texture vertices present)
         if ((mList.size() != 0) && (vtList.size() != 0))
         {
-            // Set marker that mapping has been provided in this mesh
-            pCurrentMesh->mapped = true;
-
             // Set the number of texture vertices in the Mesh
             pCurrentMesh->numTextureVertices = (int)vtList.size();
 
             // Allocate memory
-            pCurrentMesh->pTextureVertices = (VecMat::Vertex *) malloc (pCurrentMesh->numTextureVertices * sizeof(VecMat::Vertex));
-            ZeroMemory (pCurrentMesh->pTextureVertices, pCurrentMesh->numTextureVertices * sizeof(VecMat::Vertex));
+            pCurrentMesh->pTextureVertices = new VecMat::Vertex[pCurrentMesh->numTextureVertices];
+			if (pCurrentMesh->pTextureVertices == nullptr) return false;
+			ZeroMemory (pCurrentMesh->pTextureVertices, pCurrentMesh->numTextureVertices * sizeof(VecMat::Vertex));
 
             VecMat::Vertex *pvt = pCurrentMesh->pTextureVertices;
 
@@ -737,8 +886,9 @@ void Objects::ProcessCurrentMesh (void)
             pCurrentMesh->numTextureVertices = pCurrentMesh->numVertices;
 
             // Allocate memory
-            pCurrentMesh->pTextureVertices = (VecMat::Vertex *) malloc (pCurrentMesh->numTextureVertices * sizeof(VecMat::Vertex));
-            ZeroMemory (pCurrentMesh->pTextureVertices, pCurrentMesh->numTextureVertices * sizeof(VecMat::Vertex));
+            pCurrentMesh->pTextureVertices = new VecMat::Vertex[pCurrentMesh->numTextureVertices];
+			if (pCurrentMesh->pTextureVertices == nullptr) return false;
+			ZeroMemory (pCurrentMesh->pTextureVertices, pCurrentMesh->numTextureVertices * sizeof(VecMat::Vertex));
 
             // Copy vertices from the list (now used as texture vertices) to the texture vertices memory block
             VecMat::Vertex *pvt = pCurrentMesh->pTextureVertices;
@@ -772,6 +922,12 @@ void Objects::ProcessCurrentMesh (void)
         // Calculate all (bi-)tangents for the current mesh
         CalculateTangents(pCurrentMesh);
 
+        // Calculate sizes for the current mesh (x, y and z)
+        CalculateSizes(pCurrentMesh);
+
+        // Add new Mesh to array of pointers (Objects list)
+        pMeshArray[numMeshes++] = pCurrentMesh;
+
         // Clear vertices, faces and mapping lists
         vList.clear();
         vtList.clear();
@@ -787,16 +943,18 @@ void Objects::ProcessCurrentMesh (void)
         Error::WriteLog("EXCEPTION", "Objects::ProcessCurrentMesh", message.c_str());
 
         // Free memory
-        free (pCurrentMesh->pVertices);
-        free (pCurrentMesh->pFaceNormals);
-        free (pCurrentMesh->pVertexNormals);
-        free (pCurrentMesh->pFaces);
-        free (pCurrentMesh->pTangents);
-        free (pCurrentMesh->pBiTangents);
+        delete[] (pCurrentMesh->pVertices);
+		delete[] (pCurrentMesh->pFaceNormals);
+		delete[] (pCurrentMesh->pVertexNormals);
+		delete[] (pCurrentMesh->pFaces);
+		delete[] (pCurrentMesh->pTangents);
+		delete[] (pCurrentMesh->pBiTangents);
     }
 
     // Set current object to NULL
     pCurrentMesh = NULL;
+
+	return (true);
 }
 
 /*********************************************************************
@@ -841,7 +999,8 @@ bool Objects::CalculateNormals(Mesh *pMesh)
         pMesh->numFaceNormals = (int)fnList.size();
 
         // Allocate memory for face normals and clear this memory
-        pMesh->pFaceNormals = (VecMat::Vertex *) malloc (pMesh->numFaceNormals * sizeof(VecMat::Vertex));
+        pMesh->pFaceNormals = new VecMat::Vertex[pMesh->numFaceNormals];
+		if (pMesh->pFaceNormals == nullptr) return false;
         ZeroMemory (pMesh->pFaceNormals, pMesh->numFaceNormals * sizeof(VecMat::Vertex));
 
         // Copy face normals from the list to the face normals memory block
@@ -852,8 +1011,9 @@ bool Objects::CalculateNormals(Mesh *pMesh)
         pMesh->numVertexNormals = pMesh->numVertices;
 
         // Allocate memory for vertex normals
-        pMesh->pVertexNormals = (VecMat::Vertex *) malloc (pMesh->numVertexNormals * sizeof(VecMat::Vertex));
-        ZeroMemory (pMesh->pVertexNormals, pMesh->numVertexNormals * sizeof(VecMat::Vertex));
+        pMesh->pVertexNormals = new VecMat::Vertex[pMesh->numVertexNormals];
+		if (pMesh->pVertexNormals == nullptr) return false;
+		ZeroMemory (pMesh->pVertexNormals, pMesh->numVertexNormals * sizeof(VecMat::Vertex));
         VecMat::Vertex *pvn = pMesh->pVertexNormals;
 
         // Check all faces for vertices in them and add the face normal to that vertex normal
@@ -904,22 +1064,32 @@ bool Objects::CalculateNormals(Mesh *pMesh)
 *********************************************************************/
 bool Objects::CalculateTangents(Mesh *pMesh)
 {
+    if ((pMesh->numTextureVertices == 0) || (pMesh->pTextureVertices == 0))
+    {
+        std::string message = "No texture vertices for: ";
+        message.append(pMesh->name);
+        Error::WriteLog("WARNING", "Objects::CalculateTangents", message.c_str());
+        return(false);
+    }
+
     try
     {
         // Set number of tangents
         pMesh->numTangents = pMesh->numVertices;
 
         // Allocate memory for tangents
-        pMesh->pTangents = (VecMat::Vertex *) malloc (pMesh->numTangents * sizeof(VecMat::Vertex));
-        ZeroMemory (pMesh->pTangents, pMesh->numTangents * sizeof(VecMat::Vertex));
+        pMesh->pTangents = new VecMat::Vertex[pMesh->numTangents];
+		if (pMesh->pTangents == nullptr) return false;
+		ZeroMemory (pMesh->pTangents, pMesh->numTangents * sizeof(VecMat::Vertex));
         VecMat::Vertex *pt = pMesh->pTangents;
 
         // Set number of bitangents
         pMesh->numBiTangents = pMesh->numVertices;
 
         // Allocate memory for bitangents
-        pMesh->pBiTangents = (VecMat::Vertex *) malloc (pMesh->numBiTangents * sizeof(VecMat::Vertex));
-        ZeroMemory (pMesh->pBiTangents, pMesh->numBiTangents * sizeof(VecMat::Vertex));
+        pMesh->pBiTangents = new VecMat::Vertex[pMesh->numBiTangents];
+		if (pMesh->pBiTangents == nullptr) return false;
+		ZeroMemory (pMesh->pBiTangents, pMesh->numBiTangents * sizeof(VecMat::Vertex));
         VecMat::Vertex *pbt = pMesh->pBiTangents;
 
         // Check all faces and calculate the (bi-)tangent for that face
@@ -994,15 +1164,15 @@ bool Objects::CalculateTangents(Mesh *pMesh)
             fbtList.push_back(fBiTangent);
         }
 
+        #ifdef DEBUGNORMALMAP
         // Error in calculation
         if (!result)
         {
             std::string message = "Could not calculate all (bi)tangent for: ";
             message.append(pMesh->name);
-            Error::WriteLog("WARNING", "Objects::ProcessCurrentMesh", message.c_str());
+            Error::WriteLog("WARNING", "Objects::CalculateTangents", message.c_str());
         }
 
-        #ifdef DEBUGNORMALMAP
         // Give info for all normals and (bi-)tangents
         if (pMesh->name != "Bulb")
         {
@@ -1090,9 +1260,6 @@ bool Objects::CalculateTangents(Mesh *pMesh)
             pbt[i].z = pbt[i].z / normFactor;
         }
 
-        // Add new Mesh to array of pointers (Objects list)
-        pMeshArray[numMeshes++] = pMesh;
-
         #ifdef DEBUGNORMALMAP
         // Give info for all normals and (bi-)tangents
         if (pMesh->name != "Bulb")
@@ -1162,6 +1329,46 @@ bool Objects::CalculateTangents(Mesh *pMesh)
         message.append(e.what());
         Error::WriteLog("EXCEPTION", "Objects::CalculateTangents", message.c_str());
         return (false);
+    }
+}
+
+/*********************************************************************
+* Calculate sizes for the current mesh (x, y and z)
+*********************************************************************/
+void Objects::CalculateSizes(Mesh* pMesh)
+{
+    if (pMesh->numVertices > 0)
+    {
+        float maxX = pMesh->pVertices[0].x; 
+        float maxY = pMesh->pVertices[0].y; 
+        float maxZ = pMesh->pVertices[0].z; 
+
+        float minX = pMesh->pVertices[0].x; 
+        float minY = pMesh->pVertices[0].y; 
+        float minZ = pMesh->pVertices[0].z; 
+
+        for (unsigned int i = 0; i < pMesh->numVertices; i++)
+        {
+            if (pMesh->pVertices[i].x > maxX) maxX = pMesh->pVertices[i].x;
+            if (pMesh->pVertices[i].y > maxY) maxY = pMesh->pVertices[i].y;
+            if (pMesh->pVertices[i].z > maxZ) maxZ = pMesh->pVertices[i].z;
+ 
+            if (pMesh->pVertices[i].x < minX) minX = pMesh->pVertices[i].x;
+            if (pMesh->pVertices[i].y < minY) minY = pMesh->pVertices[i].y;
+            if (pMesh->pVertices[i].z < minZ) minZ = pMesh->pVertices[i].z;
+
+            pMesh->center_x += pMesh->pVertices[i].x;
+            pMesh->center_y += pMesh->pVertices[i].y;
+            pMesh->center_z += pMesh->pVertices[i].z;
+        }
+
+        pMesh->size_x = abs(maxX - minX);
+        pMesh->size_y = abs(maxY - minY);
+        pMesh->size_z = abs(maxZ - minZ);
+
+        pMesh->center_x = pMesh->center_x / (float)pMesh->numVertices / 2.0f;
+        pMesh->center_y = pMesh->center_y / (float)pMesh->numVertices / 2.0f;
+        pMesh->center_z = pMesh->center_z / (float)pMesh->numVertices / 2.0f;
     }
 }
 
@@ -1435,7 +1642,12 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
             }
 
             // Put in the color
-            if (pMaterial != NULL) pMaterial->pKa = new VecMat::Vec3(Utils::StrToFloat((char *)red.c_str()), Utils::StrToFloat((char *)green.c_str()), Utils::StrToFloat((char *)blue.c_str()));
+            if (pMaterial != NULL) 
+            {
+                pMaterial->Ka[0] = Utils::StrToFloat((char*)red.c_str());
+                pMaterial->Ka[1] = Utils::StrToFloat((char*)green.c_str());
+                pMaterial->Ka[2] = Utils::StrToFloat((char*)blue.c_str());
+            }
         }
 
         // Diffuse color albedo found
@@ -1477,7 +1689,12 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
             }
 
             // Put in the color
-            if (pMaterial != NULL) pMaterial->pKd = new VecMat::Vec3(Utils::StrToFloat((char *)red.c_str()), Utils::StrToFloat((char *)green.c_str()), Utils::StrToFloat((char *)blue.c_str()));
+            if (pMaterial != NULL) 
+            {
+                pMaterial->Kd[0] = Utils::StrToFloat((char*)red.c_str());
+                pMaterial->Kd[1] = Utils::StrToFloat((char*)green.c_str());
+                pMaterial->Kd[2] = Utils::StrToFloat((char*)blue.c_str());
+            }
         }
 
         // Specular color albedo found
@@ -1519,7 +1736,12 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
             }
 
             // Put in the color
-            if (pMaterial != NULL) pMaterial->pKs = new VecMat::Vec3(Utils::StrToFloat((char *)red.c_str()), Utils::StrToFloat((char *)green.c_str()), Utils::StrToFloat((char *)blue.c_str()));
+            if (pMaterial != NULL)
+            {
+                pMaterial->Ks[0] = Utils::StrToFloat((char*)red.c_str());
+                pMaterial->Ks[1] = Utils::StrToFloat((char*)green.c_str());
+                pMaterial->Ks[2] = Utils::StrToFloat((char*)blue.c_str());
+            }
         }
 
         // Specular reflectivity found
@@ -1541,7 +1763,7 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
             }
 
             // Put in the color
-            if (pMaterial != NULL) pMaterial->iKn = atoi((char *)specular.c_str());
+            if (pMaterial != NULL) pMaterial->Kn = atoi((char *)specular.c_str());
         }
 
         // Illumination model found
@@ -1563,7 +1785,7 @@ bool Objects::DecodeMaterialLine(std::string strMaterialLine)
             }
 
             // Put in the color
-            if (pMaterial != NULL) pMaterial->iIllum = atoi((char *)illum.c_str());
+            if (pMaterial != NULL) pMaterial->Illum = atoi((char *)illum.c_str());
         }
     } catch (std::exception& e)
     {
@@ -1741,7 +1963,6 @@ void Objects::CreateSky (void)
         // Create sky (cube) object and add to the list
         Mesh *pMesh = new Mesh();
         pMesh->name = "Sky";
-        pMesh->mapped = true;
         pMeshArray[numMeshes] = pMesh;
         numMeshes++;
 
@@ -1749,7 +1970,8 @@ void Objects::CreateSky (void)
         pMesh->numVertices = 24;
 
         // Allocate memory for the Sky vertices
-        pMesh->pVertices = (VecMat::Vertex*) malloc (pMesh->numVertices * sizeof(VecMat::Vertex));
+        pMesh->pVertices = new VecMat::Vertex[pMesh->numVertices];
+		if (pMesh->pVertices == nullptr) return;
 
         // Fill this memory with 0's
         ZeroMemory(pMesh->pVertices, pMesh->numVertices * sizeof(VecMat::Vertex));
@@ -1797,7 +2019,8 @@ void Objects::CreateSky (void)
         pMesh->numFaces = 12;
 
         // Allocate memory for the Sky faces
-        pMesh->pFaces = (VecMat::Face*) malloc (pMesh->numFaces * sizeof(VecMat::Face));
+        pMesh->pFaces = new VecMat::Face[pMesh->numFaces];
+		if (pMesh->pFaces == nullptr) return;
 
         // Fill this memory with 0's
         ZeroMemory(pMesh->pFaces, pMesh->numFaces * sizeof(VecMat::Face));
@@ -1833,7 +2056,8 @@ void Objects::CreateSky (void)
         pMesh->numTextureVertices = 24;
 
         // Allocate memory for the Sky texture vertices
-        pMesh->pTextureVertices = (VecMat::Vertex*) malloc (pMesh->numTextureVertices * sizeof(VecMat::Vertex));
+        pMesh->pTextureVertices = new VecMat::Vertex[pMesh->numTextureVertices];
+		if (pMesh->pTextureVertices == nullptr) return;
 
         // Fill this memory with 0's
         ZeroMemory(pMesh->pTextureVertices, pMesh->numTextureVertices * sizeof(VecMat::Vertex));
@@ -1880,10 +2104,16 @@ void Objects::CreateSky (void)
         // Create a new material for the backplane
         pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("SkyBack");
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->iIllum = 1;
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKa = new VecMat::Vec3(2.0f, 2.0f, 2.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Illum = 1;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[0] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[1] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[2] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[2] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[2] = 0.0f;
 
         // Read texture
         std::string fileName = applicationFolder + "\\textures\\sky\\skyback.bmp";
@@ -1901,10 +2131,16 @@ void Objects::CreateSky (void)
         // Create a new material for the leftplane
         pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("SkyLeft");
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->iIllum = 1;
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKa = new VecMat::Vec3(2.0f, 2.0f, 2.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Illum = 1;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[0] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[1] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[2] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[2] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[2] = 0.0f;
 
         // Read texture
         fileName = applicationFolder + "\\textures\\sky\\skyleft.bmp";
@@ -1922,10 +2158,16 @@ void Objects::CreateSky (void)
         // Create a new material for the rightplane
         pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("SkyRight");
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->iIllum = 1;
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKa = new VecMat::Vec3(2.0f, 2.0f, 2.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Illum = 1;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[0] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[1] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[2] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[2] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[2] = 0.0f;
 
         // Read texture
         fileName = applicationFolder + "\\textures\\sky\\skyright.bmp";
@@ -1943,10 +2185,16 @@ void Objects::CreateSky (void)
         // Create a new material for the frontplane
         pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("SkyFront");
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->iIllum = 1;
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKa = new VecMat::Vec3(2.0f, 2.0f, 2.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Illum = 1;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[0] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[1] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[2] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[2] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[2] = 0.0f;
 
         // Read texture
         fileName = applicationFolder + "\\textures\\sky\\skyfront.bmp";
@@ -1964,10 +2212,16 @@ void Objects::CreateSky (void)
         // Create a new material for the topplane
         pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("SkyTop");
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->iIllum = 1;
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKa = new VecMat::Vec3(2.0f, 2.0f, 2.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Illum = 1;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[0] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[1] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[2] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[2] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[2] = 0.0f;
 
         // Read texture
         fileName = applicationFolder + "\\textures\\sky\\skytop.bmp";
@@ -1985,10 +2239,16 @@ void Objects::CreateSky (void)
         // Create a new material for the bottomplane
         pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
         pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("SkyBottom");
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->iIllum = 1;
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKa = new VecMat::Vec3(2.0f, 2.0f, 2.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Illum = 1;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[0] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[1] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[2] = 2.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[2] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[0] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[1] = 0.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[2] = 0.0f;
 
         // Read texture
         fileName = applicationFolder + "\\textures\\sky\\skybottom.bmp";
@@ -2013,7 +2273,155 @@ void Objects::CreateSky (void)
 }
 
 /*********************************************************************
-* Create Axis
+* Create a Terrain as a second object
+*********************************************************************/
+Mesh* Objects::CreateTerrain (void)
+{
+    try
+    {
+        // Create terrain object and add to the list
+        Mesh *pMesh = new Mesh();
+        pMesh->name = "Terrain";
+        pMeshArray[numMeshes] = pMesh;
+        numMeshes++;
+
+        // Create a new material for the terrain
+        pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("Terrain");
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Illum = 1;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[0] = 1.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[1] = 1.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ka[2] = 1.0f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[0] = 0.5f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[1] = 0.5f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Kd[2] = 0.5f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[0] = 0.1f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[1] = 0.1f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->Ks[2] = 0.1f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleX = 0.005f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleY = 0.005f;
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleZ = 0.005f;
+
+        // Read texture
+        std::string textureFileName = applicationFolder + "\\textures\\terrain0.bmp";
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadTexture(textureFileName.c_str());
+
+        // Read normal texture
+        std::string normalFileName = applicationFolder + "\\textures\\terrain0_normal.bmp";
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadNormalTexture((char *)normalFileName.c_str());
+
+        // Add new Material to array of pointers (Material list)
+        pMaterialArray[numMaterials++] = pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial;
+
+        // Insert the starting face for this material
+        pMesh->pMaterialEntryList[pMesh->numMaterials]->start = 0;
+
+        // Add material to counter
+        pMesh->numMaterials++;
+
+        // Create some more materials for terrain
+        unsigned int startMaterial = numMaterials;
+        for (unsigned int i = 1; i < 7; i++)
+        {
+            Material *pMaterial = new Material("Terrain" + Utils::IntToStr(i));
+            pMaterial->Illum = 1;
+            pMaterial->scaleX = 0.01f;
+            pMaterial->scaleY = 0.01f;
+            pMaterial->scaleZ = 0.01f;
+
+            // Read texture
+            std::string fileTextureName = applicationFolder + "\\textures\\terrain" + Utils::IntToStr(i) + ".bmp";
+            std::string fileNormalName = applicationFolder + "\\textures\\terrain" + Utils::IntToStr(i) + "_normal.bmp";
+            bool result = pMaterial->ReadTexture(fileTextureName.c_str());
+            pMaterial->ReadNormalTexture(fileNormalName.c_str());
+
+            if (!result)
+            {
+                float r = Utils::Random();
+                float g = Utils::Random();
+                float b = Utils::Random();
+
+                pMaterial->Ka[0] = r;
+                pMaterial->Ka[1] = g;
+                pMaterial->Ka[2] = b;
+
+                pMaterial->Kd[0] = r;
+                pMaterial->Kd[1] = g;
+                pMaterial->Kd[2] = b;
+            }
+
+            // Add new Material to array of pointers (Material list)
+            pMaterialArray[numMaterials++] = pMaterial;
+        }
+
+        // Number of vertices in the terrain
+        pMesh->numVertices = 4;
+
+        // Allocate memory for the Terrain vertices
+        pMesh->pVertices = new VecMat::Vertex[pMesh->numVertices];
+        if (pMesh->pVertices == nullptr) return NULL;
+
+        // Fill this memory with 0's
+        ZeroMemory(pMesh->pVertices, pMesh->numVertices * sizeof(VecMat::Vertex));
+
+        // Fill vertices list
+        VecMat::Vertex *ptrV = pMesh->pVertices;
+        *ptrV++ = VecMat::Vertex(-1000.0f, 0.0f, -1000.0f);
+        *ptrV++ = VecMat::Vertex(-1000.0f, 0.0f,  1000.0f);
+        *ptrV++ = VecMat::Vertex( 1000.0f, 0.0f,  1000.0f);
+        *ptrV++ = VecMat::Vertex( 1000.0f, 0.0f, -1000.0f);
+
+        // Number of faces in the Terrain (triangles, not squares)
+        pMesh->numFaces = 2;
+
+        // Allocate memory for the Terrain faces
+        pMesh->pFaces = new VecMat::Face[pMesh->numFaces];
+        if (pMesh->pFaces == nullptr) return NULL;
+
+        // Fill this memory with 0's
+        ZeroMemory(pMesh->pFaces, pMesh->numFaces * sizeof(VecMat::Face));
+
+        // Fill faces list
+        VecMat::Face *ptrF = pMesh->pFaces;
+
+        *ptrF++ = VecMat::Face(0, 1, 2);
+        *ptrF++ = VecMat::Face(2, 3, 0);
+
+        // Number of texture vertices in the Terrain
+        pMesh->numTextureVertices = 4;
+
+        // Allocate memory for the Terrain texture vertices
+        pMesh->pTextureVertices = new VecMat::Vertex[pMesh->numTextureVertices];
+        if (pMesh->pTextureVertices == nullptr) return NULL;
+
+        // Fill this memory with 0's
+        ZeroMemory(pMesh->pTextureVertices, pMesh->numTextureVertices * sizeof(VecMat::Vertex));
+
+        // Fill texture vertices list
+        VecMat::Vertex *ptrTV = pMesh->pTextureVertices;
+        *ptrTV++ = VecMat::Vertex(0.0f, 0.0f, 0.0f);
+        *ptrTV++ = VecMat::Vertex(1.0f, 0.0f, 0.0f);
+        *ptrTV++ = VecMat::Vertex(1.0f, 1.0f, 0.0f);
+        *ptrTV++ = VecMat::Vertex(0.0f, 1.0f, 0.0f);
+
+        // Calculate normals for this mesh
+        CalculateNormals(pMesh);
+
+        // Calculate (bi-)tangents for this mesh
+        CalculateTangents(pMesh);
+
+        return (pMesh);
+    } catch (std::exception& e)
+    {
+        std::string message = "Exception: ";
+        message.append(e.what());
+        Error::WriteLog("EXCEPTION", "Objects::CreateTerrain", message.c_str());
+        return NULL;
+    }
+}
+
+/*********************************************************************
+* Create Axis as a third object
 *********************************************************************/
 void Objects::CreateAxis (void)
 {
@@ -2046,106 +2454,50 @@ void Objects::CreateAxis (void)
     }
 }
 
+
 /*********************************************************************
-* Create a Terrain as a second object
+* Create Bulb as a fouth object
 *********************************************************************/
-void Objects::CreateTerrain (void)
+void Objects::CreateBulb (void)
 {
     try
     {
-        // Create terrain object and add to the list
-        Mesh *pMesh = new Mesh();
-        pMesh->name = "Terrain";
-        pMesh->mapped = true;
-        pMeshArray[numMeshes] = pMesh;
-        numMeshes++;
+        // Get a sphere mesh
+        Sphere *pSphere = new Sphere(0.2f, 10, 10);
+        pSphere->pos_x = 0.0f;
+        pSphere->pos_y = 0.0f;
+        pSphere->pos_z = 0.0f;
+        pSphere->speed_angle = 0.0f;
+        pSphere->speed_pos = 0.0f;
+        pSphere->name = "Bulb";
+        pSphere->numMaterials = 1;
 
-        // Create a new material for the terrain
-        pMesh->pMaterialEntryList[pMesh->numMaterials] = new MaterialEntry();
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial = new Material("Terrain");
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->iIllum = 1;
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKa = new VecMat::Vec3(1.0f, 1.0f, 1.0f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKd = new VecMat::Vec3(0.5f, 0.5f, 0.5f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->pKs = new VecMat::Vec3(0.1f, 0.1f, 0.1f);
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleX = 0.005f;
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleY = 0.005f;
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->scaleZ = 0.005f;
+        // Set material for this sphere
+        Material* pMaterial = new Material("MaterialBulb");
+        pMaterial->Ka[0] = 1.0f;
+        pMaterial->Ka[1] = 1.0f;
+        pMaterial->Ka[2] = 1.0f;
 
-        // Read texture
-        std::string textureFileName = applicationFolder + "\\textures\\terrain.bmp";
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadTexture(textureFileName.c_str());
+        MaterialEntry *pMaterialEntry = new MaterialEntry();
+        pMaterialEntry->pMaterial = pMaterial;
+        pSphere->pMaterialEntryList[0] = pMaterialEntry;
 
-        // Read normal texture
-        std::string normalFileName = applicationFolder + "\\textures\\terrain_normal.bmp";
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial->ReadNormalTexture((char *)normalFileName.c_str());
+        // Get all normals for this mesh
+        CalculateNormals(pSphere);
 
-        // Add new Material to array of pointers (Material list)
-        pMaterialArray[numMaterials++] = pMesh->pMaterialEntryList[pMesh->numMaterials]->pMaterial;
+        // Get all (bi-)tangents for this mesh
+        CalculateTangents(pSphere);
 
-        // Insert the starting face for this material
-        pMesh->pMaterialEntryList[pMesh->numMaterials]->start = 0;
+        // Calculate sizes in x,y and z direction
+        CalculateSizes(pSphere);
 
-        // Add material to counter
-        pMesh->numMaterials++;
-
-        // Number of vertices in the terrain
-        pMesh->numVertices = 4;
-
-        // Allocate memory for the Terrain vertices
-        pMesh->pVertices = (VecMat::Vertex*) malloc (pMesh->numVertices * sizeof(VecMat::Vertex));
-
-        // Fill this memory with 0's
-        ZeroMemory(pMesh->pVertices, pMesh->numVertices * sizeof(VecMat::Vertex));
-
-        // Fill vertices list
-        VecMat::Vertex *ptrV = pMesh->pVertices;
-        *ptrV++ = VecMat::Vertex(-1000.0f, 0.0f, -1000.0f);
-        *ptrV++ = VecMat::Vertex(-1000.0f, 0.0f,  1000.0f);
-        *ptrV++ = VecMat::Vertex( 1000.0f, 0.0f,  1000.0f);
-        *ptrV++ = VecMat::Vertex( 1000.0f, 0.0f, -1000.0f);
-
-        // Number of faces in the Terrain (triangles, not squares)
-        pMesh->numFaces = 2;
-
-        // Allocate memory for the Terrain faces
-        pMesh->pFaces = (VecMat::Face*) malloc (pMesh->numFaces * sizeof(VecMat::Face));
-
-        // Fill this memory with 0's
-        ZeroMemory(pMesh->pFaces, pMesh->numFaces * sizeof(VecMat::Face));
-
-        // Fill faces list
-        VecMat::Face *ptrF = pMesh->pFaces;
-
-        *ptrF++ = VecMat::Face(0, 1, 2);
-        *ptrF++ = VecMat::Face(2, 3, 0);
-
-        // Number of texture vertices in the Terrain
-        pMesh->numTextureVertices = 4;
-
-        // Allocate memory for the Terrain texture vertices
-        pMesh->pTextureVertices = (VecMat::Vertex*) malloc (pMesh->numTextureVertices * sizeof(VecMat::Vertex));
-
-        // Fill this memory with 0's
-        ZeroMemory(pMesh->pTextureVertices, pMesh->numTextureVertices * sizeof(VecMat::Vertex));
-
-        // Fill texture vertices list
-        VecMat::Vertex *ptrTV = pMesh->pTextureVertices;
-        *ptrTV++ = VecMat::Vertex(0.0f, 0.0f, 0.0f);
-        *ptrTV++ = VecMat::Vertex(1.0f, 0.0f, 0.0f);
-        *ptrTV++ = VecMat::Vertex(1.0f, 1.0f, 0.0f);
-        *ptrTV++ = VecMat::Vertex(0.0f, 1.0f, 0.0f);
-
-        // Calculate normals for this mesh
-        CalculateNormals(pMesh);
-
-        // Calculate (bi-)tangents for this mesh
-        CalculateTangents(pMesh);
-
+        // Add new Mesh to array of pointers (Objects list)
+        pMeshArray[numMeshes++] = pSphere;
     } catch (std::exception& e)
     {
         std::string message = "Exception: ";
         message.append(e.what());
-        Error::WriteLog("EXCEPTION", "Objects::CreateTerrain", message.c_str());
+        Error::WriteLog("EXCEPTION", "Objects::CreateBulb", message.c_str());
         return;
     }
 }

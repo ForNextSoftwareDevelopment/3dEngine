@@ -56,8 +56,11 @@ class Objects
         void CreateAxis(void);
             
         // Create terrain
-        void CreateTerrain(void);
+        Mesh* CreateTerrain(void);
 
+        // Create bulb
+        void CreateBulb(void);
+        
         // Decode a line from the object file
         bool DecodeObjectLine(std::string strObjectLine, std::string strObjectsFile, unsigned int lineObjectFile);
 
@@ -68,13 +71,16 @@ class Objects
         bool CreateCurrentMesh (std::string name);
 
         // Process current mesh
-        void ProcessCurrentMesh (void);
+        bool ProcessCurrentMesh (void);
 
         // Calculate all normals (face and vertex) for a mesh
         bool CalculateNormals(Mesh *pMesh);
 
         // Calculate all (bi-)tangents for a mesh
         bool CalculateTangents(Mesh *pMesh);
+
+        // Calculate sizes for the current mesh (x, y and z)
+        void CalculateSizes(Mesh* pMesh);
 
         // Read materials from a material file
         bool ReadMaterialFile (std::string name);
@@ -98,6 +104,9 @@ class Objects
 
         // Array of pointers to materials
         Material *pMaterialArray[MAX_NUM_MATERIALS];
+
+        // Terrain mesh 
+        Mesh* pTerrain = NULL;
 
         // Constructor
         Objects (char *pApplicationFolder);

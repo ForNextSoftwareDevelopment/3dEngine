@@ -38,8 +38,8 @@ namespace Error
         // Open debug log file
         FILE *logFile = NULL;
         time_t t;
-        std::string strTime;
-        std::string strMessage;
+        std::string strTime = "";
+        std::string strMessage = "";
 
         char buf[26];
         time(&t);
@@ -176,6 +176,77 @@ namespace Error
     }
 
     /*********************************************************************
+    * Show message info window on screen (vector)
+    *********************************************************************/
+    void ShowInfoWindow(VecMat::Vec4 vec4)
+    {
+        std::string message = "";
+
+        // X
+        message.append("X = ");
+        message.append(Utils::FloatToStr(vec4[0]));
+        message.append(", Y = ");
+        message.append(Utils::FloatToStr(vec4[1]));
+        message.append(", Z = ");
+        message.append(Utils::FloatToStr(vec4[2]));
+        message.append(", W = ");
+        message.append(Utils::FloatToStr(vec4[3]));
+        message.append("\r\n");
+
+        ShowInfoWindow(message);
+    }
+
+    /*********************************************************************
+    * Show message info window on screen (matrix)
+    *********************************************************************/
+    void ShowInfoWindow(VecMat::Mat4 mat4)
+    {
+        std::string message = "";
+
+        // Row0
+        message.append(Utils::FloatToStr(mat4[0][0]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[1][0]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[2][0]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[3][0]));
+        message.append("\r\n");
+
+        // Row1
+        message.append(Utils::FloatToStr(mat4[0][1]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[1][1]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[2][1]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[3][1]));
+        message.append("\r\n");
+
+        // Row2
+        message.append(Utils::FloatToStr(mat4[0][2]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[1][2]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[2][2]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[3][2]));
+        message.append("\r\n");
+
+        // Row3
+        message.append(Utils::FloatToStr(mat4[0][3]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[1][3]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[2][3]));
+        message.append(" ");
+        message.append(Utils::FloatToStr(mat4[3][3]));
+        message.append("\r\n");
+
+        ShowInfoWindow(message);
+    }
+
+    /*********************************************************************
     * Show message info window on screen (ascii)
     *********************************************************************/
     void ShowInfoWindow (const char *message)
@@ -207,12 +278,43 @@ namespace Error
             UpdateWindow(hWndInfoWindow);
         }
 
+        // If total number of text lines is over max then clear first
+        if (info.size() > MAXLINES)
+        {
+            info.clear();
+            info.push_back("Cleared old messages");
+        }
+
         // Add text
         if ((message != NULL) && (*message != 0))
         {
-            std::string strMessage;
-            strMessage.append(message);
-            strMessage.append("\r\n");
+            std::string strMessage = "";
+
+            // Check if message is to long for one line
+            const char* ptr = message;
+            int count = 0;
+
+            while (*ptr != NULL)
+            {
+                strMessage.append(ptr, 1);
+
+                count++;
+
+                if (*ptr == '\n')
+                {
+                    count = 0;
+                }
+
+                if (count >= 80)
+                {
+                    strMessage.append("\r\n");
+                    count = 0;
+                }
+
+                ptr++;
+            }
+
+            strMessage.append("\r\n\r\n");
 
             unsigned int beginPos = 0;
             unsigned int endPos = (int)strMessage.find("\r\n", beginPos);

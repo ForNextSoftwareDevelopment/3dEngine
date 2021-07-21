@@ -19,27 +19,27 @@ class Hid
 
     public:
 
-        typedef struct 
+        typedef struct HID_DEVICE_INFO
         {
-            char            *path                = nullptr;    // Platform-specific device path 
+            char            *path                = nullptr;  // Platform-specific device path 
             unsigned short   vendor_id           = 0;        // Device Vendor ID 
             unsigned short   product_id          = 0;        // Device Product ID
-            wchar_t         *serial_number       = nullptr;    // Serial Number
+            wchar_t         *serial_number       = nullptr;  // Serial Number
             unsigned short   version_number      = 0;        // Device Version Number 
-            wchar_t         *manufacturer_string = nullptr;    // Manufacturer String 
-            wchar_t         *product_string      = nullptr;    // Product string 
+            wchar_t         *manufacturer_string = nullptr;  // Manufacturer String 
+            wchar_t         *product_string      = nullptr;  // Product string 
             unsigned short   usage_page          = 0;        // Usage Page for this Device/Interface
             unsigned short   usage               = 0;        // Usage for this Device/Interface
             int              interface_number    = 0;        // The HID interface which this logical device represents
         } HID_DEVICE_INFO;
 
-        typedef struct 
+        typedef struct PACKET 
         {
             unsigned char first;
             unsigned char command;
             unsigned char sequence;
-            short          quat[4];
-            short          accel[3];
+            short         quat[4];
+            short         accel[3];
         } PACKET;
 
         bool HDK2;

@@ -20,7 +20,6 @@ CtrlColorSet    *Settings::csColorDiffuse;
 CtrlPosSet      *Settings::psPositionDiffuse;
 CtrlValue       *Settings::cvNearPlanePos;
 CtrlValue       *Settings::cvFarPlanePos;
-CtrlValue       *Settings::cvHdkOffsetPos;
 CtrlValue       *Settings::cvHdkOffsetAngle;
 
 // Control window handles
@@ -40,7 +39,6 @@ HWND Settings::hWndCsColorDiffuse;
 HWND Settings::hWndPsPositionDiffuse;
 HWND Settings::hWndCvNearPlanePos;
 HWND Settings::hWndCvFarPlanePos;
-HWND Settings::hWndCvHdkOffsetPos;
 HWND Settings::hWndCvHdkOffsetAngle;
 
 /*********************************************************************
@@ -96,7 +94,6 @@ Settings::~Settings(void)
     delete (csColorDiffuse);
     delete (cvNearPlanePos);
     delete (cvFarPlanePos);
-    delete (cvHdkOffsetPos);
     delete (cvHdkOffsetAngle);
 
     DestroyWindow(hWndSettings);
@@ -162,10 +159,6 @@ LRESULT CALLBACK Settings::WndProcSettings (HWND hWnd, UINT message, WPARAM wPar
             // Create a new positionbox for diffuse light position
             psPositionDiffuse = new CtrlPosSet("Diffuse Light (Offset) Position", Settings::prefs->diffuse_position, hWnd);
             hWndPsPositionDiffuse = psPositionDiffuse->Create(10, 360, 382, 40);
-
-            // Create a new valuebox for HDK2 position offset between windows (eyes) 
-            cvHdkOffsetPos = new CtrlValue("HDK2 eye position offset", Settings::prefs->hdk_offset_pos, hWnd);
-            hWndCvHdkOffsetPos = cvHdkOffsetPos->Create(300, 10, 80, 40);
 
             // Create a new valuebox for HDK2 angle offset between windows (eyes) 
             cvHdkOffsetAngle = new CtrlValue("HDK2 eye angle offset", Settings::prefs->hdk_offset_angle, hWnd);
@@ -303,12 +296,6 @@ LRESULT CALLBACK Settings::WndProcSettings (HWND hWnd, UINT message, WPARAM wPar
                     {
                         // Set new near plane position
                         if (cvFarPlanePos->GetStatus() > 0) Settings::prefs->pos_farplane = (float)cvFarPlanePos->GetStatus();
-                    }
-
-                    if (lParam == (LPARAM) hWndCvHdkOffsetPos)
-                    {
-                        // Set new near plane position
-                        if (cvHdkOffsetPos->GetStatus() > 0) Settings::prefs->hdk_offset_pos = cvHdkOffsetPos->GetStatus();
                     }
 
                     if (lParam == (LPARAM)hWndCvHdkOffsetAngle)

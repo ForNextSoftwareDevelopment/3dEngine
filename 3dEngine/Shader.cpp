@@ -29,7 +29,7 @@ const char *Shader::vs_source[] =
     "                                                                                                                                                                                                       \n"
     "uniform mat4 path_matrix;                                                                                                                                                                              \n"
     "uniform mat4 proj_matrix;                                                                                                                                                                              \n"
-    "uniform mat4 lightspace_matrix;                                                                                                                                                                        \n"
+    "uniform mat4 path_lightspace_matrix;                                                                                                                                                                        \n"
     "uniform vec2 screen_scale = vec2(1.0, 1.0);                                                                                                                                                            \n"
     "uniform vec3 diffuse_position = vec3(0.0, 0.0, 0.0);                                                                                                                                                   \n"
     "                                                                                                                                                                                                       \n"
@@ -38,7 +38,7 @@ const char *Shader::vs_source[] =
     "   mat3 normal_matrix = transpose(inverse(mat3(path_matrix)));                                                                                                                                         \n"
     "   vec4 P =  path_matrix * vec4(vertex_position,  1.0);                                                                                                                                                \n"
     "   vec4 D =  path_matrix * vec4(diffuse_position, 1.0);                                                                                                                                                \n"
-    "   vec4 Q =  lightspace_matrix * vec4(vertex_position,  1.0);                                                                                                                                                  \n"
+    "   vec4 Q =  path_lightspace_matrix * vec4(vertex_position,  1.0);                                                                                                                                                  \n"
     "                                                                                                                                                                                                       \n"
     "   vs_out.N = normal_matrix * normal_position;                                                                                                                                                         \n"
     "   vs_out.L = D.xyz - P.xyz;                                                                                                                                                                           \n"
@@ -122,9 +122,11 @@ const char *Shader::fs_source[] =
     "                                                                                                                                                                                                       \n"
     "   float bias = 0.005;                                                                                                                                                                                 \n"
     "   float shadow =  0.0;                                                                                                                                                                                \n"
+    "   float amount = 0.0;                                                                                                                                                                                 \n"
     "   if (closestDepth != 1.0)                                                                                                                                                                            \n"
     "   {                                                                                                                                                                                                   \n"
-    "       shadow = (currentDepth - bias) > closestDepth  ? 1.0 : 0.0;                                                                                                                                     \n"
+    "       amount = 1.0 - (currentDepth - closestDepth);                                                                                                                                                   \n"
+    "       shadow = (currentDepth - bias) > closestDepth ? amount : 0.0;                                                                                                                                   \n"
     "   }                                                                                                                                                                                                   \n"
     "                                                                                                                                                                                                       \n"
     "   if (texture_color_enable)                                                                                                                                                                           \n"
@@ -147,13 +149,14 @@ const char *Shader::fs_source[] =
     "       vec3  diffuse  = factor * vec3(diffuse_light) * diffuse_light.a * diffuse_albedo;                                                                                                               \n"
     "       vec3  specular = factor * pow(max(dot(R, V), 0.0), reflectivity) * specular_albedo / 5.0;                                                                                                       \n"
     "                                                                                                                                                                                                       \n"
-    "       color =                         texture(texture_color_data, tex_pos) * vec4(ambient,  1.0);                                                                                                     \n"
-    "       color = color + (1.0- shadow) * texture(texture_color_data, tex_pos) * vec4(diffuse,  1.0);                                                                                                     \n"
-    "       color = color + (1.0- shadow) * diffuse_light                        * vec4(specular, 1.0);                                                                                                     \n"
+    "       color =                          texture(texture_color_data, tex_pos) * vec4(ambient,  1.0);                                                                                                    \n"
+    "       color = color + (1.0 - shadow) * texture(texture_color_data, tex_pos) * vec4(diffuse,  1.0);                                                                                                    \n"
+    "       color = color + (1.0 - shadow) * diffuse_light                        * vec4(specular, 1.0);                                                                                                    \n"
     "                                                                                                                                                                                                       \n"
     "       if (test)                                                                                                                                                                                       \n"
     "       {                                                                                                                                                                                               \n"
     "           //color = vec4(Normal, 1.0);                                                                                                                                                                  \n"
+    "           //color = vec4(vec3(amount), 1.0);                                                                                                                                                            \n"
     "           if (currentDepth >  closestDepth) color = vec4(currentDepth - closestDepth, 0.0, 0.0, 1.0);                                                                                                 \n"
     "           if (currentDepth <  closestDepth) color = vec4(0.0, 0.0, closestDepth - currentDepth, 1.0);                                                                                                 \n"
     "           if ((currentDepth > closestDepth) && (currentDepth < closestDepth + 0.05)) color = vec4(1.0, 1.0, 0.0, 1.0);                                                                                \n"
@@ -170,9 +173,9 @@ const char *Shader::fs_source[] =
     "       vec3  diffuse  = factor * vec3(diffuse_light) * diffuse_light.a * diffuse_albedo;                                                                                                               \n"
     "       vec3  specular = factor * pow(max(dot(R, V), 0.0), reflectivity) * specular_albedo / 5.0;                                                                                                       \n"
     "                                                                                                                                                                                                       \n"
-    "       color =                         vec4(ambient,  1.0);                                                                                                                                            \n"
-    "       color = color + (1.0- shadow) * vec4(diffuse,  1.0);                                                                                                                                            \n"
-    "       color = color + (1.0- shadow) * vec4(specular, 1.0);                                                                                                                                            \n"
+    "       color =                          vec4(ambient,  1.0);                                                                                                                                           \n"
+    "       color = color + (1.0 - shadow) * vec4(diffuse,  1.0);                                                                                                                                           \n"
+    "       color = color + (1.0 - shadow) * vec4(specular, 1.0);                                                                                                                                           \n"
     "                                                                                                                                                                                                       \n"
     "       if (test)                                                                                                                                                                                       \n"
     "       {                                                                                                                                                                                               \n"
@@ -243,6 +246,22 @@ Shader::Shader (Objects *pObjects)
     vertex_size     = 1;
     ambient_light    = { 1.0f, 1.0f, 1.0f, 0.3f };
     diffuse_light    = { 1.0f, 1.0f, 1.0f, 5.0f };
+
+    // Init position, angle and offset matrix (make unit matrix)
+    position_matrix.column[0].row[0] = 1.0f;
+    position_matrix.column[1].row[1] = 1.0f;
+    position_matrix.column[2].row[2] = 1.0f;
+    position_matrix.column[3].row[3] = 1.0f;
+
+    angle_matrix.column[0].row[0] = 1.0f;
+    angle_matrix.column[1].row[1] = 1.0f;
+    angle_matrix.column[2].row[2] = 1.0f;
+    angle_matrix.column[3].row[3] = 1.0f;
+
+    offset_matrix.column[0].row[0] = 1.0f;
+    offset_matrix.column[1].row[1] = 1.0f;
+    offset_matrix.column[2].row[2] = 1.0f;
+    offset_matrix.column[3].row[3] = 1.0f;
 
     // Set objects to render
     this->pObjects = pObjects;
@@ -433,8 +452,8 @@ void Shader::CreatePrograms(void)
         path_matrix_location = glGetUniformLocation(program, "path_matrix");
         proj_matrix_location = glGetUniformLocation(program, "proj_matrix");
 
-        // Get the location of the lightspace matrix (for shadows)
-        lightspace_matrix_location = glGetUniformLocation(program, "lightspace_matrix");
+        // Get the location of the path matrix (for shadows)
+        path_lightspace_matrix_location = glGetUniformLocation(program, "path_lightspace_matrix");
 
         // Get the location of the object vertices, normal vertices, texture vertices and (bi-)tangent vectors
         vertex_position_location = glGetAttribLocation(program, "vertex_position");
@@ -549,36 +568,36 @@ void Shader::CreateBuffers(void)
             glBufferData (GL_ARRAY_BUFFER, bufSize, NULL, GL_STATIC_DRAW);
 
             // Put vertices in the buffer.
-            glBufferSubData(GL_ARRAY_BUFFER, 0,
-                            pObjects->pMeshArray[i]->numVertices * sizeof(VecMat::Vertex),
-                            pObjects->pMeshArray[i]->pVertices);
+            glBufferSubData(GL_ARRAY_BUFFER,  0,
+                                              pObjects->pMeshArray[i]->numVertices * sizeof(VecMat::Vertex),
+                                              pObjects->pMeshArray[i]->pVertices);
 
             // Put vertex normals in the buffer.
-            glBufferSubData(GL_ARRAY_BUFFER, pObjects->pMeshArray[i]->numVertices * sizeof(VecMat::Vertex),
-                            pObjects->pMeshArray[i]->numVertexNormals * sizeof(VecMat::Vertex),
-                            pObjects->pMeshArray[i]->pVertexNormals);
+            glBufferSubData(GL_ARRAY_BUFFER,  pObjects->pMeshArray[i]->numVertices * sizeof(VecMat::Vertex),
+                                              pObjects->pMeshArray[i]->numVertexNormals * sizeof(VecMat::Vertex),
+                                              pObjects->pMeshArray[i]->pVertexNormals);
 
             // Put texture vertices in the buffer.
-            glBufferSubData(GL_ARRAY_BUFFER, (pObjects->pMeshArray[i]->numVertices + pObjects->pMeshArray[i]->numVertexNormals) * sizeof(VecMat::Vertex),
-                            pObjects->pMeshArray[i]->numTextureVertices * sizeof(VecMat::Vertex),
-                            pObjects->pMeshArray[i]->pTextureVertices);
+            glBufferSubData(GL_ARRAY_BUFFER, ((GLintptr)pObjects->pMeshArray[i]->numVertices + (GLintptr)pObjects->pMeshArray[i]->numVertexNormals) * sizeof(VecMat::Vertex),
+                                                        pObjects->pMeshArray[i]->numTextureVertices * sizeof(VecMat::Vertex),
+                                                        pObjects->pMeshArray[i]->pTextureVertices);
 
             // Put tangent vectors in the buffer.
-            glBufferSubData(GL_ARRAY_BUFFER, (pObjects->pMeshArray[i]->numVertices + pObjects->pMeshArray[i]->numVertexNormals + pObjects->pMeshArray[i]->numTextureVertices) * sizeof(VecMat::Vertex),
-                            pObjects->pMeshArray[i]->numTangents * sizeof(VecMat::Vertex),
-                            pObjects->pMeshArray[i]->pTangents);
+            glBufferSubData(GL_ARRAY_BUFFER, ((GLintptr)pObjects->pMeshArray[i]->numVertices + (GLintptr)pObjects->pMeshArray[i]->numVertexNormals + pObjects->pMeshArray[i]->numTextureVertices) * sizeof(VecMat::Vertex),
+                                                        pObjects->pMeshArray[i]->numTangents * sizeof(VecMat::Vertex),
+                                                        pObjects->pMeshArray[i]->pTangents);
 
             // Put bitangent vectors in the buffer.
-            glBufferSubData(GL_ARRAY_BUFFER, (pObjects->pMeshArray[i]->numVertices + pObjects->pMeshArray[i]->numVertexNormals + pObjects->pMeshArray[i]->numTextureVertices + pObjects->pMeshArray[i]->numTangents) * sizeof(VecMat::Vertex),
-                            pObjects->pMeshArray[i]->numBiTangents * sizeof(VecMat::Vertex),
-                            pObjects->pMeshArray[i]->pBiTangents);
+            glBufferSubData(GL_ARRAY_BUFFER, ((GLintptr)pObjects->pMeshArray[i]->numVertices + pObjects->pMeshArray[i]->numVertexNormals + (GLintptr)pObjects->pMeshArray[i]->numTextureVertices + pObjects->pMeshArray[i]->numTangents) * sizeof(VecMat::Vertex),
+                                                        pObjects->pMeshArray[i]->numBiTangents * sizeof(VecMat::Vertex),
+                                                        pObjects->pMeshArray[i]->pBiTangents);
 
             // Describe the data in the vertex buffer to OpenGL
             glVertexAttribPointer (vertex_position_location,    3, GL_FLOAT, GL_FALSE, 0, NULL);
-            glVertexAttribPointer (normal_position_location,    3, GL_FLOAT, GL_FALSE, 0, (void *) ( pObjects->pMeshArray[i]->numVertices * sizeof(VecMat::Vertex)));
-            glVertexAttribPointer (texture_position_location,   3, GL_FLOAT, GL_FALSE, 0, (void *) ((pObjects->pMeshArray[i]->numVertices + pObjects->pMeshArray[i]->numVertexNormals) * sizeof(VecMat::Vertex)));
-            glVertexAttribPointer (tangent_position_location,   3, GL_FLOAT, GL_FALSE, 0, (void *) ((pObjects->pMeshArray[i]->numVertices + pObjects->pMeshArray[i]->numVertexNormals + pObjects->pMeshArray[i]->numTextureVertices) * sizeof(VecMat::Vertex)));
-            glVertexAttribPointer (bitangent_position_location, 3, GL_FLOAT, GL_FALSE, 0, (void *) ((pObjects->pMeshArray[i]->numVertices + pObjects->pMeshArray[i]->numVertexNormals + pObjects->pMeshArray[i]->numTextureVertices + pObjects->pMeshArray[i]->numTangents) * sizeof(VecMat::Vertex)));
+            glVertexAttribPointer (normal_position_location,    3, GL_FLOAT, GL_FALSE, 0, (void *) ( (GLintptr)pObjects->pMeshArray[i]->numVertices * sizeof(VecMat::Vertex)));
+            glVertexAttribPointer (texture_position_location,   3, GL_FLOAT, GL_FALSE, 0, (void *) (((GLintptr)pObjects->pMeshArray[i]->numVertices + (GLintptr)pObjects->pMeshArray[i]->numVertexNormals) * sizeof(VecMat::Vertex)));
+            glVertexAttribPointer (tangent_position_location,   3, GL_FLOAT, GL_FALSE, 0, (void *) (((GLintptr)pObjects->pMeshArray[i]->numVertices + (GLintptr)pObjects->pMeshArray[i]->numVertexNormals + (GLintptr)pObjects->pMeshArray[i]->numTextureVertices) * sizeof(VecMat::Vertex)));
+            glVertexAttribPointer (bitangent_position_location, 3, GL_FLOAT, GL_FALSE, 0, (void *) (((GLintptr)pObjects->pMeshArray[i]->numVertices + (GLintptr)pObjects->pMeshArray[i]->numVertexNormals + (GLintptr)pObjects->pMeshArray[i]->numTextureVertices + (GLintptr)pObjects->pMeshArray[i]->numTangents) * sizeof(VecMat::Vertex)));
 
             // Turn it on
             glEnableVertexAttribArray (vertex_position_location);
@@ -634,7 +653,7 @@ void Shader::CreateTextures(void)
             glBindTexture(GL_TEXTURE_2D, texture_color_buffer[i]);
 
             // Set texture for this Mesh (if present)
-            if ((pObjects->pMaterialArray[i] != NULL) && (pObjects->pMaterialArray[i]->pTextureData != NULL))
+            if ((pObjects->pMaterialArray[i] != NULL) && (pObjects->pMaterialArray[i]->pTextureColorData != NULL))
             {
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -643,7 +662,7 @@ void Shader::CreateTextures(void)
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
                 // Set texture
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, pObjects->pMaterialArray[i]->textWidth, pObjects->pMaterialArray[i]->textHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pObjects->pMaterialArray[i]->pTextureData);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, pObjects->pMaterialArray[i]->textWidth, pObjects->pMaterialArray[i]->textHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pObjects->pMaterialArray[i]->pTextureColorData);
 
                 // Set texture buffer name in the material
                 pObjects->pMaterialArray[i]->texColorBuffer = texture_color_buffer[i];
@@ -782,7 +801,7 @@ void Shader::CreateFrameBuffer(void)
 /*********************************************************************
 * Render shader object
 *********************************************************************/
-void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, GLfloat offsetAngle)
+void Shader::Render(GLint screen_width, GLint screen_height)
 {
     try
     {
@@ -809,20 +828,8 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
             Error::CheckOpenGLError("Shader::Render - ProjMatrix (Shadows)");
         #endif
 
-        // Calculate the object-path matrix (for shadow shader)
-        VecMat::Vec3 eye = VecMat::Vec3(diff_pos_x, diff_pos_y, diff_pos_z);
-        VecMat::Vec3 center = VecMat::Vec3(0.0f, 0.0f, 0.0f);
-        VecMat::Vec3 up = VecMat::Vec3(0.0f, 1.0f, 0.0f);
-        VecMat::Mat4 path_shadow_matrix = VecMat::LookAt(eye, center, up);
-        glProgramUniformMatrix4fv(program_shadow, path_shadow_matrix_location, 1, GL_FALSE, path_shadow_matrix);
-
-        // Check for OpenGL errors and report in info file
-        #ifdef DEBUG
-            Error::CheckOpenGLError("Shader::Render - PathMatrix (Shadows)");
-        #endif
-
         // Draw all objects (shadow mode)
-        DrawObjects(true, offsetPos, offsetAngle);
+        DrawObjects(true);
 
         // Check for OpenGL errors and report in info file
         #ifdef DEBUG
@@ -879,15 +886,8 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
             Error::CheckOpenGLError("Shader::Render - ProjMatrix");
         #endif
 
-        glUniformMatrix4fv(lightspace_matrix_location, 1, GL_FALSE, path_shadow_matrix);
-
-        // Check for OpenGL errors and report in info file
-        #ifdef DEBUG
-        Error::CheckOpenGLError("Shader::Render - PathMatrix (Shadows)");
-        #endif
-
         // Draw all objects
-        DrawObjects(false, offsetPos, offsetAngle);
+        DrawObjects(false);
 
         // Check for OpenGL errors and report in info file
         #ifdef DEBUG
@@ -905,35 +905,22 @@ void Shader::Render(GLint screen_width, GLint screen_height, GLfloat offsetPos, 
 /*********************************************************************
 * Draw all objects
 *********************************************************************/
-void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
+void Shader::DrawObjects(bool shadowMap)
 {
     try
     {
-        // Calculate all (x,y and z) position offsets for the hdk2 device (if needed)
-        GLfloat offsetPosX = 0.0f;
-        GLfloat offsetPosY = 0.0f;
-        GLfloat offsetPosZ = 0.0f;
-        offsetPosX = offsetPos * cos(VecMat::DtoR(angle_y));
-        offsetPosZ = offsetPos * sin(VecMat::DtoR(angle_y));
-
-        // Calculate all (x,y and z) angle offsets for the hdk2 device (if needed)
-        GLfloat offsetAngleX = 0.0f;
-        GLfloat offsetAngleY = 0.0f;
-        GLfloat offsetAngleZ = 0.0f;
-        offsetAngleY = offsetAngle * cos(VecMat::DtoR(angle_x));
-
         // Clear previous frame values
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Render all objects
         for (unsigned int i = 0; i < pObjects->numMeshes; i++)
         {
+            // Bind the vertex array object
+            glBindVertexArray(vao[i]);
+
             // If Axis check if show is needed
             if ((pObjects->pMeshArray[i]->name.substr(0, 4) != "Axis") || (show_axis))
             {
-                // Bind the vertex array object
-                glBindVertexArray(vao[i]);
-
                 // Check for OpenGL errors and report in info file
                 #ifdef DEBUG
                 Error::CheckOpenGLError("Shader::DrawObjects - Bind Vertex Array");
@@ -951,14 +938,39 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
 
                 if (shadowMap)
                 {
-                    //Disable color rendering, we only want to write to the Z-Buffer
+                    // Disable color rendering, we only want to write to the Z-Buffer
                     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-                    // Don't draw the bulb, sky and axis in shadowmap
-                    if ((pObjects->pMeshArray[i]->name != "Bulb") && (pObjects->pMeshArray[i]->name != "Sky") && (pObjects->pMeshArray[i]->name != "Axis"))
+                    // Don't draw the terrain, bulb, sky and axis in shadowmap
+                    if ((pObjects->pMeshArray[i]->name != "Terrain") && (pObjects->pMeshArray[i]->name != "Bulb") && (pObjects->pMeshArray[i]->name != "Sky") && (pObjects->pMeshArray[i]->name != "Axis"))
                     {
                         // Set mode
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+                        // Calculate the object translate and rotation matrix (position and angle of object in scene)
+                        VecMat::Translate translate_matrix(pObjects->pMeshArray[i]->pos_x, pObjects->pMeshArray[i]->pos_y, pObjects->pMeshArray[i]->pos_z);
+                        VecMat::Rotate rotate_matrix(pObjects->pMeshArray[i]->angle_x, pObjects->pMeshArray[i]->angle_y, pObjects->pMeshArray[i]->angle_z);
+
+                        // Calculate the object-path matrix (for shadow shader)
+                        VecMat::Vec3 eye = VecMat::Vec3(diff_pos_x, diff_pos_y, diff_pos_z);
+                        VecMat::Vec3 center = VecMat::Vec3(0.0f, 0.0f, 0.0f);
+                        VecMat::Vec3 up = VecMat::Vec3(0.0f, 1.0f, 0.0f);
+                        VecMat::Mat4 lookat_matrix = VecMat::LookAt(eye, center, up);
+                        VecMat::Mat4 path_shadow_matrix = lookat_matrix * translate_matrix * rotate_matrix;
+                        glUniformMatrix4fv(path_shadow_matrix_location, 1, GL_FALSE, path_shadow_matrix);
+
+                        // Check for OpenGL errors and report in info file
+                        #ifdef DEBUG
+                        Error::CheckOpenGLError("Shader::DrawObjects - PathShadowMatrix");
+                        #endif
+
+                        // Set the lightspace matrix (for regular shader)
+                        glProgramUniformMatrix4fv(program, path_lightspace_matrix_location, 1, GL_FALSE, lookat_matrix);
+
+                        // Check for OpenGL errors and report in info file
+                        #ifdef DEBUG
+                        Error::CheckOpenGLError("Shader::DrawObjects - LightSpaceMatrix");
+                        #endif
 
                         // For all materials in this object, draw faces connected to it
                         for (unsigned int j = 0; j < pObjects->pMeshArray[i]->numMaterials; j++)
@@ -974,7 +986,7 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                             };
 
                             // Draw triangles
-                            glDrawElements(GL_TRIANGLES, 3 * num_triangles, GL_UNSIGNED_INT, (void*)(3 * pObjects->pMeshArray[i]->pMaterialEntryList[j]->start * sizeof(GL_UNSIGNED_INT)));
+                            glDrawElements(GL_TRIANGLES, 3 * num_triangles, GL_UNSIGNED_INT, (void*)(3ull * (unsigned long long)pObjects->pMeshArray[i]->pMaterialEntryList[j]->start * sizeof(GL_UNSIGNED_INT)));
                         };
 
                         // Check for OpenGL errors and report in info file
@@ -995,20 +1007,24 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                     Error::CheckOpenGLError("Shader::DrawObjects - Ambient Light");
                     #endif
 
+                    // Calculate the object translate and rotation matrix (position and angle of object in scene)
+                    VecMat::Translate translate_matrix(pObjects->pMeshArray[i]->pos_x, pObjects->pMeshArray[i]->pos_y, pObjects->pMeshArray[i]->pos_z);
+                    VecMat::Rotate rotate_matrix(pObjects->pMeshArray[i]->angle_x, pObjects->pMeshArray[i]->angle_y, pObjects->pMeshArray[i]->angle_z);
+
                     // Calculate the object-path matrix
-                    VecMat::Mat4 path_matrix = VecMat::Rotate(angle_x + offsetAngleX, angle_y + offsetAngleY, angle_z + offsetAngleZ) * VecMat::Translate(pos_x + offsetPosX, pos_y + offsetPosY, pos_z + offsetPosZ);
+                    VecMat::Mat4 path_matrix = angle_matrix * offset_matrix * position_matrix * translate_matrix * rotate_matrix;
                     glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
 
                     // Check for OpenGL errors and report in info file
                     #ifdef DEBUG
-                    Error::CheckOpenGLError("Shader::DrawObjects - ObjPathMatrix");
+                    Error::CheckOpenGLError("Shader::DrawObjects - PathMatrix");
                     #endif
 
                     // If Bulb (Light) then adjust the object-path matrix and set ambient color to max
                     if (pObjects->pMeshArray[i]->name == "Bulb")
                     {
                         // Set ambient light (color and power)
-                        glUniform4fv(ambient_light_location, 1, VecMat::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+                        glUniform4fv(ambient_light_location, 1, VecMat::Vec4(1.0f, 1.0f, 1.0f, 0.8f));
 
                         path_matrix = path_matrix * VecMat::Translate(this->diff_pos_x, this->diff_pos_y, this->diff_pos_z);
                         glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
@@ -1027,7 +1043,7 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                         // Set ambient light (color and power)
                         glUniform4fv(ambient_light_location, 1, VecMat::Vec4(1.0f, 1.0f, 1.0f, 0.8f));
 
-                        path_matrix = VecMat::Rotate(angle_x, angle_y, angle_z);
+                        path_matrix = angle_matrix * offset_matrix * VecMat::Translate(1.0f, 1.0f, 1.0f);
                         glUniformMatrix4fv(path_matrix_location, 1, GL_FALSE, path_matrix);
                     }
 
@@ -1043,7 +1059,7 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
 
                     // Check for OpenGL errors and report in info file
                     #ifdef DEBUG
-                    Error::CheckOpenGLError("Shader::DrawObjects - Bulb/Sky ObjPathMatrix");
+                    Error::CheckOpenGLError("Shader::DrawObjects - Bulb/Sky PathMatrix");
                     #endif
 
                     // Draw faces
@@ -1060,47 +1076,26 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                             else glProgramUniform1i(program, texture_color_enable_location, GL_FALSE);
 
                             // Set default texture normal map mode (enabled / disabled)
-                            if (show_normalmap && pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pTextureNormalData != NULL) glProgramUniform1i(program, texture_normal_enable_location, GL_TRUE);
+                            if (show_normalmap && pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial != NULL && pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pTextureNormalData != NULL) glProgramUniform1i(program, texture_normal_enable_location, GL_TRUE);
                             else glProgramUniform1i(program, texture_normal_enable_location, GL_FALSE);
 
                             // Set the material properties (if available)
                             if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial != NULL)
                             {
                                 // Set ambient material properties
-                                if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa != NULL)
-                                {
-                                    glProgramUniform3fv(program, ambient_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa);
-                                } else
-                                {
-                                    VecMat::Vec3 ambient_albedo(1.0f, 1.0f, 1.0f);
-                                    glProgramUniform3fv(program, ambient_albedo_location, 1, ambient_albedo);
-                                }
+                                glProgramUniform3fv(program, ambient_albedo_location, 1, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->Ka);
 
                                 // Set diffuse material properties
-                                if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKd != NULL)
-                                {
-                                    glProgramUniform3fv(program, diffuse_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKd);
-                                } else
-                                {
-                                    VecMat::Vec3 diffuse_albedo(0.64f, 0.64f, 0.64f);
-                                    glProgramUniform3fv(program, diffuse_albedo_location, 1, diffuse_albedo);
-                                }
+                                glProgramUniform3fv(program, diffuse_albedo_location, 1, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->Kd);
 
                                 // Set specular material properties
-                                if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKs != NULL)
-                                {
-                                    glProgramUniform3fv(program, specular_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKs);
-                                } else
-                                {
-                                    VecMat::Vec3 specular_albedo(0.5f, 0.5f, 0.5f);
-                                    glProgramUniform3fv(program, specular_albedo_location, 1, specular_albedo);
-                                }
+                                glProgramUniform3fv(program, specular_albedo_location, 1, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->Ks);
 
                                 // Set reflective material properties
-                                glProgramUniform1i(program, reflectivity_location, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->iKn);
+                                glProgramUniform1i(program, reflectivity_location, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->Kn);
 
                                 // Set illumination model
-                                glProgramUniform1i(program, illumination_location, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->iIllum);
+                                glProgramUniform1i(program, illumination_location, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->Illum);
 
                                 // Bind the texture to render (if available)
                                 if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->texColorBuffer != 0)
@@ -1227,7 +1222,7 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                             };
 
                             // Draw triangles
-                            glDrawElements(GL_TRIANGLES, 3 * num_triangles, GL_UNSIGNED_INT, (void*)(3 * pObjects->pMeshArray[i]->pMaterialEntryList[j]->start * sizeof(GL_UNSIGNED_INT)));
+                            glDrawElements(GL_TRIANGLES, 3 * num_triangles, GL_UNSIGNED_INT, (void*)(3ull * (unsigned long long)pObjects->pMeshArray[i]->pMaterialEntryList[j]->start * sizeof(GL_UNSIGNED_INT)));
                         }
 
                         if (show_outlining)
@@ -1260,14 +1255,7 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                         for (unsigned int j = 0; j < pObjects->pMeshArray[i]->numMaterials; j++)
                         {
                             // Set ambient material properties
-                            if (pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa != NULL)
-                            {
-                                glProgramUniform3fv(program, ambient_albedo_location, 1, *pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->pKa);
-                            } else
-                            {
-                                VecMat::Vec3 ambient_albedo(1.0f, 1.0f, 1.0f);
-                                glProgramUniform3fv(program, ambient_albedo_location, 1, ambient_albedo);
-                            }
+                            glProgramUniform3fv(program, ambient_albedo_location, 1, pObjects->pMeshArray[i]->pMaterialEntryList[j]->pMaterial->Ka);
 
                             // Calculate number of triangles to draw with this material
                             unsigned int num_triangles;
@@ -1280,7 +1268,7 @@ void Shader::DrawObjects(bool shadowMap, GLfloat offsetPos, GLfloat offsetAngle)
                             }
 
                             // Draw triangles
-                            glDrawElements(GL_TRIANGLES, 3 * num_triangles, GL_UNSIGNED_INT, (void*)(3 * pObjects->pMeshArray[i]->pMaterialEntryList[j]->start * sizeof(GL_UNSIGNED_INT)));
+                            glDrawElements(GL_TRIANGLES, 3 * num_triangles, GL_UNSIGNED_INT, (void*)(3ull * (unsigned long long)pObjects->pMeshArray[i]->pMaterialEntryList[j]->start * sizeof(GL_UNSIGNED_INT)));
                         }
                     }
 
@@ -1351,6 +1339,7 @@ void Shader::SetDiffusePosition (GLfloat x, GLfloat y, GLfloat z)
     this->diff_pos_y = y;
     this->diff_pos_z = z;
 
+    // Show shadowmap for this light position
     if (test)
     {
         try
@@ -1362,28 +1351,27 @@ void Shader::SetDiffusePosition (GLfloat x, GLfloat y, GLfloat z)
             glBindTexture(GL_TEXTURE_2D, texture_shadow_buffer);
 
             // Allocate memory
-            float *data = (float *)malloc(SHADOWMAP_WIDTH * SHADOWMAP_HEIGHT * sizeof(float));
+            float* pData = new float[SHADOWMAP_WIDTH * SHADOWMAP_HEIGHT];
 
             // Get data into memory
-            glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, data);
+            glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, pData);
 
             // Allocate memory
-            char *bmpData = (char *)malloc(SHADOWMAP_WIDTH * SHADOWMAP_HEIGHT * 3);
+            char* pBmpData = new char[SHADOWMAP_WIDTH * SHADOWMAP_HEIGHT * 3];
 
             for (int i = 0; i < (SHADOWMAP_WIDTH * SHADOWMAP_HEIGHT); i++)
             {
-                bmpData[3 * i] = (char)(data[i] * 255.0f);
-                bmpData[3 * i + 1] = (char)(data[i] * 255.0f);
-                bmpData[3 * i + 2] = (char)(data[i] * 255.0f);
+                pBmpData[3 * i    ] = (char)(pData[i] * 255.0f);
+                pBmpData[3 * i + 1] = (char)(pData[i] * 255.0f);
+                pBmpData[3 * i + 2] = (char)(pData[i] * 255.0f);
             }
 
             // Save bump from data
-            //Utils::WriteBmp(L"ShadowMap", SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, bmpData);
-            Utils::ShowBmp(L"ShadowMap", SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, bmpData);
+            //Utils::WriteBmp(L"ShadowMap", SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, pBmpData);
+            Utils::ShowBmp(L"ShadowMap", SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, pBmpData);
 
-            // De-Allocate memory
-            free(data);
-            free(bmpData);
+            delete[] (pData);
+            delete[] (pBmpData);
         } catch (...)
         {
             std::string message = "Error showing shadowmap bump";
@@ -1397,17 +1385,38 @@ void Shader::SetDiffusePosition (GLfloat x, GLfloat y, GLfloat z)
 *********************************************************************/
 void Shader::SetViewAngle (GLfloat angle_x, GLfloat angle_y, GLfloat angle_z)
 {
+    // Set angles for further calculations
     this->angle_x = angle_x;
     this->angle_y = angle_y;
     this->angle_z = angle_z;
+
+    if (this->angle_x > 360.0f) this->angle_x = angle_x - 360.0f;
+    if (this->angle_x < 0.0f)   this->angle_x = angle_x + 360.0f;
+
+    if (this->angle_y > 360.0f) this->angle_y = angle_y - 360.0f;
+    if (this->angle_y < 0.0f)   this->angle_y = angle_y + 360.0f;
+
+    if (this->angle_z > 360.0f) this->angle_z = angle_z - 360.0f;
+    if (this->angle_z < 0.0f)   this->angle_z = angle_z + 360.0f;
+
+    VecMat::Rotate rotate = VecMat::Rotate(angle_x, angle_y, angle_z);
+
+    angle_matrix = (VecMat::Mat4)rotate;
 }
 
 /*********************************************************************
-* Get view angle (viewing from 'ground level' to left and right)
+* Set view angle
 *********************************************************************/
-GLfloat Shader::GetViewAngle (void)
+void Shader::SetViewAngle (VecMat::Mat4 rotate)
 {
-    return (VecMat::DtoR(angle_y));
+    // Set angles for further calculations
+    this->angle_x = atan2(-rotate.column[2].row[1], rotate.column[2].row[2]) * 360.0f / (2.0f * PI);
+    this->angle_y = atan2( rotate.column[1].row[0], rotate.column[0].row[0]) * 360.0f / (2.0f * PI);
+    this->angle_z = asin ( rotate.column[2].row[0]) * 360.0f / (2.0f * PI);
+
+    // TODO: Check Gimbal angles if needed (check glitches in screen)
+
+    angle_matrix = rotate;
 }
 
 /*********************************************************************
@@ -1415,18 +1424,11 @@ GLfloat Shader::GetViewAngle (void)
 *********************************************************************/
 void Shader::ChangeViewAngle (GLfloat delta_angle_x, GLfloat delta_angle_y, GLfloat delta_angle_z)
 {
-    this->angle_x += delta_angle_x;
-    this->angle_y += delta_angle_y;
-    this->angle_z += delta_angle_z;
+    GLfloat x =  this->angle_x + delta_angle_x;
+    GLfloat y =  this->angle_y + delta_angle_y;
+    GLfloat z =  this->angle_z + delta_angle_z;
 
-    if (this->angle_x > 360.0f) this->angle_x = 0.0f;
-    if (this->angle_x < 0.0f)   this->angle_x = 360.0f;
-
-    if (this->angle_y > 360.0f) this->angle_y = 0.0f;
-    if (this->angle_y < 0.0f)   this->angle_y = 360.0f;
-
-    if (this->angle_z > 360.0f) this->angle_z = 0.0f;
-    if (this->angle_z < 0.0f)   this->angle_z = 360.0f;
+    SetViewAngle (x, y, z);
 }
 
 /*********************************************************************
@@ -1437,6 +1439,8 @@ void Shader::SetViewPosition (GLfloat pos_x, GLfloat pos_y, GLfloat pos_z)
     this->pos_x = pos_x;
     this->pos_y = pos_y;
     this->pos_z = pos_z;
+
+    position_matrix = VecMat::Translate(pos_x, pos_y, pos_z);
 }
 
 /*********************************************************************
@@ -1444,10 +1448,33 @@ void Shader::SetViewPosition (GLfloat pos_x, GLfloat pos_y, GLfloat pos_z)
 *********************************************************************/
 void Shader::ChangeViewPosition (GLfloat delta_pos_x, GLfloat delta_pos_y, GLfloat delta_pos_z)
 {
-    float viewAngle = GetViewAngle();
-    this->pos_x += (delta_pos_x * cos(viewAngle) - delta_pos_z * sin(viewAngle));
-    this->pos_y += delta_pos_y;
-    this->pos_z += (delta_pos_z * cos(viewAngle) + delta_pos_x * sin(viewAngle));
+    float viewAngleY = VecMat::DtoR(angle_y);
+
+    GLfloat x = this->pos_x + (delta_pos_x * cos(viewAngleY) - delta_pos_z * sin(viewAngleY));
+    GLfloat y = this->pos_y + delta_pos_y;
+    GLfloat z = this->pos_z + (delta_pos_z * cos(viewAngleY) + delta_pos_x * sin(viewAngleY));
+
+    SetViewPosition(x, y, z);
+}
+
+/*********************************************************************
+* Get view position with provided delta
+*********************************************************************/
+void Shader::GetDeltaViewPosition(GLfloat& x, GLfloat& y, GLfloat& z, GLfloat delta_pos_x, GLfloat delta_pos_y, GLfloat delta_pos_z)
+{
+    float viewAngleY = VecMat::DtoR(angle_y);
+    
+    x = -(this->pos_x + (delta_pos_x * cos(viewAngleY) - delta_pos_z * sin(viewAngleY)));
+    y = -(this->pos_y + delta_pos_y);
+    z = -(this->pos_z + (delta_pos_z * cos(viewAngleY) + delta_pos_x * sin(viewAngleY)));
+}
+
+/*********************************************************************
+* Set offset (rotation and translation)
+*********************************************************************/
+void Shader::SetOffset (GLfloat pos_x, GLfloat pos_y, GLfloat pos_z, GLfloat angle_x, GLfloat angle_y, GLfloat angle_z)
+{
+    offset_matrix = (VecMat::Mat4)VecMat::Rotate(angle_x, angle_y, angle_z) * (VecMat::Mat4)VecMat::Translate(pos_x, pos_y, pos_z);
 }
 
 /*********************************************************************
