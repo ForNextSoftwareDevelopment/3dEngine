@@ -7,7 +7,7 @@ opengl32.lib
 Setupapi.lib
 Hid.lib
 
-![Screenshot](Screenshot.png)
+![Screenshot](screenshot.png)
 
 This program is intended to give a start in developing a standalone application for the HDK2 virtual reality device.
 This because OSVR is no longer updated and developing the OSVR with the HDK2 device is quite cumbersome (according to to my view at least).
