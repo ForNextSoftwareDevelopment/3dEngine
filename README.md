@@ -7,8 +7,6 @@ opengl32.lib
 Setupapi.lib
 Hid.lib
 
-![Screenshot](screenshot.png)
-
 This program is intended to give a start in developing a standalone application for the HDK2 virtual reality device.
 This because OSVR is no longer updated and developing the OSVR with the HDK2 device is quite cumbersome (according to to my view at least).
 I like a direct approach so I open the device as a HID (Human Interface Device) and just get the data from there.
@@ -18,6 +16,8 @@ You could just look at the HID class in my code to build your own 3d application
 This engine is far from perfect, I made it several years ago (to give a try with OpenGL) and it can read (simple) object (.obj) and material files (.mtl), but for large objects it's not really usable.
 
 Copyright (c) 2019 Dirk Prins
+
+![Screenshot](screenshot.png)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
