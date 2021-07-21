@@ -6,10 +6,6 @@ class Dome: public Mesh
 {
     private:
 
-        // Pointers to the vertices and faces (copies to work with)
-        VecMat::Vertex *pV;
-        VecMat::Face   *pF;
-
     public:
 
         // Constructor

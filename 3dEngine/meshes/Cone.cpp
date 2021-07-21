@@ -5,6 +5,11 @@
 *********************************************************************/
 Cone::Cone(GLfloat radius, GLint resolution, GLuint numSegments)
 {
+    // Pointers to the (texture) vertices and faces (copies to work with)
+    VecMat::Vertex *pV;
+    VecMat::Vertex *pTV;
+    VecMat::Face   *pF;
+
     // Coordinates for vertices
     GLfloat x=0.0f, y=0.0f, z=0.0f;
 
@@ -18,7 +23,7 @@ Cone::Cone(GLfloat radius, GLint resolution, GLuint numSegments)
     numVertices = resolution * 4 * numSegments;
 
     // Allocate memory for the Cone vertices
-    pVertices = (VecMat::Vertex*) malloc (numVertices * sizeof(VecMat::Vertex));
+    pVertices = new VecMat::Vertex[numVertices];
 
     // Fill this memory with 0's
     ZeroMemory(pVertices, numVertices * sizeof(VecMat::Vertex));
@@ -26,11 +31,23 @@ Cone::Cone(GLfloat radius, GLint resolution, GLuint numSegments)
     // Copy vertices pointer to work with
     pV = pVertices;
 
+    // Number of texture vertices in the Sphere
+    numTextureVertices = resolution * 4 * numSegments;
+
+    // Allocate memory for the Sphere vertices
+    pTextureVertices = new VecMat::Vertex[numTextureVertices];
+
+    // Fill this memory with 0's
+    ZeroMemory(pTextureVertices, numTextureVertices * sizeof(VecMat::Vertex));
+
+    // Copy vertices pointer to work with
+    pTV = pTextureVertices;
+
     // Number of faces in the Cone (triangles, not squares)
     numFaces = resolution * 8 * numSegments;
 
     // Allocate memory for the Cone faces
-    pFaces = (VecMat::Face*) malloc (numFaces * sizeof(VecMat::Face));
+    pFaces = new VecMat::Face[numFaces];
 
     // Fill this memory with 0's
     ZeroMemory(pFaces, numFaces * sizeof(VecMat::Face));
@@ -62,6 +79,12 @@ Cone::Cone(GLfloat radius, GLint resolution, GLuint numSegments)
             pV->y = y;
             pV->z = z;
             pV++;
+
+            // Set texture positions
+            pTV->x = x / radius;
+            pTV->y = y / radius;
+            pTV->z = 0;
+            pTV++;
         };
 
         // Set vertices for the segment (other side of the segment, negative z)
@@ -79,6 +102,12 @@ Cone::Cone(GLfloat radius, GLint resolution, GLuint numSegments)
             pV->y = y;
             pV->z = z;
             pV++;
+
+            // Set texture positions
+            pTV->x = x / radius;
+            pTV->y = y / radius;
+            pTV->z = 0;
+            pTV++;
         };
 
         // Set faces for the Cone (from current segment to previous segment)
@@ -114,7 +143,8 @@ Cone::Cone(GLfloat radius, GLint resolution, GLuint numSegments)
 *********************************************************************/
 Cone::~Cone(void)
 {
-    if (pVertices != NULL) free (pVertices);
-    if (pFaces    != NULL) free (pFaces);
+    if (        pVertices != nullptr) delete[] (pVertices);
+    if ( pTextureVertices != nullptr) delete[] (pTextureVertices);
+    if (        pFaces    != nullptr) delete[] (pFaces);
 };
 

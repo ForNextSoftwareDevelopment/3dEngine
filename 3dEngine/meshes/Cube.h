@@ -6,7 +6,10 @@ class Cube: public Mesh
     private:
 
         // Vertices to form a Cube
-        VecMat::Vertex vertices[8];
+        VecMat::Vertex vertices[24];
+
+        // Texture Vertices to form a Cube
+        VecMat::Vertex textureVertices[24];
 
         // Faces to form a Cube (triangles, not squares)
         VecMat::Face faces[12];

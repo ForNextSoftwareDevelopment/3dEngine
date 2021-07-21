@@ -196,17 +196,53 @@ Axis::Axis(GLfloat size, char direction)
     // Assign materials to the mesh
     numMaterials = 2;
     Material *pMaterialPos = new Material((name + "-pos").c_str());
-    if (direction == 'x') pMaterialPos->pKa = new VecMat::Vec3(1.0f, 0.0f, 0.0f);
-    if (direction == 'y') pMaterialPos->pKa = new VecMat::Vec3(1.0f, 1.0f, 0.0f);
-    if (direction == 'z') pMaterialPos->pKa = new VecMat::Vec3(1.0f, 1.0f, 1.0f);
+    if (direction == 'x') 
+    {
+        pMaterialPos->Ka[0] = 1.0f;
+        pMaterialPos->Ka[1] = 0.0f;
+        pMaterialPos->Ka[2] = 0.0f;
+    }
+
+    if (direction == 'y') 
+    {
+        pMaterialPos->Ka[0] = 1.0f;
+        pMaterialPos->Ka[1] = 1.0f;
+        pMaterialPos->Ka[2] = 0.0f;
+    }
+
+    if (direction == 'z') 
+    {
+        pMaterialPos->Ka[0] = 1.0f;
+        pMaterialPos->Ka[1] = 1.0f;
+        pMaterialPos->Ka[2] = 1.0f;
+    }
+
     pMaterialEntryList[0] = new MaterialEntry();
     pMaterialEntryList[0]->pMaterial = pMaterialPos;
     pMaterialEntryList[0]->start = 0;
 
     Material *pMaterialNeg = new Material((name + "-neg").c_str());
-    if (direction == 'x') pMaterialNeg->pKa = new VecMat::Vec3(0.0f, 0.0f, 1.0f);
-    if (direction == 'y') pMaterialNeg->pKa = new VecMat::Vec3(0.0f, 1.0f, 0.0f);
-    if (direction == 'z') pMaterialNeg->pKa = new VecMat::Vec3(0.0f, 0.0f, 0.0f);
+    if (direction == 'x') 
+    {
+        pMaterialNeg->Ka[0] = 0.0f;
+        pMaterialNeg->Ka[1] = 0.0f;
+        pMaterialNeg->Ka[2] = 1.0f;
+    }
+
+    if (direction == 'y') 
+    {
+        pMaterialNeg->Ka[0] = 0.0f;
+        pMaterialNeg->Ka[1] = 1.0f;
+        pMaterialNeg->Ka[2] = 0.0f;
+    }
+
+    if (direction == 'z') 
+    {
+        pMaterialNeg->Ka[0] = 0.0f;
+        pMaterialNeg->Ka[1] = 0.0f;
+        pMaterialNeg->Ka[2] = 0.0f;
+    }
+
     pMaterialEntryList[1] = new MaterialEntry();
     pMaterialEntryList[1]->pMaterial = pMaterialNeg;
     pMaterialEntryList[1]->start = 12;
