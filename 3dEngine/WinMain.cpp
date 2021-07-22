@@ -608,7 +608,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         case WM_PAINT: 
             hdc = BeginPaint(hWnd, &ps); 
-            TextOutW(hdc, 300, 200, strMainWindow, wcslen(strMainWindow)); 
+            TextOutW(hdc, 300, 200, strMainWindow, (int)wcslen(strMainWindow)); 
             EndPaint(hWnd, &ps); 
             break;
 
