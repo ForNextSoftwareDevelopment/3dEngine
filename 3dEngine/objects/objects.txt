@@ -1,8 +1,6 @@
 # format is: objectfile X-position Y-position Z-position
 # as first character on a line means comment/disabled
  
-bulb.obj	0.0	0.0	0.0
-#plane.obj	0.0	0.0	0.0
 #castle.obj	0.0	0.01	0.0
 stone.obj	-3.0	3.0	-2.0 
 metal.obj	0.0	3.0	-2.0
